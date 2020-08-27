@@ -18,8 +18,9 @@ with open('CHANGELOG.md') as changelog_file:
     changelog = changelog_file.read()
 
 install_requirements = [
-    'eth-utils',
     'cryptography',
+    'eth-utils',
+    'requests',
 ]
 
 setup_requirements = ['pytest-runner', ]
