@@ -57,6 +57,16 @@ class ConvexAPI:
 
         return result['value']
 
+    def transfer(self, account, to_address_account, amount):
+        if isinstance(to_address_account, str):
+            to_address = remove_0x_prefix(to_address_account)
+        else:
+            to_address = remove_0x_prefix(to_address_account.address)
+        if not to_address:
+            raise ValueError(f'You must provide a valid to account/address ("{to_address_account}") to transfer funds too')
+        result = self.send(account, f'(transfer "{to_address}" {amount})')
+        return result
+
     def _prepare_transaction(self, address, transaction):
         prepare_url = urljoin(self._url, '/api/v1/transaction/prepare')
         data = {

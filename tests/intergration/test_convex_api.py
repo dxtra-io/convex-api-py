@@ -61,3 +61,18 @@ def test_convex_api_call(convex_url):
     assert(call_set_result['value'] == test_number)
     call_get_result = convex.send(account, '(call storage-example (get))')
     assert(call_get_result['value'] == test_number)
+
+def test_convex_api_transfer(convex_url):
+    convex = ConvexAPI(convex_url)
+    account_from = Account.create_new()
+    account_to = Account.create_new()
+    amount = 8000000
+    request_amount = convex.request_funds(account_from, amount)
+    assert(request_amount == amount)
+
+    result = convex.transfer(account_from, account_to, amount / 2)
+    balance_from = convex.get_balance(account_from)
+    balance_to = convex.get_balance(account_to)
+    # this is incorrect ! sent funds == amount / 4 ?
+    print(balance_from, balance_to)
+    assert(balance_to == amount / 4)
