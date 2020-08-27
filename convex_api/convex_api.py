@@ -52,7 +52,10 @@ class ConvexAPI:
     def get_balance(self, account):
         address = remove_0x_prefix(account.address)
         result = self.send(account, f'(balance "{address}")')
-        return result
+        if 'value' not in result:
+            raise ConvexAPIError('Cannot find returned balance value')
+
+        return result['value']
 
     def _prepare_transaction(self, address, transaction):
         prepare_url = urljoin(self._url, '/api/v1/transaction/prepare')
