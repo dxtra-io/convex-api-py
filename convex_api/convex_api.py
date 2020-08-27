@@ -31,7 +31,7 @@ class ConvexAPI:
         hash_data = self._prepare_transaction(account.address, transaction)
         signed_data = account.sign(hash_data['hash'])
         result = self._submit_transaction(account.address, hash_data['hash'], signed_data)
-        return result['value']
+        return result
 
     def request_funds(self, account, amount):
         faucet_url = urljoin(self._url, '/api/v1/faucet')
