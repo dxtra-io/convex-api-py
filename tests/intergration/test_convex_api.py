@@ -30,12 +30,13 @@ def test_convex_api_get_balance_no_funds(convex_url):
     new_balance = convex.get_balance(account)
     assert(new_balance == 0)
 
-def test_convex_api_get_balance_insufficent_funds(convex_url):
+def test_convex_api_get_balance_insufficent_funds(test_account, convex_url):
     convex = ConvexAPI(convex_url)
     account = Account.create_new()
     amount = 100
     request_amount = convex.request_funds(account, amount)
     with pytest.raises(ConvexAPIError, match='FUNDS'):
+        # new_balance = convex.get_balance(account, test_account)
         new_balance = convex.get_balance(account)
 
 def test_convex_api_get_balance_new_account(convex_url):

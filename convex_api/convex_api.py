@@ -39,26 +39,34 @@ class ConvexAPI:
             'address': remove_0x_prefix(account.address),
             'amount': amount
         }
-        logger.debug(f'send facuet request {faucet_url} {faucet_data}')
+        logger.debug(f'faucet_request {faucet_url} {faucet_data}')
         response = requests.post(faucet_url, data=json.dumps(faucet_data))
         if response.status_code != 200:
-            raise ConvexAPIError(f'request funds: {response.status_code} {response.text}')
+            raise ConvexAPIError(f'faucet_request: {response.status_code} {response.text}')
         result = response.json()
-        logger.debug(f'request funds result {result}')
+        logger.debug(f'faucet_request result {result}')
         if result['address'] != remove_0x_prefix(account.address):
-            raise ConvexAPIError(f'returned account is not correct {result["address"]}')
+            raise ConvexAPIError(f'faucet_request: returned account is not correct {result["address"]}')
         return result['amount']
 
-    def get_balance(self, address_account):
+    def get_balance(self, address_account, account_from=None):
         value = 0
         if isinstance(address_account, str):
             address = remove_0x_prefix(address_account)
         else:
             address = remove_0x_prefix(address_account.address)
-        result = self._transaction_query(address, f'(balance "{address}")')
+
+        address_from = address
+        if account_from:
+            if isinstance(account_from, str):
+                address_from = remove_0x_prefix(account_from)
+            else:
+                address_from = remove_0x_prefix(account_from.address)
+
+        result = self._transaction_query(address_from, f'(balance "{address}")')
         if 'error-code' in result:
             if result['error-code'] != 'NOBODY':
-                raise ConvexAPIError(f'get balance: {result["error-code"]}')
+                raise ConvexAPIError(f'get balance: {result["error-code"]} {result["value"]}')
         else:
             value = result['value']
         return value
@@ -79,13 +87,13 @@ class ConvexAPI:
             'address': remove_0x_prefix(address),
             'source': transaction,
         }
-        logger.debug(f'prepare transaction {prepare_url} {data}')
+        logger.debug(f'transaction_prepare {prepare_url} {data}')
         response = requests.post(prepare_url, data=json.dumps(data))
         if response.status_code != 200:
-            raise ConvexAPIError(f'prepare transaction: {response.status_code} {response.text}')
+            raise ConvexAPIError(f'transaction_prepare {response.status_code} {response.text}')
 
         result = response.json()
-        logger.debug(f'prepare repsonse {result}')
+        logger.debug(f'transaction_prepare repsonse {result}')
         return result
 
     def _transaction_submit(self, address, hash_data, signed_data):
@@ -95,14 +103,14 @@ class ConvexAPI:
             'hash': hash_data,
             'sig': remove_0x_prefix(signed_data)
         }
-        logger.debug(f'submit transaction {submit_url} {data}')
+        logger.debug(f'transaction_submit {submit_url} {data}')
         response = requests.post(submit_url, data=json.dumps(data))
         if response.status_code != 200:
-            raise ConvexAPIError(f'submit transaction: {response.status_code} {response.text}')
+            raise ConvexAPIError(f'transaction_submit {response.status_code} {response.text}')
         result = response.json()
-        logger.debug(f'submit repsonse {result}')
+        logger.debug(f'transaction_submit response {result}')
         if 'error-code' in result:
-            raise ConvexAPIError(f'submit transaction error: {result["error-code"]}')
+            raise ConvexAPIError(f'transaction_submit error: {result["error-code"]} {result["value"]}')
         return result
 
     def _transaction_query(self, address, transaction):
@@ -111,11 +119,11 @@ class ConvexAPI:
             'address': remove_0x_prefix(address),
             'source': transaction,
         }
-        logger.debug(f'query transaction {prepare_url} {data}')
+        logger.debug(f'transaction_query {prepare_url} {data}')
         response = requests.post(prepare_url, data=json.dumps(data))
         if response.status_code != 200:
-            raise ConvexAPIError(f'query transaction: {response.status_code} {response.text}')
+            raise ConvexAPIError(f'transaction_query: {response.status_code} {response.text}')
 
         result = response.json()
-        logger.debug(f'query repsonse {result}')
+        logger.debug(f'transaction_query repsonse {result}')
         return result
