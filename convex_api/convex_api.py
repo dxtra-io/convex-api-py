@@ -22,7 +22,7 @@ class ConvexAPI:
     def __init__(self, url):
         self._url = url
 
-    def send_transaction(self, account, transaction):
+    def send(self, account, transaction):
         if not transaction:
             raise ValueError('You need to provide a valid transaction')
         if not isinstance(transaction, str):
@@ -51,7 +51,7 @@ class ConvexAPI:
 
     def get_balance(self, account):
         address = remove_0x_prefix(account.address)
-        result = self.send_transaction(account, f'(balance "{address}")')
+        result = self.send(account, f'(balance "{address}")')
         return result
 
     def _prepare_transaction(self, address, transaction):
