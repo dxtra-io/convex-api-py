@@ -6,7 +6,11 @@
 import secrets
 
 from convex_api.account import Account
-from eth_utils import to_bytes, to_hex
+from eth_utils import (
+    remove_0x_prefix,
+    to_bytes,
+    to_hex
+)
 
 
 SIGN_HASH_TEXT = '5bb1ce718241bfec110552b86bb7cccf0d95b8a5f462fbf6dff7c48543622ba5'
@@ -21,6 +25,7 @@ def test_account_create_from_bytes(test_account_info):
     account = Account.create_from_bytes(test_account_info['private_bytes'])
     assert(account)
     assert(account.address == test_account_info['address'])
+    assert(account.address_clean == remove_0x_prefix(test_account_info['address']))
 
 def test_account_sign(test_account_info):
     hash_text = SIGN_HASH_TEXT

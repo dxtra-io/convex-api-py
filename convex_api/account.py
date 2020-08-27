@@ -7,6 +7,7 @@
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from eth_utils import (
+    remove_0x_prefix,
     to_bytes,
     to_hex
 )
@@ -30,6 +31,10 @@ class Account:
             format=serialization.PublicFormat.Raw
         )
         return to_hex(public_key_bytes)
+
+    @property
+    def address_clean(self):
+        return remove_0x_prefix(self.address)
 
     @staticmethod
     def create_new():
