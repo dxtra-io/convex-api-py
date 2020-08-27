@@ -4,9 +4,12 @@
 
 
 """
-from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives import serialization
-from eth_utils import remove_0x_prefix, to_hex, to_bytes
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+from eth_utils import (
+    to_bytes,
+    to_hex
+)
 
 
 class Account:
@@ -35,4 +38,3 @@ class Account:
     @staticmethod
     def create_from_bytes(value):
         return Account(Ed25519PrivateKey.from_private_bytes(value))
-

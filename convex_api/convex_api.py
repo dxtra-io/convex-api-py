@@ -7,11 +7,11 @@
 
 import json
 import logging
+from urllib.parse import urljoin
 import requests
 
 
-from eth_utils import remove_0x_prefix, to_hex, to_bytes
-from urllib.parse import urljoin
+from eth_utils import remove_0x_prefix
 
 from convex_api.exceptions import ConvexAPIError
 
@@ -21,7 +21,6 @@ logger = logging.getLogger(__name__)
 class ConvexAPI:
     def __init__(self, url):
         self._url = url
-
 
     def send_transaction(self, account, transaction):
         if not transaction:
@@ -40,14 +39,14 @@ class ConvexAPI:
             'address': remove_0x_prefix(account.address),
             'amount': amount
         }
-        logger.debug(f'send facuet request', faucet_data)
+        logger.debug(f'send facuet request {faucet_url} {faucet_data}')
         response = requests.post(faucet_url, data=json.dumps(faucet_data))
         if response.status_code != 200:
             raise ConvexAPIError(f'request funds: {response.status_code} {response.text}')
         result = response.json()
         logger.debug(f'request funds result {result}')
         if result['address'] != remove_0x_prefix(account.address):
-            raise  ConvexAPIError(f'returned account is not correct {result["address"]}')
+            raise ConvexAPIError(f'returned account is not correct {result["address"]}')
         return result['amount']
 
     def _prepare_transaction(self, address, transaction):
@@ -70,7 +69,6 @@ class ConvexAPI:
             'hash': hash_data,
             'sig': remove_0x_prefix(signed_data)
         }
-        url = 'https://convex.world/api/v1/transaction/submit'
         logger.debug(f'submit transaction {submit_url} {data}')
         response = requests.post(submit_url, data=json.dumps(data))
         if response.status_code != 200:
