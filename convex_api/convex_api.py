@@ -28,9 +28,9 @@ class ConvexAPI:
         if not isinstance(transaction, str):
             raise TypeError('The transaction must be a type str')
 
-        hash_data = self._prepare_transaction(account.address, transaction)
+        hash_data = self._transaction_prepare(account.address, transaction)
         signed_data = account.sign(hash_data['hash'])
-        result = self._submit_transaction(account.address, hash_data['hash'], signed_data)
+        result = self._transaction_submit(account.address, hash_data['hash'], signed_data)
         return result
 
     def request_funds(self, account, amount):
@@ -49,13 +49,19 @@ class ConvexAPI:
             raise ConvexAPIError(f'returned account is not correct {result["address"]}')
         return result['amount']
 
-    def get_balance(self, account):
-        address = remove_0x_prefix(account.address)
-        result = self.send(account, f'(balance "{address}")')
-        if 'value' not in result:
-            raise ConvexAPIError('Cannot find returned balance value')
-
-        return result['value']
+    def get_balance(self, address_account):
+        value = 0
+        if isinstance(address_account, str):
+            address = remove_0x_prefix(address_account)
+        else:
+            address = remove_0x_prefix(address_account.address)
+        result = self._transaction_query(address, f'(balance "{address}")')
+        if 'error-code' in result:
+            if result['error-code'] != 'NOBODY':
+                raise ConvexAPIError(f'get balance: {result["error-code"]}')
+        else:
+            value = result['value']
+        return value
 
     def transfer(self, account, to_address_account, amount):
         if isinstance(to_address_account, str):
@@ -67,7 +73,7 @@ class ConvexAPI:
         result = self.send(account, f'(transfer "{to_address}" {amount})')
         return result
 
-    def _prepare_transaction(self, address, transaction):
+    def _transaction_prepare(self, address, transaction):
         prepare_url = urljoin(self._url, '/api/v1/transaction/prepare')
         data = {
             'address': remove_0x_prefix(address),
@@ -82,7 +88,7 @@ class ConvexAPI:
         logger.debug(f'prepare repsonse {result}')
         return result
 
-    def _submit_transaction(self, address, hash_data, signed_data):
+    def _transaction_submit(self, address, hash_data, signed_data):
         submit_url = urljoin(self._url, '/api/v1/transaction/submit')
         data = {
             'address': remove_0x_prefix(address),
@@ -97,4 +103,19 @@ class ConvexAPI:
         logger.debug(f'submit repsonse {result}')
         if 'error-code' in result:
             raise ConvexAPIError(f'submit transaction error: {result["error-code"]}')
+        return result
+
+    def _transaction_query(self, address, transaction):
+        prepare_url = urljoin(self._url, '/api/v1/query')
+        data = {
+            'address': remove_0x_prefix(address),
+            'source': transaction,
+        }
+        logger.debug(f'query transaction {prepare_url} {data}')
+        response = requests.post(prepare_url, data=json.dumps(data))
+        if response.status_code != 200:
+            raise ConvexAPIError(f'query transaction: {response.status_code} {response.text}')
+
+        result = response.json()
+        logger.debug(f'query repsonse {result}')
         return result

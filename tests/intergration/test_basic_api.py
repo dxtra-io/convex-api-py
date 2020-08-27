@@ -13,10 +13,7 @@ from cryptography.hazmat.primitives import serialization
 PRIVATE_TEST_KEY = 0x973f69bcd654b264759170724e1e30ccd2e75fc46b7993fd24ce755f0a8c24d0
 PUBLIC_ADDRESS = '5288fec4153b702430771dfac8aed0b21cafca4344dae0d47b97f0bf532b3306'
 
-def test_submit_transaction():
-
-
-    # private_key = Ed25519PrivateKey.generate()
+def get_test_account():
     private_key = Ed25519PrivateKey.from_private_bytes(to_bytes(PRIVATE_TEST_KEY))
 
     public_key = private_key.public_key()
@@ -26,7 +23,13 @@ def test_submit_transaction():
     )
     public_address = remove_0x_prefix(to_hex(public_key_bytes))
     assert(public_address == PUBLIC_ADDRESS)
+    return private_key, public_address
 
+def test_submit_transaction():
+
+
+    private_key, public_address = get_test_account()
+    # faucet request amount
     faucet_data = {
         'address': public_address,
         'amount': 10000000
@@ -39,6 +42,7 @@ def test_submit_transaction():
         return
     print('faucet response', response.json())
 
+    # prepare
     prepare_data = {
         'address': public_address,
         'source': '(map inc [1 2 3])'
@@ -53,6 +57,7 @@ def test_submit_transaction():
 
     result = response.json()
 
+    #submit
     print(result)
     hash_data = to_bytes(hexstr=result['hash'])
     signed_hash_bytes = private_key.sign(hash_data)
@@ -68,4 +73,19 @@ def test_submit_transaction():
     response = requests.post(url, data=json.dumps(submit_data))
     if response.status_code != 200:
         print('submit error', response.text)
+    print(response.json())
+
+
+
+def test_query():
+    private_key, public_address = get_test_account()
+    query_data = {
+        'address': public_address,
+        'source': f'(balance "{public_address}")'
+    }
+    url = 'https://convex.world/api/v1/query'
+    print('query send', query_data)
+    response = requests.post(url, data=json.dumps(query_data))
+    if response.status_code != 200:
+        print('query error', response.text)
     print(response.json())
