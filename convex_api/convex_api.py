@@ -49,7 +49,6 @@ class ConvexAPI:
             raise ConvexAPIError(f'returned account is not correct {result["address"]}')
         return result['amount']
 
-
     def get_balance(self, account):
         address = remove_0x_prefix(account.address)
         result = self.send_transaction(account, f'(balance "{address}")')
