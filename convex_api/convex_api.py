@@ -42,14 +42,14 @@ class ConvexAPI:
             'address': remove_0x_prefix(account.address),
             'amount': amount
         }
-        logger.debug(f'faucet_request {faucet_url} {faucet_data}')
+        logger.debug(f'request_funds {faucet_url} {faucet_data}')
         response = requests.post(faucet_url, data=json.dumps(faucet_data))
         if response.status_code != 200:
-            raise ConvexAPIError(f'faucet_request: {response.status_code} {response.text}')
+            raise ConvexRequestError('request_funds', response.status_code, response.text)
         result = response.json()
-        logger.debug(f'faucet_request result {result}')
+        logger.debug(f'request_funds result {result}')
         if result['address'] != remove_0x_prefix(account.address):
-            raise ValueError(f'faucet_request: returned account is not correct {result["address"]}')
+            raise ValueError(f'request_funds: returned account is not correct {result["address"]}')
         return result['amount']
 
     def get_balance(self, address_account, account_from=None):
@@ -91,15 +91,15 @@ class ConvexAPI:
             'address': remove_0x_prefix(address),
             'source': transaction,
         }
-        logger.debug(f'transaction_prepare {prepare_url} {data}')
+        logger.debug(f'_transaction_prepare {prepare_url} {data}')
         response = requests.post(prepare_url, data=json.dumps(data))
         if response.status_code != 200:
-            raise ConvexRequestError('transaction_prepare', response.status_code, response.text)
+            raise ConvexRequestError('_transaction_prepare', response.status_code, response.text)
 
         result = response.json()
-        logger.debug(f'transaction_prepare repsonse {result}')
+        logger.debug(f'_transaction_prepare repsonse {result}')
         if 'error-code' in result:
-            raise ConvexAPIError('transaction_prepare', result['error-code'], result['value'])
+            raise ConvexAPIError('_transaction_prepare', result['error-code'], result['value'])
 
         return result
 
@@ -110,15 +110,15 @@ class ConvexAPI:
             'hash': hash_data,
             'sig': remove_0x_prefix(signed_data)
         }
-        logger.debug(f'transaction_submit {submit_url} {data}')
+        logger.debug(f'_transaction_submit {submit_url} {data}')
         response = requests.post(submit_url, data=json.dumps(data))
         if response.status_code != 200:
-            raise ConvexRequestError('transaction_submit', response.status_code, response.text)
+            raise ConvexRequestError('_transaction_submit', response.status_code, response.text)
 
         result = response.json()
-        logger.debug(f'transaction_submit response {result}')
+        logger.debug(f'_transaction_submit response {result}')
         if 'error-code' in result:
-            raise ConvexAPIError('transaction_submit', result['error-code'], result['value'])
+            raise ConvexAPIError('_transaction_submit', result['error-code'], result['value'])
         return result
 
     def _transaction_query(self, address, transaction):
@@ -127,14 +127,14 @@ class ConvexAPI:
             'address': remove_0x_prefix(address),
             'source': transaction,
         }
-        logger.debug(f'transaction_query {prepare_url} {data}')
+        logger.debug(f'_transaction_query {prepare_url} {data}')
         response = requests.post(prepare_url, data=json.dumps(data))
         if response.status_code != 200:
-            raise ConvexRequestError('transaction_query', response.status_code, response.text)
+            raise ConvexRequestError('_transaction_query', response.status_code, response.text)
 
         result = response.json()
-        logger.debug(f'transaction_query repsonse {result}')
+        logger.debug(f'_transaction_query repsonse {result}')
         if 'error-code' in result:
-            raise ConvexAPIError('transaction_query', result['error-code'], result['value'])
+            raise ConvexAPIError('_transaction_query', result['error-code'], result['value'])
 
         return result
