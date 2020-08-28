@@ -14,8 +14,10 @@ class ConvexBaseError(Exception):
     def __str__(self):
         return f'{self.source}: {self.code} {self.text}'
 
+
 class ConvexAPIError(ConvexBaseError):
     """ Raised when a request error occurs """
+
 
 class ConvexRequestError(ConvexBaseError):
     """ Raised when a error-code is returned from a web call """
