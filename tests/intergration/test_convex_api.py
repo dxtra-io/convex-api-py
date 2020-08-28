@@ -10,13 +10,15 @@ from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
 
-def test_convex_api_request_funds(test_account, convex_url):
+TEST_FUNDING_AMOUNT = 8000000
+
+def test_convex_api_request_funds(convex_url, test_account):
     convex = ConvexAPI(convex_url)
     amount = secrets.randbelow(100) + 1
     request_amount = convex.request_funds(test_account, amount)
     assert(request_amount == amount)
 
-def test_convex_api_send_transaction(test_account, convex_url):
+def test_convex_api_send_basic(convex_url, test_account):
     convex = ConvexAPI(convex_url)
     request_amount = convex.request_funds(test_account, 10000000)
     result = convex.send(test_account, '(map inc [1 2 3 4 5])')
@@ -30,7 +32,7 @@ def test_convex_api_get_balance_no_funds(convex_url):
     new_balance = convex.get_balance(account)
     assert(new_balance == 0)
 
-def test_convex_api_get_balance_insufficent_funds(test_account, convex_url):
+def test_convex_api_get_balance_insufficent_funds(convex_url, test_account):
     convex = ConvexAPI(convex_url)
     account = Account.create_new()
     amount = 100
@@ -42,7 +44,7 @@ def test_convex_api_get_balance_insufficent_funds(test_account, convex_url):
 def test_convex_api_get_balance_new_account(convex_url):
     convex = ConvexAPI(convex_url)
     account = Account.create_new()
-    amount = 8000000
+    amount = TEST_FUNDING_AMOUNT
     request_amount = convex.request_funds(account, amount)
     assert(request_amount == amount)
     new_balance = convex.get_balance(account)
@@ -64,7 +66,7 @@ def test_convex_api_call(convex_url):
 """
     convex = ConvexAPI(convex_url)
     account = Account.create_new()
-    amount = 8000000
+    amount = TEST_FUNDING_AMOUNT
     request_amount = convex.request_funds(account, amount)
     result = convex.send(account, deploy_storage)
     assert(result['value'])
@@ -78,7 +80,7 @@ def test_convex_api_transfer(convex_url):
     convex = ConvexAPI(convex_url)
     account_from = Account.create_new()
     account_to = Account.create_new()
-    amount = 8000000
+    amount = TEST_FUNDING_AMOUNT
     request_amount = convex.request_funds(account_from, amount)
     assert(request_amount == amount)
 
