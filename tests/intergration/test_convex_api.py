@@ -50,7 +50,18 @@ def test_convex_api_get_balance_new_account(convex_url):
 
 def test_convex_api_call(convex_url):
 
-    deploy_storage = "(def storage-example  (deploy   '(do     (def stored-data nil)     (defn get [] stored-data)     (defn set [x] (def stored-data x))     (export get set))))"
+    deploy_storage = """
+(def storage-example
+    (deploy
+        '(do
+            (def stored-data nil)
+            (defn get [] stored-data)
+            (defn set [x] (def stored-data x))
+            (export get set)
+        )
+    )
+)
+"""
     convex = ConvexAPI(convex_url)
     account = Account.create_new()
     amount = 8000000
