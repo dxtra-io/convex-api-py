@@ -19,8 +19,8 @@ class Account:
     def __init__(self, private_key):
         """
         Create a new account with a private key as a Ed25519PrivateKey
-        :param Ed25519PrivateKey private_key: The private key as a Ed25519PrivateKey object
 
+        :param Ed25519PrivateKey private_key: The public/private key as an Ed25519PrivateKey object
 
         """
         self._private_key = private_key
