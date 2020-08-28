@@ -7,7 +7,6 @@
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
-from eth_keyfile import create_keyfile_json
 from eth_utils import (
     remove_0x_prefix,
     to_bytes,
