@@ -96,7 +96,8 @@ class ConvexAPI:
         other account. Event though this is using a query request.
 
         :param Account, str address_account: Address or Account to get the funds for.
-        :param Account account_from: Optional account to use to make the request. This account should have a balance to make the request.
+        :param Account account_from: Optional account to use to make the request.
+            This account should have a balance to make the request.
 
         :returns: Return the current balance of the address or account `address_account`
 
