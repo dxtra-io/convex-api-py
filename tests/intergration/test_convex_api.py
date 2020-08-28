@@ -90,3 +90,9 @@ def test_convex_api_transfer(convex_url):
     # this is incorrect ! sent funds == amount / 4 ?
     print(balance_from, balance_to)
     assert(balance_to == amount / 4)
+
+def test_covex_api_query(convex_url, test_account):
+    convex = ConvexAPI(convex_url)
+    result = convex.query(f'(address "{test_account.address_clean}")', test_account)
+    assert(result)
+    assert(result['value'] == f'#addr {test_account.address}')

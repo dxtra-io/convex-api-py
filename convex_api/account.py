@@ -17,15 +17,24 @@ from eth_utils import (
 class Account:
 
     def __init__(self, private_key):
+        """
+
+        """
         self._private_key = private_key
         self._public_key = private_key.public_key()
 
     def sign(self, hash_text):
+        """
+
+        """
         hash_data = to_bytes(hexstr=hash_text)
         signed_hash_bytes = self._private_key.sign(hash_data)
         return to_hex(signed_hash_bytes)
 
     def export_to_text(self, password):
+        """
+
+        """
         if isinstance(password, str):
             password = password.encode()
         private_data = self._private_key.private_bytes(
@@ -36,6 +45,9 @@ class Account:
         return private_data.decode()
 
     def export_to_file(self, filename, password):
+        """
+
+        """
         with open(filename, 'w') as fp:
             fp.write(self.export_to_text(password))
 
@@ -44,6 +56,9 @@ class Account:
 
     @property
     def address(self):
+        """
+
+        """
         public_key_bytes = self._public_key.public_bytes(
             encoding=serialization.Encoding.Raw,
             format=serialization.PublicFormat.Raw
@@ -52,18 +67,30 @@ class Account:
 
     @property
     def address_clean(self):
+        """
+
+        """
         return remove_0x_prefix(self.address)
 
     @staticmethod
     def create_new():
+        """
+
+        """
         return Account(Ed25519PrivateKey.generate())
 
     @staticmethod
     def create_from_bytes(value):
+        """
+
+        """
         return Account(Ed25519PrivateKey.from_private_bytes(value))
 
     @staticmethod
     def import_from_text(text, password):
+        """
+
+        """
         if isinstance(password, str):
             password = password.encode()
         if isinstance(text, str):
@@ -75,5 +102,8 @@ class Account:
 
     @staticmethod
     def import_from_file(filename, password):
+        """
+
+        """
         with open(filename, 'r') as fp:
             return Account.import_from_text(fp.read(), password)

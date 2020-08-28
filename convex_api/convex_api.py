@@ -26,6 +26,15 @@ class ConvexAPI:
         self._url = url
 
     def send(self, transaction, account):
+        """
+        Send transaction code to the block chain node.
+
+        :param str transaction: The transaction as a string to send
+        :param Account account: The account that needs to sign the message to send
+
+        :returns: The dict returned from the result of the sent transaction.
+
+        """
         if not transaction:
             raise ValueError('You need to provide a valid transaction')
         if not isinstance(transaction, str):
@@ -36,7 +45,35 @@ class ConvexAPI:
         result = self._transaction_submit(account.address, hash_data['hash'], signed_data)
         return result
 
+    def query(self, transaction, address_account):
+        """
+        Run a query transaction on the block chain. Since this does not change the network state, and
+        so the account does not need to sign the transaction. No funds will be used when executing
+        this query.
+
+        :param str transaction: Transaction to execute. This can only be a read only transaction.
+        :param Account, str address_account: Account or str address of an account to use for running this query.
+
+        :returns: Return the resultant query transaction
+
+        """
+        if isinstance(address_account, str):
+            address = remove_0x_prefix(address_account)
+        else:
+            address = remove_0x_prefix(address_account.address)
+
+        return self._transaction_query(address, transaction)
+
     def request_funds(self, amount, account):
+        """
+        Request funds for an account from the block chain faucet.
+
+        :param number amount: The amount of funds to request
+        :param Account account: The account to receive funds to
+
+        :returns: The amount transfered to the account
+
+        """
         faucet_url = urljoin(self._url, '/api/v1/faucet')
         faucet_data = {
             'address': remove_0x_prefix(account.address),
@@ -53,6 +90,17 @@ class ConvexAPI:
         return result['amount']
 
     def get_balance(self, address_account, account_from=None):
+        """
+        Get a balance of an account.
+        At the moment the account needs to have a balance to get the balance of it's account or any
+        other account. Event though this is using a query request.
+
+        :param Account, str address_account: Address or Account to get the funds for.
+        :param Account account_from: Optional account to use to make the request. This account should have a balance to make the request.
+
+        :returns: Return the current balance of the address or account `address_account`
+
+        """
         value = 0
         if isinstance(address_account, str):
             address = remove_0x_prefix(address_account)
@@ -76,6 +124,16 @@ class ConvexAPI:
         return value
 
     def transfer(self, to_address_account, amount, account):
+        """
+        Transfer funds from on account to another.
+
+        :param Account, str to_address_account: Address or account to send the funds too
+        :param number amonut: Amount to send
+        :param Account account: Account to send the funds from
+
+        :returns: The transfer record sent back after the transfer has been made
+
+        """
         if isinstance(to_address_account, str):
             to_address = remove_0x_prefix(to_address_account)
         else:
@@ -86,6 +144,9 @@ class ConvexAPI:
         return result
 
     def _transaction_prepare(self, address, transaction):
+        """
+
+        """
         prepare_url = urljoin(self._url, '/api/v1/transaction/prepare')
         data = {
             'address': remove_0x_prefix(address),
@@ -104,6 +165,9 @@ class ConvexAPI:
         return result
 
     def _transaction_submit(self, address, hash_data, signed_data):
+        """
+
+        """
         submit_url = urljoin(self._url, '/api/v1/transaction/submit')
         data = {
             'address': remove_0x_prefix(address),
@@ -122,6 +186,9 @@ class ConvexAPI:
         return result
 
     def _transaction_query(self, address, transaction):
+        """
+
+        """
         prepare_url = urljoin(self._url, '/api/v1/query')
         data = {
             'address': remove_0x_prefix(address),
