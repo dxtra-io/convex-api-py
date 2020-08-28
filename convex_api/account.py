@@ -18,6 +18,9 @@ class Account:
 
     def __init__(self, private_key):
         """
+        Create a new account with a private key as a Ed25519PrivateKey
+        :param Ed25519PrivateKey private_key: The private key as a Ed25519PrivateKey object
+
 
         """
         self._private_key = private_key
@@ -25,6 +28,11 @@ class Account:
 
     def sign(self, hash_text):
         """
+        Sign a hash text using the private key.
+
+        :param str hash_text: Hex string of the hash to sign
+
+        :returns: Hex string of the signed text
 
         """
         hash_data = to_bytes(hexstr=hash_text)
@@ -33,6 +41,11 @@ class Account:
 
     def export_to_text(self, password):
         """
+        Export the private key to an encrypted PEM string.
+
+        :param str password: Password to encrypt the private key value
+
+        :returns: The private key as a PEM formated encrypted string
 
         """
         if isinstance(password, str):
@@ -46,6 +59,11 @@ class Account:
 
     def export_to_file(self, filename, password):
         """
+        Export the private key to a file. This uses `export_to_text` to export as a string.
+        Then saves this in a file.
+
+        :param str filename: Filename to create with the PEM string
+        :param str password: Password to use to encypt the private key
 
         """
         with open(filename, 'w') as fp:
@@ -57,6 +75,9 @@ class Account:
     @property
     def address(self):
         """
+        Return the public address of the account in the format '0x....'
+
+        :returns: str Address with leading '0x'
 
         """
         public_key_bytes = self._public_key.public_bytes(
@@ -68,6 +89,9 @@ class Account:
     @property
     def address_clean(self):
         """
+        Return the public address of the account without the leading '0x'
+
+        :returns: str Address without the leading '0x'
 
         """
         return remove_0x_prefix(self.address)
@@ -75,6 +99,9 @@ class Account:
     @staticmethod
     def create_new():
         """
+        Create a new account with a random key and address
+
+        :returns: New Account object
 
         """
         return Account(Ed25519PrivateKey.generate())
@@ -82,6 +109,9 @@ class Account:
     @staticmethod
     def create_from_bytes(value):
         """
+        Create the an account from a private key in bytes.
+
+        :returns: Account object with the private/public key
 
         """
         return Account(Ed25519PrivateKey.from_private_bytes(value))
@@ -89,6 +119,12 @@ class Account:
     @staticmethod
     def import_from_text(text, password):
         """
+        Import an accout from an encrypted PEM string.
+
+        :param str text: PAM text string with the encrypted key text
+        :param str password: password to decrypt the private key
+
+        :returns: Account object with the public/private key
 
         """
         if isinstance(password, str):
@@ -103,6 +139,12 @@ class Account:
     @staticmethod
     def import_from_file(filename, password):
         """
+        Load the encrypted private key from file. The file is saved in PEM format encrypted with a password
+
+        :param str filename: Filename to read
+        :param str password: password to decrypt the private key
+
+        :returns: Account with the private/public key
 
         """
         with open(filename, 'r') as fp:
