@@ -25,7 +25,7 @@ class ConvexAPI:
     def __init__(self, url):
         self._url = url
 
-    def send(self, account, transaction):
+    def send(self, transaction, account):
         if not transaction:
             raise ValueError('You need to provide a valid transaction')
         if not isinstance(transaction, str):
@@ -36,7 +36,7 @@ class ConvexAPI:
         result = self._transaction_submit(account.address, hash_data['hash'], signed_data)
         return result
 
-    def request_funds(self, account, amount):
+    def request_funds(self, amount, account):
         faucet_url = urljoin(self._url, '/api/v1/faucet')
         faucet_data = {
             'address': remove_0x_prefix(account.address),
@@ -75,14 +75,14 @@ class ConvexAPI:
             value = result['value']
         return value
 
-    def transfer(self, account, to_address_account, amount):
+    def transfer(self, to_address_account, amount, account):
         if isinstance(to_address_account, str):
             to_address = remove_0x_prefix(to_address_account)
         else:
             to_address = remove_0x_prefix(to_address_account.address)
         if not to_address:
             raise ValueError(f'You must provide a valid to account/address ("{to_address_account}") to transfer funds too')
-        result = self.send(account, f'(transfer "{to_address}" {amount})')
+        result = self.send(f'(transfer "{to_address}" {amount})', account)
         return result
 
     def _transaction_prepare(self, address, transaction):
