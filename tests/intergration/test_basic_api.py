@@ -88,4 +88,8 @@ def test_query():
     response = requests.post(url, data=json.dumps(query_data))
     if response.status_code != 200:
         print('query error', response.text)
-    print(response.json())
+    result = response.json()
+    assert(result)
+    assert(result['value'] > 0)
+    print(result)
+
