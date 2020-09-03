@@ -18,25 +18,26 @@ def test_contract_did_registry(convex_url, test_account):
     (deploy
         '(do
             (def registry {})
-            (defn resolve? [did] (boolean (get registry did)))
+            (defn get-register [did] (get registry (hash did)))
+            (defn resolve? [did] (boolean (get-register did)))
             (defn resolve [did]
-                (when (resolve? did) ((get registry did) :ddo))
+                (let [register-record (get-register did)] (when register-record (register-record :ddo)))
             )
             (defn owner [did]
-                (when (resolve? did) ((get registry did) :owner))
+                (let [register-record (get-register did)] (when register-record (register-record :owner)))
             )
             (defn owner? [did] (= (owner did) *caller*))
             (defn register [did ddo]
                 (when (resolve? did) (assert (owner? did)))
-                (let [ddo-record {:owner *caller* :ddo ddo}]
-                    (def registry (assoc registry did ddo-record))
+                (let [register-record {:owner *caller* :ddo ddo}]
+                    (def registry (assoc registry (hash did) register-record))
                     did
                 )
             )
             (defn unregister [did]
                 (when (resolve? did) (do
                     (assert (owner? did))
-                    (def registry (dissoc registry did))
+                    (def registry (dissoc registry (hash did)))
                     did
                 ))
             )
