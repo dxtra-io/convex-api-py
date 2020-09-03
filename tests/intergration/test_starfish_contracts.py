@@ -1,9 +1,10 @@
 """
 
+
     Test Convex Contracts for Starfish
 
 """
-import re
+
 import pytest
 import secrets
 
@@ -81,22 +82,32 @@ deploy_single_contract_did_registry = """
     )
 )
 """
+@pytest.fixture()
+def convex(convex_url, test_account):
+    api = ConvexAPI(convex_url)
+    amount = 10000000
+    request_amount = api.request_funds(amount, test_account)
+    return api
 
 
-
-def test_contract_did_registry(convex_url, test_account):
-
-    convex = ConvexAPI(convex_url)
+@pytest.fixture()
+def contract_address(convex, test_account):
     amount = 10000000
     request_amount = convex.request_funds(amount, test_account)
-
-    other_account = Account.create_new()
-    request_amount = convex.request_funds(amount, other_account)
-
     result = convex.send(did_registry_contract, test_account)
     assert(result['value'])
-    contract_address = re.sub(r'#addr ', '', result['value'])
-    print(contract_address)
+    return ConvexAPI.to_address(result['value'])
+
+
+@pytest.fixture()
+def other_account(convex):
+    amount = 10000000
+    account = Account.create_new()
+    request_amount = convex.request_funds(amount, account)
+    return account
+
+
+def test_contract_did_register_resolve(convex, test_account, other_account, contract_address):
 
     did = secrets.token_hex(32)
     ddo = 'test - ddo'
@@ -193,19 +204,11 @@ def test_contract_did_registry(convex_url, test_account):
 
 
 
-def test_contract_ddo_transfer(convex_url, test_account):
+def test_contract_ddo_transfer(convex, test_account, other_account):
     # register and transfer
 
-    convex = ConvexAPI(convex_url)
-    amount = 10000000
-    request_amount = convex.request_funds(amount, test_account)
-
-    other_account = Account.create_new()
-    request_amount = convex.request_funds(amount, other_account)
-
-    result = convex.query('(address starfish-did-registry)', test_account)
-    assert(result['value'])
-    contract_address = re.sub(r'#addr ', '', result['value'])
+    contract_address = convex.get_address('starfish-did-registry', test_account)
+    assert(contract_address)
 
     did = secrets.token_hex(32)
     ddo = 'test - ddo'
