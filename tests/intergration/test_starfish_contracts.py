@@ -11,14 +11,16 @@ from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
 
-
-def test_contract_did_registry(convex_url, test_account):
-    did_registry_contract = """
+CONTRACT_NAME='starfish-did-registry'
+did_registry_contract = """
 (def starfish-did-registry
     (deploy
         '(do
             (def registry {})
             (defn get-register [did] (get registry (hash did)))
+            (defn assert-owner [did]
+                (when-not (owner? did) (fail "NOT-OWNER" "not owner"))
+            )
             (defn resolve? [did] (boolean (get-register did)))
             (defn resolve [did]
                 (let [register-record (get-register did)] (when register-record (register-record :ddo)))
@@ -28,7 +30,7 @@ def test_contract_did_registry(convex_url, test_account):
             )
             (defn owner? [did] (= (owner did) *caller*))
             (defn register [did ddo]
-                (when (resolve? did) (assert (owner? did)))
+                (when (resolve? did) (assert-owner did))
                 (let [register-record {:owner *caller* :ddo ddo}]
                     (def registry (assoc registry (hash did) register-record))
                     did
@@ -36,18 +38,28 @@ def test_contract_did_registry(convex_url, test_account):
             )
             (defn unregister [did]
                 (when (resolve? did) (do
-                    (assert (owner? did))
+                    (assert-owner did)
                     (def registry (dissoc registry (hash did)))
                     did
                 ))
             )
-            (export resolve resolve? register unregister owner owner?)
+            (defn transfer [did to-account]
+                (when (resolve? did) (do
+                    (assert-owner did)
+                    (assert (address? to-account))
+                    (let [register-record {:owner (address to-account) :ddo (resolve did)}]
+                        (def registry (assoc registry (hash did) register-record))
+                        (did to-account)
+                    )
+                ))
+            )
+            (export resolve resolve? register unregister owner owner? transfer)
         )
     )
 )
 """
 
-    deploy_single_contract_did_registry = """
+deploy_single_contract_did_registry = """
 # single contract per did, deployed contract is the didid
 (def starfish-did-registry
     (deploy
@@ -66,6 +78,11 @@ def test_contract_did_registry(convex_url, test_account):
     )
 )
 """
+
+
+
+def test_contract_did_registry(convex_url, test_account):
+
     convex = ConvexAPI(convex_url)
     amount = 10000000
     request_amount = convex.request_funds(amount, test_account)
@@ -80,6 +97,7 @@ def test_contract_did_registry(convex_url, test_account):
 
     did = secrets.token_hex(32)
     ddo = 'test - ddo'
+
 
     # call register
 
@@ -130,7 +148,7 @@ def test_contract_did_registry(convex_url, test_account):
 
     # call register - update from other account
 
-    with pytest.raises(ConvexAPIError, match='ASSERT'):
+    with pytest.raises(ConvexAPIError, match='NOT-OWNER'):
         command = f'(call {contract_address} (register "{did}" "{ddo}"))'
         result = convex.send(command, other_account)
 
@@ -145,7 +163,7 @@ def test_contract_did_registry(convex_url, test_account):
 
     # call unregister fail - from other account
 
-    with pytest.raises(ConvexAPIError, match='ASSERT'):
+    with pytest.raises(ConvexAPIError, match='NOT-OWNER'):
         command = f'(call {contract_address} (unregister "{did}"))'
         result = convex.send(command, other_account)
 
@@ -171,4 +189,17 @@ def test_contract_did_registry(convex_url, test_account):
     assert(result['value'] == '')
 
 
+
+def _test_contract_ddo_transfer(convex_url, test_account):
+    # register and transfer
+
+    command = f'(call {contract_address} (register "{did}" "{ddo}"))'
+    result = convex.send(command, test_account)
+    assert(result['value'])
+    assert(result['value'] == did)
+
+    command = f'(call {contract_address} (transfer "{did}" "{other_account.address}"))'
+    result = convex.send(command, test_account)
+    assert(result['value'])
+    assert(result['value'] == did)
 
