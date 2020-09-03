@@ -8,10 +8,14 @@
 import json
 import logging
 from urllib.parse import urljoin
+import re
 import requests
 
 
-from eth_utils import remove_0x_prefix
+from eth_utils import (
+    remove_0x_prefix,
+    to_hex
+)
 
 from convex_api.exceptions import (
     ConvexAPIError,
@@ -63,6 +67,22 @@ class ConvexAPI:
             address = remove_0x_prefix(address_account.address)
 
         return self._transaction_query(address, transaction)
+
+    def get_address(self, function_name, address_account):
+        """
+
+        Query the network for a contract ( function ) address. The contract must have been deployed
+        by the account address provided. If not then no address will be returned
+
+        :param str function_name: Name of the contract/function
+        :param Account, str address_account: Account or str address of an account to use for running this query.
+
+        :returns: Returns address of the contract
+
+        """
+        result = self.query(f'(address {function_name})', address_account)
+        if result and 'value' in result:
+            return ConvexAPI.to_address(result['value'])
 
     def request_funds(self, amount, account):
         """
@@ -206,3 +226,9 @@ class ConvexAPI:
             raise ConvexAPIError('_transaction_query', result['error-code'], result['value'])
 
         return result
+
+    @staticmethod
+    def to_address(address_text):
+        match = re.match(r'#addr 0x([0-9a-f]+)', address_text, re.IGNORECASE)
+        if match:
+            return to_hex(hexstr=match.group(1))
