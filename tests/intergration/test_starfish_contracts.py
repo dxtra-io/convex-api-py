@@ -21,6 +21,9 @@ did_registry_contract = """
             (defn assert-owner [did]
                 (when-not (owner? did) (fail "NOT-OWNER" "not owner"))
             )
+            (defn assert-address [value]
+                (when-not (address? (address value)) (fail "NOT-ADDRESS" "not an address"))
+            )
             (defn resolve? [did] (boolean (get-register did)))
             (defn resolve [did]
                 (let [register-record (get-register did)] (when register-record (register-record :ddo)))
@@ -46,10 +49,10 @@ did_registry_contract = """
             (defn transfer [did to-account]
                 (when (resolve? did) (do
                     (assert-owner did)
-                    (assert (address? to-account))
+                    (assert-address to-account)
                     (let [register-record {:owner (address to-account) :ddo (resolve did)}]
                         (def registry (assoc registry (hash did) register-record))
-                        (did to-account)
+                        [did (address to-account)]
                     )
                 ))
             )
@@ -190,16 +193,67 @@ def test_contract_did_registry(convex_url, test_account):
 
 
 
-def _test_contract_ddo_transfer(convex_url, test_account):
+def test_contract_ddo_transfer(convex_url, test_account):
     # register and transfer
+
+    convex = ConvexAPI(convex_url)
+    amount = 10000000
+    request_amount = convex.request_funds(amount, test_account)
+
+    other_account = Account.create_new()
+    request_amount = convex.request_funds(amount, other_account)
+
+    result = convex.query('(address starfish-did-registry)', test_account)
+    assert(result['value'])
+    contract_address = re.sub(r'#addr ', '', result['value'])
+
+    did = secrets.token_hex(32)
+    ddo = 'test - ddo'
 
     command = f'(call {contract_address} (register "{did}" "{ddo}"))'
     result = convex.send(command, test_account)
     assert(result['value'])
     assert(result['value'] == did)
 
-    command = f'(call {contract_address} (transfer "{did}" "{other_account.address}"))'
+    # call owner? on owner account
+    command = f'(call {contract_address} (owner? "{did}"))'
     result = convex.send(command, test_account)
+    assert(result['value'])
+
+    # call owner? on other_account
+    command = f'(call {contract_address} (owner? "{did}"))'
+    result = convex.send(command, other_account)
+    assert(not result['value'])
+
+
+    command = f'(call {contract_address} (transfer "{did}" "{other_account.address_clean}"))'
+    result = convex.send(command, test_account)
+    assert(result['value'])
+    assert(result['value'][0] == did)
+
+    #check ownership to different accounts
+
+    # call owner? on owner account
+    command = f'(call {contract_address} (owner? "{did}"))'
+    result = convex.send(command, test_account)
+    assert(not result['value'])
+
+    # call owner? on other_account
+    command = f'(call {contract_address} (owner? "{did}"))'
+    result = convex.send(command, other_account)
+    assert(result['value'])
+
+    # call unregister fail - from test_account (old owner)
+
+    with pytest.raises(ConvexAPIError, match='NOT-OWNER'):
+        command = f'(call {contract_address} (unregister "{did}"))'
+        result = convex.send(command, test_account)
+
+
+    # call unregister from other_account ( new owner )
+
+    command = f'(call {contract_address} (unregister "{did}"))'
+    result = convex.send(command, other_account)
     assert(result['value'])
     assert(result['value'] == did)
 
