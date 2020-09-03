@@ -7,8 +7,8 @@
 
 import json
 import logging
-from urllib.parse import urljoin
 import re
+from urllib.parse import urljoin
 import requests
 
 
