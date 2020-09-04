@@ -301,12 +301,13 @@ def test_contract_ddo_transfer(convex, test_account, other_account):
     assert(result['value'])
     assert(result['value'] == did)
 
-def _test_contract_ddo_bulk_register(convex, test_account):
+def test_contract_ddo_bulk_register(convex, test_account):
     contract_address = convex.get_address('starfish-did-registry', test_account)
     assert(contract_address)
 
-    for i in range(0, 100):
-        auto_topup_account(convex, test_account)
+    for index in range(0, 2):
+        print(index)
+        auto_topup_account(convex, test_account, 40000000)
         did = secrets.token_hex(32)
         ddo = secrets.token_hex(1024)
 
