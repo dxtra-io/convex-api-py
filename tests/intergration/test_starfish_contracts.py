@@ -94,14 +94,16 @@ deploy_single_contract_did_registry = """
 
 did_register_contract_address = None
 
-def auto_topup_account(convex, account, min_amount=None):
+def auto_topup_account(convex, account, min_balance=None):
     amount = 10000000
-    if min_amount is None:
-        min_amount = amount
+    retry_counter = 100
+    if min_balance is None:
+        min_balance = amount
     balance = convex.get_balance(account)
-    while balance < min_amount:
+    while balance < min_balance and retry_counter > 0:
         request_amount = convex.request_funds(amount, account)
         balance = convex.get_balance(account)
+        retry_counter -= 1
 
 
 @pytest.fixture()
