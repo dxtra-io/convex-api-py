@@ -21,13 +21,13 @@ did_registry_contract = f"""
         '(do
             (def registry {{}})
             (defn version [] "{CONTRACT_VERSION}")
-            (defn get-register [did] (get registry (hash did)))
+            (defn get-register [did] (when (get registry (hash did)) (fetch (get registry (hash did)))) )
             (defn set-register [did owner-address ddo]
                 (let [register-record {{:owner owner-address :ddo ddo}}]
-                    (def registry (assoc registry (hash did) register-record))
+                    (def registry (assoc registry (hash did) (store register-record)))
                 )
             )
-            (defn delete-register [did] (def registry (dissoc registry (hash did))))
+            (defn delete-register [did] (def registry (dissoc registry (hash did))) )
             (defn assert-owner [did]
                 (when-not (owner? did) (fail "NOT-OWNER" "not owner"))
             )
@@ -37,14 +37,14 @@ did_registry_contract = f"""
             (defn assert-did [value]
                 (when-not (and (str? (str value)) (== 64 (count (str value)))) (fail "INVALID" "invalid DID"))
             )
-            (defn resolve? [did] (boolean (get-register did)))
+            (defn resolve? [did] (boolean (get-register did)) )
             (defn resolve [did]
                 (let [register-record (get-register did)] (when register-record (register-record :ddo)))
             )
             (defn owner [did]
                 (let [register-record (get-register did)] (when register-record (register-record :owner)))
             )
-            (defn owner? [did] (= (owner did) *caller*))
+            (defn owner? [did] (= (owner did) *caller*) )
             (defn register [did ddo]
                 (assert-did did)
                 (when (resolve? did) (assert-owner did))
