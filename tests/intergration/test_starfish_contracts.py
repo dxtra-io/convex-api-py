@@ -20,6 +20,12 @@ did_registry_contract = """
             (def registry {})
             (defn version [] "0.0.1")
             (defn get-register [did] (get registry (hash did)))
+            (defn set-register [did owner-address ddo]
+                (let [register-record {:owner owner-address :ddo ddo}]
+                    (def registry (assoc registry (hash did) register-record))
+                )
+            )
+            (defn delete-register [did] (def registry (dissoc registry (hash did))))
             (defn assert-owner [did]
                 (when-not (owner? did) (fail "NOT-OWNER" "not owner"))
             )
@@ -40,15 +46,13 @@ did_registry_contract = """
             (defn register [did ddo]
                 (assert-did did)
                 (when (resolve? did) (assert-owner did))
-                (let [register-record {:owner *caller* :ddo ddo}]
-                    (def registry (assoc registry (hash did) register-record))
-                    did
-                )
+                (set-register did *caller* ddo)
+                did
             )
             (defn unregister [did]
                 (when (resolve? did) (do
                     (assert-owner did)
-                    (def registry (dissoc registry (hash did)))
+                    (delete-register did)
                     did
                 ))
             )
@@ -56,10 +60,8 @@ did_registry_contract = """
                 (when (resolve? did) (do
                     (assert-owner did)
                     (assert-address to-account)
-                    (let [register-record {:owner (address to-account) :ddo (resolve did)}]
-                        (def registry (assoc registry (hash did) register-record))
-                        [did (address to-account)]
-                    )
+                    (set-register did (address to-account) (resolve did))
+                    [did (address to-account)]
                 ))
             )
             (export resolve resolve? register unregister owner owner? transfer version)
