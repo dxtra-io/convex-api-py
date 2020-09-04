@@ -13,15 +13,17 @@ from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
 
 CONTRACT_NAME='starfish-did-registry'
-did_registry_contract = """
+CONTRACT_VERSION = '0.0.2'
+
+did_registry_contract = f"""
 (def starfish-did-registry
     (deploy
         '(do
-            (def registry {})
-            (defn version [] "0.0.1")
+            (def registry {{}})
+            (defn version [] "{CONTRACT_VERSION}")
             (defn get-register [did] (get registry (hash did)))
             (defn set-register [did owner-address ddo]
-                (let [register-record {:owner owner-address :ddo ddo}]
+                (let [register-record {{:owner owner-address :ddo ddo}}]
                     (def registry (assoc registry (hash did) register-record))
                 )
             )
@@ -130,7 +132,7 @@ def test_contract_version(convex, test_account, contract_address):
     command = f'(call {contract_address} (version))'
     result = convex.query(command, test_account)
     assert(result['value'])
-    assert(result['value'] == "0.0.1")
+    assert(result['value'] == CONTRACT_VERSION)
 
 def test_contract_did_register_assert_did(convex, test_account, contract_address):
 
