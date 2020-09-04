@@ -86,32 +86,42 @@ deploy_single_contract_did_registry = """
     )
 )
 """
-@pytest.fixture()
-def convex(convex_url, test_account):
-    api = ConvexAPI(convex_url)
+
+def auto_topup_account(convex, account, min_amount=None):
     amount = 10000000
-    request_amount = api.request_funds(amount, test_account)
+    if min_amount is None:
+        min_amount = amount
+    balance = convex.get_balance(account)
+    while balance < min_amount:
+        request_amount = convex.request_funds(amount, account)
+        balance = convex.get_balance(account)
+
+
+@pytest.fixture()
+def convex(convex_url):
+    api = ConvexAPI(convex_url)
     return api
 
 
 @pytest.fixture()
 def contract_address(convex, test_account):
-    amount = 10000000
-    request_amount = convex.request_funds(amount, test_account)
+    auto_topup_account(convex, test_account, 50000000)
     result = convex.send(did_registry_contract, test_account)
     assert(result['value'])
+    auto_topup_account(convex, test_account)
     return ConvexAPI.to_address(result['value'])
 
 
 @pytest.fixture()
 def other_account(convex):
-    amount = 10000000
     account = Account.create_new()
-    request_amount = convex.request_funds(amount, account)
+    auto_topup_account(convex, account)
     return account
 
 
 def test_contract_did_register_assert_did(convex, test_account, contract_address):
+
+    auto_topup_account(convex, test_account)
 
     did_bad = secrets.token_hex(20)
     did_valid = secrets.token_hex(32)
@@ -135,6 +145,8 @@ def test_contract_did_register_assert_did(convex, test_account, contract_address
 
 
 def test_contract_did_register_resolve(convex, test_account, other_account, contract_address):
+
+    auto_topup_account(convex, test_account)
 
     did = secrets.token_hex(32)
     ddo = 'test - ddo'
@@ -234,6 +246,8 @@ def test_contract_did_register_resolve(convex, test_account, other_account, cont
 def test_contract_ddo_transfer(convex, test_account, other_account):
     # register and transfer
 
+    auto_topup_account(convex, test_account)
+
     contract_address = convex.get_address('starfish-did-registry', test_account)
     assert(contract_address)
 
@@ -287,3 +301,16 @@ def test_contract_ddo_transfer(convex, test_account, other_account):
     assert(result['value'])
     assert(result['value'] == did)
 
+def _test_contract_ddo_bulk_register(convex, test_account):
+    contract_address = convex.get_address('starfish-did-registry', test_account)
+    assert(contract_address)
+
+    for i in range(0, 100):
+        auto_topup_account(convex, test_account)
+        did = secrets.token_hex(32)
+        ddo = secrets.token_hex(1024)
+
+        command = f'(call {contract_address} (register "{did}" "{ddo}"))'
+        result = convex.send(command, test_account)
+        assert(result['value'])
+        assert(result['value'] == did)
