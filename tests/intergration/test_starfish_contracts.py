@@ -23,7 +23,10 @@ did_registry_contract = """
                 (when-not (owner? did) (fail "NOT-OWNER" "not owner"))
             )
             (defn assert-address [value]
-                (when-not (address? (address value)) (fail "NOT-ADDRESS" "not an address"))
+                (when-not (address? (address value)) (fail "INVALID" "invalid address"))
+            )
+            (defn assert-did [value]
+                (when-not (and (str? (str value)) (== 64 (count (str value)))) (fail "INVALID" "invalid DID"))
             )
             (defn resolve? [did] (boolean (get-register did)))
             (defn resolve [did]
@@ -34,6 +37,7 @@ did_registry_contract = """
             )
             (defn owner? [did] (= (owner did) *caller*))
             (defn register [did ddo]
+                (assert-did did)
                 (when (resolve? did) (assert-owner did))
                 (let [register-record {:owner *caller* :ddo ddo}]
                     (def registry (assoc registry (hash did) register-record))
@@ -105,6 +109,29 @@ def other_account(convex):
     account = Account.create_new()
     request_amount = convex.request_funds(amount, account)
     return account
+
+
+def test_contract_did_register_assert_did(convex, test_account, contract_address):
+
+    did_bad = secrets.token_hex(20)
+    did_valid = secrets.token_hex(32)
+    ddo = 'test - ddo'
+    command = f'(call {contract_address} (register "{did_bad}" "{ddo}"))'
+    with pytest.raises(ConvexAPIError, match='INVALID'):
+        result = convex.send(command, test_account)
+
+    command = f'(call {contract_address} (register "" "{ddo}"))'
+    with pytest.raises(ConvexAPIError, match='INVALID'):
+        result = convex.send(command, test_account)
+
+    command = f'(call {contract_address} (register 42 "{ddo}"))'
+    with pytest.raises(ConvexAPIError, match='INVALID'):
+        result = convex.send(command, test_account)
+
+    command = f'(call {contract_address} (register 0x{did_valid} "{ddo}"))'
+    result = convex.send(command, test_account)
+    assert(result['value'])
+    assert(result['value'] == f'#blob 0x{did_valid}')
 
 
 def test_contract_did_register_resolve(convex, test_account, other_account, contract_address):
