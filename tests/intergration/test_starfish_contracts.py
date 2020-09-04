@@ -18,6 +18,7 @@ did_registry_contract = """
     (deploy
         '(do
             (def registry {})
+            (defn version [] "0.0.1")
             (defn get-register [did] (get registry (hash did)))
             (defn assert-owner [did]
                 (when-not (owner? did) (fail "NOT-OWNER" "not owner"))
@@ -61,7 +62,7 @@ did_registry_contract = """
                     )
                 ))
             )
-            (export resolve resolve? register unregister owner owner? transfer)
+            (export resolve resolve? register unregister owner owner? transfer version)
         )
     )
 )
@@ -87,6 +88,8 @@ deploy_single_contract_did_registry = """
 )
 """
 
+did_register_contract_address = None
+
 def auto_topup_account(convex, account, min_amount=None):
     amount = 10000000
     if min_amount is None:
@@ -105,11 +108,14 @@ def convex(convex_url):
 
 @pytest.fixture()
 def contract_address(convex, test_account):
+    global did_register_contract_address
     auto_topup_account(convex, test_account, 50000000)
-    result = convex.send(did_registry_contract, test_account)
-    assert(result['value'])
-    auto_topup_account(convex, test_account)
-    return ConvexAPI.to_address(result['value'])
+    if did_register_contract_address is None:
+        result = convex.send(did_registry_contract, test_account)
+        assert(result['value'])
+        auto_topup_account(convex, test_account)
+        did_register_contract_address = ConvexAPI.to_address(result['value'])
+    return did_register_contract_address
 
 
 @pytest.fixture()
@@ -118,6 +124,11 @@ def other_account(convex):
     auto_topup_account(convex, account)
     return account
 
+def test_contract_version(convex, test_account, contract_address):
+    command = f'(call {contract_address} (version))'
+    result = convex.query(command, test_account)
+    assert(result['value'])
+    assert(result['value'] == "0.0.1")
 
 def test_contract_did_register_assert_did(convex, test_account, contract_address):
 
