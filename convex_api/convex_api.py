@@ -7,15 +7,11 @@
 
 import json
 import logging
-import re
 from urllib.parse import urljoin
 import requests
 
 
-from eth_utils import (
-    remove_0x_prefix,
-    to_hex
-)
+from eth_utils import remove_0x_prefix
 
 from convex_api.exceptions import (
     ConvexAPIError,
