@@ -120,7 +120,7 @@ def contract_address(convex, test_account):
         result = convex.send(did_registry_contract, test_account)
         assert(result['value'])
         auto_topup_account(convex, test_account)
-        did_register_contract_address = ConvexAPI.to_address(result['value'])
+        did_register_contract_address = result['value']
     return did_register_contract_address
 
 
@@ -158,7 +158,7 @@ def test_contract_did_register_assert_did(convex, test_account, contract_address
     command = f'(call {contract_address} (register 0x{did_valid} "{ddo}"))'
     result = convex.send(command, test_account)
     assert(result['value'])
-    assert(result['value'] == f'#blob 0x{did_valid}')
+    assert(result['value'] == f'0x{did_valid}')
 
 
 def test_contract_did_register_resolve(convex, test_account, other_account, contract_address):
@@ -287,7 +287,7 @@ def test_contract_ddo_transfer(convex, test_account, other_account):
     assert(not result['value'])
 
 
-    command = f'(call {contract_address} (transfer "{did}" "{other_account.address_clean}"))'
+    command = f'(call {contract_address} (transfer "{did}" "{other_account.address_api}"))'
     result = convex.send(command, test_account)
     assert(result['value'])
     assert(result['value'][0] == did)

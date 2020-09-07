@@ -82,7 +82,7 @@ class ConvexAPI:
         """
         result = self.query(f'(address {function_name})', address_account)
         if result and 'value' in result:
-            return ConvexAPI.to_address(result['value'])
+            return result['value']
 
     def request_funds(self, amount, account):
         """

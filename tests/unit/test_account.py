@@ -11,6 +11,7 @@ from convex_api.account import Account
 from eth_utils import (
     remove_0x_prefix,
     to_bytes,
+    to_checksum_address,
     to_hex
 )
 
@@ -27,7 +28,21 @@ def test_account_create_from_bytes(test_account_info):
     account = Account.create_from_bytes(test_account_info['private_bytes'])
     assert(account)
     assert(account.address == test_account_info['address'])
-    assert(account.address_clean == remove_0x_prefix(test_account_info['address']))
+
+def test_account_address_bytes(test_account_info):
+    account = Account.create_from_bytes(test_account_info['private_bytes'])
+    assert(account)
+    assert(account.address_bytes == to_bytes(hexstr=test_account_info['address']))
+
+def test_account_address_api(test_account_info):
+    account = Account.create_from_bytes(test_account_info['private_bytes'])
+    assert(account)
+    assert(account.address_api == remove_0x_prefix(test_account_info['address']))
+
+def test_account_address_checksum(test_account_info):
+    account = Account.create_from_bytes(test_account_info['private_bytes'])
+    assert(account)
+    assert(account.address_checksum.lower() == test_account_info['address'])
 
 def test_account_sign(test_account_info):
     hash_text = SIGN_HASH_TEXT

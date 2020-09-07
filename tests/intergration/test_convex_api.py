@@ -103,6 +103,6 @@ def test_convex_api_transfer(convex_url):
 
 def test_covex_api_query(convex_url, test_account):
     convex = ConvexAPI(convex_url)
-    result = convex.query(f'(address "{test_account.address_clean}")', test_account)
+    result = convex.query(f'(address "{test_account.address_api}")', test_account)
     assert(result)
-    assert(result['value'] == f'#addr {test_account.address}')
+    assert(result['value'] == test_account.address)

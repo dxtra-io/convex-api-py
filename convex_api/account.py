@@ -8,10 +8,14 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from eth_utils import (
+    add_0x_prefix,
     remove_0x_prefix,
     to_bytes,
-    to_hex
+    to_checksum_address,
+    to_hex,
+    to_normalized_address
 )
+from eth_utils.crypto import keccak
 
 
 class Account:
@@ -73,6 +77,20 @@ class Account:
         return f'Account {self.address}'
 
     @property
+    def address_bytes(self):
+        """
+        Return the public address of the account in the byte format
+
+        :returns: str Address in bytes
+
+        """
+        public_key_bytes = self._public_key.public_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PublicFormat.Raw
+        )
+        return public_key_bytes
+
+    @property
     def address(self):
         """
         Return the public address of the account in the format '0x....'
@@ -80,14 +98,10 @@ class Account:
         :returns: str Address with leading '0x'
 
         """
-        public_key_bytes = self._public_key.public_bytes(
-            encoding=serialization.Encoding.Raw,
-            format=serialization.PublicFormat.Raw
-        )
-        return to_hex(public_key_bytes)
+        return to_hex(self.address_bytes)
 
     @property
-    def address_clean(self):
+    def address_api(self):
         """
         Return the public address of the account without the leading '0x'
 
@@ -95,6 +109,29 @@ class Account:
 
         """
         return remove_0x_prefix(self.address)
+
+    @property
+    def address_checksum(self):
+        """
+        Return the public address of the account with checksum upper/lower case characters
+
+        :returns: str Public address in checksum format
+
+        """
+        normalized_address = self.address.lower()
+        address_hash = to_hex(keccak(text=self.address_api))
+        print(address_hash)
+        checksum_address = add_0x_prefix(
+            "".join(
+                (
+                    normalized_address[i].upper()
+                    if int(address_hash[i], 16) > 7
+                    else normalized_address[i]
+                )
+                for i in range(2, len(normalized_address))
+            )
+        )
+        return checksum_address
 
     @staticmethod
     def create_new():
