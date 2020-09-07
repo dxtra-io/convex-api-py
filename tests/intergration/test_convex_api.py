@@ -12,10 +12,6 @@ from convex_api.exceptions import ConvexAPIError
 
 TEST_FUNDING_AMOUNT = 8000000
 
-def test_convex_to_address():
-    account = Account.create_new()
-    print(ConvexAPI.to_address(f'#addr {account.address}'))
-
 def test_convex_api_request_funds(convex_url, test_account):
     convex = ConvexAPI(convex_url)
     amount = secrets.randbelow(100) + 1
@@ -74,7 +70,7 @@ def test_convex_api_call(convex_url):
     request_amount = convex.request_funds(amount, account)
     result = convex.send(deploy_storage, account)
     assert(result['value'])
-    contract_address = ConvexAPI.to_address(result['value'])
+    contract_address = result['value']
     test_number = secrets.randbelow(1000)
     call_set_result = convex.send(f'(call storage-example (set {test_number}))', account)
     assert(call_set_result['value'] == test_number)

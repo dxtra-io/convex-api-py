@@ -226,9 +226,3 @@ class ConvexAPI:
             raise ConvexAPIError('_transaction_query', result['error-code'], result['value'])
 
         return result
-
-    @staticmethod
-    def to_address(address_text):
-        match = re.match(r'#addr 0x([0-9a-f]+)', address_text, re.IGNORECASE)
-        if match:
-            return to_hex(hexstr=match.group(1))
