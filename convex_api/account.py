@@ -11,9 +11,7 @@ from eth_utils import (
     add_0x_prefix,
     remove_0x_prefix,
     to_bytes,
-    to_checksum_address,
-    to_hex,
-    to_normalized_address
+    to_hex
 )
 from eth_utils.crypto import keccak
 

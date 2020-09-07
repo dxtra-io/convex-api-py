@@ -7,8 +7,8 @@
 from eth_utils import (
     add_0x_prefix,
     encode_hex,
-    remove_0x_prefix,
     is_hexstr,
+    remove_0x_prefix
 )
 
 from eth_utils.crypto import keccak
@@ -20,6 +20,7 @@ def is_address_hex(address):
         if len(address_base) == 64:
             return True
     return False
+
 
 def is_address(address):
     if is_address_checksum(address):
