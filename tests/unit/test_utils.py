@@ -23,14 +23,14 @@ def test_utils_is_address():
     assert(is_address(address))
 
 def test_utils_is_address_checksum():
-    address = secrets.token_hex(40)
+    address = secrets.token_hex(32)
     address_checksum = to_address_checksum(address)
     assert(is_address_checksum(address_checksum))
 
 
 def test_utils_to_address_checksum():
     # generate a ethereum address
-    address = secrets.token_hex(20)
+    address = secrets.token_hex(32)
     # convex address to checksum
     address_checksum = to_address_checksum(address)
     assert(is_address_checksum(address_checksum))
