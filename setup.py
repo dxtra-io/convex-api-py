@@ -20,6 +20,7 @@ with open('CHANGELOG.md') as changelog_file:
 install_requirements = [
     'cryptography',
     'eth-utils',
+    'pycryptodome',
     'requests',
 ]
 
