@@ -32,7 +32,7 @@ def test_convex_api_get_balance_no_funds(convex_url):
     new_balance = convex.get_balance(account)
     assert(new_balance == 0)
 
-def test_convex_api_get_balance_insufficent_funds(convex_url, test_account):
+def test_convex_api_get_balance_small_funds(convex_url, test_account):
     convex = ConvexAPI(convex_url)
     account = Account.create_new()
     amount = 100
@@ -92,8 +92,6 @@ def test_convex_api_transfer(convex_url):
     result = convex.transfer(account_to, amount / 2, account_from)
     balance_from = convex.get_balance(account_from)
     balance_to = convex.get_balance(account_to)
-    # this is incorrect ! sent funds == amount / 4 ?
-    print(balance_from, balance_to)
     assert(balance_to == amount / 2)
 
 def test_covex_api_query(convex_url, test_account):
