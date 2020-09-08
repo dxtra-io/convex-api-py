@@ -35,7 +35,7 @@ did_registry_contract = f"""
                 (when-not (address? (address value)) (fail "INVALID" "invalid address"))
             )
             (defn assert-did [value]
-                (when-not (and (str? (str value)) (== 64 (count (str value)))) (fail "INVALID" "invalid DID"))
+                (when-not (and (blob? (blob value)) (== 32 (count (blob value)))) (fail "INVALID" "invalid DID"))
             )
             (defn resolve? [did] (boolean (get-register did)) )
             (defn resolve [did]
@@ -152,7 +152,7 @@ def test_contract_did_register_assert_did(convex, test_account, contract_address
         result = convex.send(command, test_account)
 
     command = f'(call {contract_address} (register 42 "{ddo}"))'
-    with pytest.raises(ConvexAPIError, match='INVALID'):
+    with pytest.raises(ConvexAPIError, match='CAST'):
         result = convex.send(command, test_account)
 
     command = f'(call {contract_address} (register 0x{did_valid} "{ddo}"))'
