@@ -98,5 +98,5 @@ def test_covex_api_query(convex_url, test_account):
     convex = ConvexAPI(convex_url)
     result = convex.query(f'(address "{test_account.address_api}")', test_account)
     assert(result)
-    # need to find out the algorithium for address checksum
-    assert(result['value'].lower() == test_account.address)
+    # return value is the address as a checksum
+    assert(result['value'] == test_account.address_checksum)

@@ -4,16 +4,18 @@
 
 
 """
+
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
+
 from eth_utils import (
-    add_0x_prefix,
     remove_0x_prefix,
     to_bytes,
     to_hex
 )
-from eth_utils.crypto import keccak
+
+from convex_api.utils import to_address_checksum
 
 
 class Account:
@@ -116,20 +118,8 @@ class Account:
         :returns: str Public address in checksum format
 
         """
-        normalized_address = self.address.lower()
-        address_hash = to_hex(keccak(text=self.address_api))
-        print(address_hash)
-        checksum_address = add_0x_prefix(
-            "".join(
-                (
-                    normalized_address[i].upper()
-                    if int(address_hash[i], 16) > 7
-                    else normalized_address[i]
-                )
-                for i in range(2, len(normalized_address))
-            )
-        )
-        return checksum_address
+
+        return to_address_checksum(self.address)
 
     @staticmethod
     def create_new():

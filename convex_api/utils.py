@@ -4,14 +4,16 @@
 
 """
 
+from cryptography.hazmat.backends.openssl.backend import backend
+from cryptography.hazmat.primitives import hashes
+
 from eth_utils import (
     add_0x_prefix,
-    encode_hex,
     is_hexstr,
-    remove_0x_prefix
+    remove_0x_prefix,
+    to_bytes,
+    to_hex
 )
-
-from eth_utils.crypto import keccak
 
 
 def is_address_hex(address):
@@ -31,8 +33,10 @@ def is_address(address):
 
 
 def to_address_checksum(address):
+    digest = hashes.Hash(hashes.SHA3_256(), backend=backend)
+    digest.update(to_bytes(hexstr=address))
+    address_hash = remove_0x_prefix(to_hex(digest.finalize()))
     address_clean = remove_0x_prefix(address.lower())
-    address_hash = remove_0x_prefix(encode_hex(keccak(text=address_clean)))
     checksum = ''
     hash_index = 0
     for value in address_clean:
