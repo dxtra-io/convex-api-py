@@ -6,9 +6,6 @@
 """
 import secrets
 
-from eth_utils import (
-    to_checksum_address
-)
 
 from convex_api.utils import (
     is_address,
@@ -36,8 +33,4 @@ def test_utils_to_address_checksum():
     address = secrets.token_hex(20)
     # convex address to checksum
     address_checksum = to_address_checksum(address)
-
-    # eth utlis address to checksum
-    address_ether_checksum = to_checksum_address(address)
     assert(is_address_checksum(address_checksum))
-    assert(address_ether_checksum == address_checksum)
