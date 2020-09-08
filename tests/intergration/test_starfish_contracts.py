@@ -326,6 +326,7 @@ def test_contract_ddo_bulk_register(convex, test_account):
         print(index)
         auto_topup_account(convex, test_account, 40000000)
         did = secrets.token_hex(32)
+#        ddo = secrets.token_hex(51200)
         ddo = secrets.token_hex(1024)
 
         command = f'(call {contract_address} (register "{did}" "{ddo}"))'
