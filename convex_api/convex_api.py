@@ -23,8 +23,8 @@ logger = logging.getLogger(__name__)
 
 class ConvexAPI:
 
-    LANGUAGE_LISP = 'lisp'
-    LANGUAGE_SCRYPT = 'scrypt'
+    LANGUAGE_LISP = 'convex-lisp'
+    LANGUAGE_SCRYPT = 'convex-scrypt'
 
     def __init__(self, url, language=LANGUAGE_LISP):
         self._url = url
@@ -172,7 +172,7 @@ class ConvexAPI:
         """
         if language is None:
             language = self._language
-        prepare_url = urljoin(self._url, '/api/v1/transaction/prepare', f'?lang={language}')
+        prepare_url = urljoin(self._url, f'/api/v1/transaction/prepare?lang={language}')
         data = {
             'address': remove_0x_prefix(address),
             'source': transaction,
@@ -217,7 +217,7 @@ class ConvexAPI:
         if language is None:
             language = self._language
 
-        prepare_url = urljoin(self._url, '/api/v1/query', f'?lang={language}')
+        prepare_url = urljoin(self._url, f'/api/v1/query?lang={language}')
         data = {
             'address': remove_0x_prefix(address),
             'source': transaction,
