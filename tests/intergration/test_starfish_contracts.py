@@ -43,11 +43,11 @@ did_registry_contract = f"""
             )
             (defn resolve [did]
                 (assert-did did)
-                (let [register-record (get-register did)] (when register-record (register-record :ddo)))
+                (when-let [register-record (get-register did)] (register-record :ddo))
             )
             (defn owner [did]
                 (assert-did did)
-                (let [register-record (get-register did)] (when register-record (register-record :owner)))
+                (when-let [register-record (get-register did)] (register-record :owner))
             )
             (defn owner? [did] (= (owner did) *caller*) )
             (defn register [did ddo]
@@ -57,19 +57,19 @@ did_registry_contract = f"""
                 did
             )
             (defn unregister [did]
-                (when (resolve? did) (do
+                (when (resolve? did)
                     (assert-owner did)
                     (delete-register did)
                     did
-                ))
+                )
             )
             (defn transfer [did to-account]
-                (when (resolve? did) (do
+                (when (resolve? did)
                     (assert-owner did)
                     (assert-address to-account)
                     (set-register did (address to-account) (resolve did))
                     [did (address to-account)]
-                ))
+                )
             )
             (export resolve resolve? register unregister owner owner? transfer version)
         )
