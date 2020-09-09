@@ -13,7 +13,7 @@ from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
 
 CONTRACT_NAME='starfish-did-registry'
-CONTRACT_VERSION = '0.0.2'
+CONTRACT_VERSION = '0.0.3'
 
 did_registry_contract = f"""
 (def starfish-did-registry
