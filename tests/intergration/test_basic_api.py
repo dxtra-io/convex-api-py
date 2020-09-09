@@ -77,7 +77,7 @@ def test_submit_transaction():
 
 
 
-def test_query():
+def test_query_lisp():
     private_key, public_address = get_test_account()
     query_data = {
         'address': public_address,
@@ -91,5 +91,21 @@ def test_query():
     result = response.json()
     assert(result)
     assert(result['value'] > 0)
+
+
+def test_query_scrypt():
+    private_key, public_address = get_test_account()
+    query_data = {
+        'address': public_address,
+        'source': f'balance("{public_address}")'
+    }
+    url = 'https://convex.world/api/v1/query?lang=convex-scrypt'
+    print('query send', query_data)
+    response = requests.post(url, data=json.dumps(query_data))
+    if response.status_code != 200:
+        print('query error', response.text)
+    result = response.json()
+    assert(result)
     print(result)
+    assert(result['value'] > 0)
 

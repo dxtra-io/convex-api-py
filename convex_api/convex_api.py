@@ -22,10 +22,15 @@ logger = logging.getLogger(__name__)
 
 
 class ConvexAPI:
-    def __init__(self, url):
-        self._url = url
 
-    def send(self, transaction, account):
+    LANGUAGE_LISP = 'lisp'
+    LANGUAGE_SCRYPT = 'scrypt'
+
+    def __init__(self, url, language=LANGUAGE_LISP):
+        self._url = url
+        self._language = language
+
+    def send(self, transaction, account, language=None):
         """
         Send transaction code to the block chain node.
 
@@ -40,12 +45,12 @@ class ConvexAPI:
         if not isinstance(transaction, str):
             raise TypeError('The transaction must be a type str')
 
-        hash_data = self._transaction_prepare(account.address, transaction)
+        hash_data = self._transaction_prepare(account.address, transaction, language)
         signed_data = account.sign(hash_data['hash'])
         result = self._transaction_submit(account.address, hash_data['hash'], signed_data)
         return result
 
-    def query(self, transaction, address_account):
+    def query(self, transaction, address_account, language=None):
         """
         Run a query transaction on the block chain. Since this does not change the network state, and
         so the account does not need to sign the transaction. No funds will be used when executing
@@ -62,23 +67,8 @@ class ConvexAPI:
         else:
             address = remove_0x_prefix(address_account.address)
 
-        return self._transaction_query(address, transaction)
+        return self._transaction_query(address, transaction, language)
 
-    def get_address(self, function_name, address_account):
-        """
-
-        Query the network for a contract ( function ) address. The contract must have been deployed
-        by the account address provided. If not then no address will be returned
-
-        :param str function_name: Name of the contract/function
-        :param Account, str address_account: Account or str address of an account to use for running this query.
-
-        :returns: Returns address of the contract
-
-        """
-        result = self.query(f'(address {function_name})', address_account)
-        if result and 'value' in result:
-            return result['value']
 
     def request_funds(self, amount, account):
         """
@@ -104,6 +94,22 @@ class ConvexAPI:
         if result['address'] != remove_0x_prefix(account.address):
             raise ValueError(f'request_funds: returned account is not correct {result["address"]}')
         return result['amount']
+
+    def get_address(self, function_name, address_account):
+        """
+
+        Query the network for a contract ( function ) address. The contract must have been deployed
+        by the account address provided. If not then no address will be returned
+
+        :param str function_name: Name of the contract/function
+        :param Account, str address_account: Account or str address of an account to use for running this query.
+
+        :returns: Returns address of the contract
+
+        """
+        result = self.query(f'(address {function_name})', address_account, ConvexAPI.LANGUAGE_LISP)
+        if result and 'value' in result:
+            return result['value']
 
     def get_balance(self, address_account, account_from=None):
         """
@@ -132,7 +138,8 @@ class ConvexAPI:
                 address_from = remove_0x_prefix(account_from.address)
 
         try:
-            result = self._transaction_query(address_from, f'(balance "{address}")')
+
+            result = self._transaction_query(address_from, f'(balance "{address}")', ConvexAPI.LANGUAGE_LISP)
         except ConvexAPIError as error:
             if error.code != 'UNDECLARED':
                 raise
@@ -157,14 +164,16 @@ class ConvexAPI:
             to_address = remove_0x_prefix(to_address_account.address)
         if not to_address:
             raise ValueError(f'You must provide a valid to account/address ("{to_address_account}") to transfer funds too')
-        result = self.send(f'(transfer "{to_address}" {amount})', account)
+        result = self.send(f'(transfer "{to_address}" {amount})', account, ConvexAPI.LANGUAGE_LISP)
         return result
 
-    def _transaction_prepare(self, address, transaction):
+    def _transaction_prepare(self, address, transaction, language=None):
         """
 
         """
-        prepare_url = urljoin(self._url, '/api/v1/transaction/prepare')
+        if language is None:
+            language = self._language
+        prepare_url = urljoin(self._url, '/api/v1/transaction/prepare', f'?lang={language}')
         data = {
             'address': remove_0x_prefix(address),
             'source': transaction,
@@ -202,11 +211,14 @@ class ConvexAPI:
             raise ConvexAPIError('_transaction_submit', result['error-code'], result['value'])
         return result
 
-    def _transaction_query(self, address, transaction):
+    def _transaction_query(self, address, transaction, language=None):
         """
 
         """
-        prepare_url = urljoin(self._url, '/api/v1/query')
+        if language is None:
+            language = self._language
+
+        prepare_url = urljoin(self._url, '/api/v1/query', f'?lang={language}')
         data = {
             'address': remove_0x_prefix(address),
             'source': transaction,
