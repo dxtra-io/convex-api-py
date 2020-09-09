@@ -20,6 +20,7 @@ did_registry_contract = f"""
     (deploy
         '(do
             (def registry {{}})
+            (def creator *caller*)
             (defn version [] "{CONTRACT_VERSION}")
             (defn get-register [did] (get registry did) )
             (defn set-register [did owner-address ddo]
@@ -71,7 +72,8 @@ did_registry_contract = f"""
                     [did (address to-account)]
                 )
             )
-            (export resolve resolve? register unregister owner owner? transfer version)
+            (defn dump [] (when (= creator *caller*) registry) )
+            (export dump resolve resolve? register unregister owner owner? transfer version)
         )
     )
 )
@@ -328,7 +330,6 @@ def test_contract_ddo_bulk_register(convex, test_account):
     assert(contract_address)
 
     for index in range(0, 2):
-        print(index)
         auto_topup_account(convex, test_account, 40000000)
         did = f'0x{secrets.token_hex(32)}'
 #        ddo = secrets.token_hex(51200)
@@ -338,3 +339,32 @@ def test_contract_ddo_bulk_register(convex, test_account):
         result = convex.send(command, test_account)
         assert(result['value'])
         assert(result['value'] == did)
+
+def test_contract_ddo_dump(convex, test_account, other_account):
+
+    contract_address = convex.get_address('starfish-did-registry', test_account)
+    assert(contract_address)
+
+    did_list = []
+    for index in range(0, 4):
+        auto_topup_account(convex, test_account)
+        did = f'0x{secrets.token_hex(32)}'
+        did_list.append(did)
+#        ddo = secrets.token_hex(51200)
+        ddo = f'ddo test - {index}'
+
+        command = f'(call {contract_address} (register {did} "{ddo}"))'
+        result = convex.send(command, test_account)
+        assert(result['value'])
+        assert(result['value'] == did)
+
+
+    command = f'(call {contract_address} (dump))'
+    result = convex.send(command, test_account)
+    assert(result['value'])
+    for did in did_list:
+        assert(did in list(result['value'].keys()))
+
+    command = f'(call {contract_address} (dump))'
+    result = convex.send(command, other_account)
+    assert(not result['value'])
