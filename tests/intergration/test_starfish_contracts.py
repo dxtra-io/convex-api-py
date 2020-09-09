@@ -75,7 +75,7 @@ did_registry_contract = f"""
             (defn dump [] registry )
             (defn owner-list [the-owner]
                 (assert-address the-owner)
-                (mapcat (fn [k v] (when (= (address the-owner) (get v :owner)) [k])) (keys registry) (values registry))
+                (mapcat (fn [v] (when (= (address the-owner) (get (last v) :owner)) [(first v)])) registry)
             )
             (export dump resolve resolve? register unregister owner owner? owner-list transfer version)
         )
