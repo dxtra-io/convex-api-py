@@ -69,7 +69,6 @@ class ConvexAPI:
 
         return self._transaction_query(address, transaction, language)
 
-
     def request_funds(self, amount, account):
         """
         Request funds for an account from the block chain faucet.
