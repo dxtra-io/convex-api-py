@@ -13,7 +13,7 @@ from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
 
 CONTRACT_NAME='starfish-did-registry'
-CONTRACT_VERSION = '0.0.3'
+CONTRACT_VERSION = '0.0.4'
 
 did_registry_contract = f"""
 (def starfish-did-registry
@@ -72,8 +72,12 @@ did_registry_contract = f"""
                     [did (address to-account)]
                 )
             )
-            (defn dump [] (when (= creator *caller*) registry) )
-            (export dump resolve resolve? register unregister owner owner? transfer version)
+            (defn dump [] registry )
+            (defn owner-list [the-owner]
+                (assert-address the-owner)
+                (mapcat (fn [k v] (when (= (address the-owner) (get v :owner)) [k])) (keys registry) (values registry))
+            )
+            (export dump resolve resolve? register unregister owner owner? owner-list transfer version)
         )
     )
 )
@@ -365,6 +369,15 @@ def test_contract_ddo_dump(convex, test_account, other_account):
     for did in did_list:
         assert(did in list(result['value'].keys()))
 
+
     command = f'(call {contract_address} (dump))'
     result = convex.query(command, other_account)
-    assert(not result['value'])
+    assert(result['value'])
+    for did in did_list:
+        assert(did in list(result['value'].keys()))
+
+    command = f'(call {contract_address} (owner-list "{test_account.address_api}"))'
+    result = convex.query(command, test_account)
+    assert(result['value'])
+    for did in did_list:
+        assert(did in result['value'])
