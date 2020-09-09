@@ -21,13 +21,13 @@ did_registry_contract = f"""
         '(do
             (def registry {{}})
             (defn version [] "{CONTRACT_VERSION}")
-            (defn get-register [did] (when (get registry (hash did)) (fetch (get registry (hash did)))) )
+            (defn get-register [did] (get registry did) )
             (defn set-register [did owner-address ddo]
                 (let [register-record {{:owner owner-address :ddo ddo}}]
-                    (def registry (assoc registry (hash did) (store register-record)))
+                    (def registry (assoc registry did register-record))
                 )
             )
-            (defn delete-register [did] (def registry (dissoc registry (hash did))) )
+            (defn delete-register [did] (def registry (dissoc registry did)) )
             (defn assert-owner [did]
                 (when-not (owner? did) (fail "NOT-OWNER" "not owner"))
             )
@@ -35,13 +35,18 @@ did_registry_contract = f"""
                 (when-not (address? (address value)) (fail "INVALID" "invalid address"))
             )
             (defn assert-did [value]
-                (when-not (and (blob? (blob value)) (== 32 (count (blob value)))) (fail "INVALID" "invalid DID"))
+                (when-not (and (blob? value) (== 32 (count (blob value)))) (fail "INVALID" "invalid DID"))
             )
-            (defn resolve? [did] (boolean (get-register did)) )
+            (defn resolve? [did]
+                (assert-did did)
+                (boolean (get-register did))
+            )
             (defn resolve [did]
+                (assert-did did)
                 (let [register-record (get-register did)] (when register-record (register-record :ddo)))
             )
             (defn owner [did]
+                (assert-did did)
                 (let [register-record (get-register did)] (when register-record (register-record :owner)))
             )
             (defn owner? [did] (= (owner did) *caller*) )
@@ -152,7 +157,7 @@ def test_contract_did_register_assert_did(convex, test_account, contract_address
         result = convex.send(command, test_account)
 
     command = f'(call {contract_address} (register 42 "{ddo}"))'
-    with pytest.raises(ConvexAPIError, match='CAST'):
+    with pytest.raises(ConvexAPIError, match='INVALID'):
         result = convex.send(command, test_account)
 
     command = f'(call {contract_address} (register 0x{did_valid} "{ddo}"))'
@@ -165,44 +170,44 @@ def test_contract_did_register_resolve(convex, test_account, other_account, cont
 
     auto_topup_account(convex, test_account)
 
-    did = secrets.token_hex(32)
+    did = f'0x{secrets.token_hex(32)}'
     ddo = 'test - ddo'
 
 
     # call register
 
-    command = f'(call {contract_address} (register "{did}" "{ddo}"))'
+    command = f'(call {contract_address} (register {did} "{ddo}"))'
     result = convex.send(command, test_account)
     assert(result['value'])
     assert(result['value'] == did)
 
     # call resolve did to ddo
 
-    command = f'(call {contract_address} (resolve "{did}"))'
+    command = f'(call {contract_address} (resolve {did}))'
     result = convex.query(command, test_account)
     assert(result['value'])
     assert(result['value'] == ddo)
 
     # call resolve did to ddo on other account
 
-    command = f'(call {contract_address} (resolve "{did}"))'
+    command = f'(call {contract_address} (resolve {did}))'
     result = convex.query(command, other_account)
     assert(result['value'])
     assert(result['value'] == ddo)
 
     # call owner? on owner account
-    command = f'(call {contract_address} (owner? "{did}"))'
+    command = f'(call {contract_address} (owner? {did}))'
     result = convex.query(command, test_account)
     assert(result['value'])
 
     # call owner? on owner other_account
-    command = f'(call {contract_address} (owner? "{did}"))'
+    command = f'(call {contract_address} (owner? {did}))'
     result = convex.query(command, other_account)
     assert(not result['value'])
 
     # call resolve unknown
-    bad_did = secrets.token_hex(32)
-    command = f'(call {contract_address} (resolve "{bad_did}"))'
+    bad_did = f'0x{secrets.token_hex(32)}'
+    command = f'(call {contract_address} (resolve {bad_did}))'
     result = convex.query(command, test_account)
     assert(result['value'] == '')
 
@@ -210,7 +215,7 @@ def test_contract_did_register_resolve(convex, test_account, other_account, cont
     new_ddo = 'new - ddo'
     # call register - update
 
-    command = f'(call {contract_address} (register "{did}" "{new_ddo}"))'
+    command = f'(call {contract_address} (register {did} "{new_ddo}"))'
     result = convex.send(command, test_account)
     assert(result['value'])
     assert(result['value'] == did)
@@ -219,13 +224,13 @@ def test_contract_did_register_resolve(convex, test_account, other_account, cont
     # call register - update from other account
 
     with pytest.raises(ConvexAPIError, match='NOT-OWNER'):
-        command = f'(call {contract_address} (register "{did}" "{ddo}"))'
+        command = f'(call {contract_address} (register {did} "{ddo}"))'
         result = convex.send(command, other_account)
 
 
     # call resolve did to new_ddo
 
-    command = f'(call {contract_address} (resolve "{did}"))'
+    command = f'(call {contract_address} (resolve {did}))'
     result = convex.query(command, test_account)
     assert(result['value'])
     assert(result['value'] == new_ddo)
@@ -234,27 +239,27 @@ def test_contract_did_register_resolve(convex, test_account, other_account, cont
     # call unregister fail - from other account
 
     with pytest.raises(ConvexAPIError, match='NOT-OWNER'):
-        command = f'(call {contract_address} (unregister "{did}"))'
+        command = f'(call {contract_address} (unregister {did}))'
         result = convex.send(command, other_account)
 
 
     # call unregister
 
-    command = f'(call {contract_address} (unregister "{did}"))'
+    command = f'(call {contract_address} (unregister {did}))'
     result = convex.send(command, test_account)
     assert(result['value'])
     assert(result['value'] == did)
 
     # call resolve did to empty
 
-    command = f'(call {contract_address} (resolve "{did}"))'
+    command = f'(call {contract_address} (resolve {did}))'
     result = convex.query(command, test_account)
     assert(result['value'] == '')
 
 
     # call unregister - unknown did
 
-    command = f'(call {contract_address} (unregister "{bad_did}"))'
+    command = f'(call {contract_address} (unregister {bad_did}))'
     result = convex.send(command, test_account)
     assert(result['value'] == '')
 
@@ -268,26 +273,26 @@ def test_contract_ddo_transfer(convex, test_account, other_account):
     contract_address = convex.get_address('starfish-did-registry', test_account)
     assert(contract_address)
 
-    did = secrets.token_hex(32)
+    did = f'0x{secrets.token_hex(32)}'
     ddo = 'test - ddo'
 
-    command = f'(call {contract_address} (register "{did}" "{ddo}"))'
+    command = f'(call {contract_address} (register {did} "{ddo}"))'
     result = convex.send(command, test_account)
     assert(result['value'])
     assert(result['value'] == did)
 
     # call owner? on owner account
-    command = f'(call {contract_address} (owner? "{did}"))'
+    command = f'(call {contract_address} (owner? {did}))'
     result = convex.query(command, test_account)
     assert(result['value'])
 
     # call owner? on other_account
-    command = f'(call {contract_address} (owner? "{did}"))'
+    command = f'(call {contract_address} (owner? {did}))'
     result = convex.query(command, other_account)
     assert(not result['value'])
 
 
-    command = f'(call {contract_address} (transfer "{did}" "{other_account.address_api}"))'
+    command = f'(call {contract_address} (transfer {did} {other_account.address_checksum}))'
     result = convex.send(command, test_account)
     assert(result['value'])
     assert(result['value'][0] == did)
@@ -295,25 +300,25 @@ def test_contract_ddo_transfer(convex, test_account, other_account):
     #check ownership to different accounts
 
     # call owner? on owner account
-    command = f'(call {contract_address} (owner? "{did}"))'
+    command = f'(call {contract_address} (owner? {did}))'
     result = convex.query(command, test_account)
     assert(not result['value'])
 
     # call owner? on other_account
-    command = f'(call {contract_address} (owner? "{did}"))'
+    command = f'(call {contract_address} (owner? {did}))'
     result = convex.query(command, other_account)
     assert(result['value'])
 
     # call unregister fail - from test_account (old owner)
 
     with pytest.raises(ConvexAPIError, match='NOT-OWNER'):
-        command = f'(call {contract_address} (unregister "{did}"))'
+        command = f'(call {contract_address} (unregister {did}))'
         result = convex.send(command, test_account)
 
 
     # call unregister from other_account ( new owner )
 
-    command = f'(call {contract_address} (unregister "{did}"))'
+    command = f'(call {contract_address} (unregister {did}))'
     result = convex.send(command, other_account)
     assert(result['value'])
     assert(result['value'] == did)
@@ -325,11 +330,11 @@ def test_contract_ddo_bulk_register(convex, test_account):
     for index in range(0, 2):
         print(index)
         auto_topup_account(convex, test_account, 40000000)
-        did = secrets.token_hex(32)
+        did = f'0x{secrets.token_hex(32)}'
 #        ddo = secrets.token_hex(51200)
         ddo = secrets.token_hex(1024)
 
-        command = f'(call {contract_address} (register "{did}" "{ddo}"))'
+        command = f'(call {contract_address} (register {did} "{ddo}"))'
         result = convex.send(command, test_account)
         assert(result['value'])
         assert(result['value'] == did)
