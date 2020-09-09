@@ -360,11 +360,11 @@ def test_contract_ddo_dump(convex, test_account, other_account):
 
 
     command = f'(call {contract_address} (dump))'
-    result = convex.send(command, test_account)
+    result = convex.query(command, test_account)
     assert(result['value'])
     for did in did_list:
         assert(did in list(result['value'].keys()))
 
     command = f'(call {contract_address} (dump))'
-    result = convex.send(command, other_account)
+    result = convex.query(command, other_account)
     assert(not result['value'])
