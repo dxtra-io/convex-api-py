@@ -12,6 +12,19 @@ from convex_api.exceptions import ConvexAPIError
 
 TEST_FUNDING_AMOUNT = 8000000
 
+def test_convex_api_language_setup(convex_url):
+    convex = ConvexAPI(convex_url)
+    assert(convex.language == ConvexAPI.LANGUAGE_LISP)
+
+    convex = ConvexAPI(convex_url, ConvexAPI.LANGUAGE_LISP)
+    assert(convex.language == ConvexAPI.LANGUAGE_LISP)
+
+    convex = ConvexAPI(convex_url, ConvexAPI.LANGUAGE_SCRYPT)
+    assert(convex.language == ConvexAPI.LANGUAGE_SCRYPT)
+
+    with pytest.raises(ValueError, match='language'):
+        convex = ConvexAPI(convex_url, "bad-language")
+
 def test_convex_api_request_funds(convex_url, test_account):
     convex = ConvexAPI(convex_url)
     amount = secrets.randbelow(100) + 1
@@ -20,7 +33,7 @@ def test_convex_api_request_funds(convex_url, test_account):
 
 def test_convex_api_send_basic(convex_url, test_account):
     convex = ConvexAPI(convex_url)
-    request_amount = convex.request_funds(10000000, test_account)
+    request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, test_account)
     result = convex.send('(map inc [1 2 3 4 5])', test_account)
     assert 'id' in result
     assert 'value' in result

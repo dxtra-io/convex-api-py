@@ -25,9 +25,13 @@ class ConvexAPI:
 
     LANGUAGE_LISP = 'convex-lisp'
     LANGUAGE_SCRYPT = 'convex-scrypt'
+    LANGUAGE_ALLOWED = [LANGUAGE_LISP, LANGUAGE_SCRYPT]
 
     def __init__(self, url, language=LANGUAGE_LISP):
         self._url = url
+
+        if language not in ConvexAPI.LANGUAGE_ALLOWED:
+            raise ValueError(f'Invalid language: {language}')
         self._language = language
 
     def send(self, transaction, account, language=None):
@@ -244,3 +248,7 @@ class ConvexAPI:
             raise ConvexAPIError('_transaction_query', result['error-code'], result['value'])
 
         return result
+
+    @property
+    def language(self):
+        return self._language
