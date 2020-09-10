@@ -187,9 +187,10 @@ class ConvexAPI:
         """
         if language is None:
             language = self._language
-        prepare_url = urljoin(self._url, f'/api/v1/transaction/prepare?lang={language}')
+        prepare_url = urljoin(self._url, '/api/v1/transaction/prepare')
         data = {
             'address': remove_0x_prefix(address),
+            'lang': language,
             'source': transaction,
         }
         logger.debug(f'_transaction_prepare {prepare_url} {data}')
@@ -232,9 +233,10 @@ class ConvexAPI:
         if language is None:
             language = self._language
 
-        prepare_url = urljoin(self._url, f'/api/v1/query?lang={language}')
+        prepare_url = urljoin(self._url, '/api/v1/query')
         data = {
             'address': remove_0x_prefix(address),
+            'lang': language,
             'source': transaction,
         }
         logger.debug(f'_transaction_query {prepare_url} {data}')

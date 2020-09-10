@@ -5,6 +5,7 @@
 """
 import pytest
 import secrets
+from eth_utils import remove_0x_prefix
 
 from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI
@@ -31,13 +32,22 @@ def test_convex_api_request_funds(convex_url, test_account):
     request_amount = convex.request_funds(amount, test_account)
     assert(request_amount == amount)
 
-def test_convex_api_send_basic(convex_url, test_account):
+def test_convex_api_send_basic_lisp(convex_url, test_account):
     convex = ConvexAPI(convex_url)
     request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, test_account)
     result = convex.send('(map inc [1 2 3 4 5])', test_account)
     assert 'id' in result
     assert 'value' in result
     assert(result['value'] == [2, 3, 4, 5, 6])
+
+def test_convex_api_send_basic_scrypt(convex_url, test_account):
+    convex = ConvexAPI(convex_url, ConvexAPI.LANGUAGE_SCRYPT)
+    request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, test_account)
+    result = convex.send('map(inc, [1, 2, 3, 4, 5])', test_account)
+    assert 'id' in result
+    assert 'value' in result
+    assert(result['value'] == [2, 3, 4, 5, 6])
+
 
 def test_convex_api_get_balance_no_funds(convex_url):
     convex = ConvexAPI(convex_url)
@@ -84,24 +94,26 @@ def test_convex_api_call(convex_url):
     assert(result['value'])
     contract_address = result['value']
     test_number = secrets.randbelow(1000)
-    call_set_result = convex.send(f'(call storage-example (set {test_number}))', account)
+    call_set_result = convex.send(f'(call storage-example(set {test_number}))', account)
     assert(call_set_result['value'] == test_number)
-    call_get_result = convex.send('(call storage-example (get))', account)
+    call_get_result = convex.send('(call storage-example(get))', account)
     assert(call_get_result['value'] == test_number)
 
 
-#    call_get_result = convex.send('call (storage-example (get))', account, ConvexAPI.LANGUAGE_SCRYPT)
-#    assert(call_get_result['value'] == test_number)
+    # now api calls using language scrypt
 
-    # get address of function 'storage-example'
+    contract_address_api = remove_0x_prefix(contract_address)
+    convex = ConvexAPI(convex_url, ConvexAPI.LANGUAGE_SCRYPT)
+    test_number = secrets.randbelow(1000)
+    call_set_result = convex.send(f'call "{contract_address_api}" set({test_number})', account)
+    assert(call_set_result['value'] == test_number)
 
-    address = convex.get_address('storage-example', account)
-    assert(address == contract_address )
+    call_get_result = convex.send(f'call "{contract_address_api}" get()', account)
+    assert(call_get_result['value'] == test_number)
 
-    # TODO: currently not implmented
-    #convex = ConvexAPI(convex_url, ConvexAPI.LANGUAGE_SCRYPT)
     #address = convex.get_address('storage-example', account)
-    #assert(address == contract_address )
+    address = convex.get_address(contract_address_api, account)
+    assert(address == contract_address )
 
 
 def test_convex_api_transfer(convex_url):

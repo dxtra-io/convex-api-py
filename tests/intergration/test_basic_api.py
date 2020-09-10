@@ -81,6 +81,7 @@ def test_query_lisp():
     private_key, public_address = get_test_account()
     query_data = {
         'address': public_address,
+        'lang': 'convex-lisp',
         'source': f'(balance "{public_address}")'
     }
     url = 'https://convex.world/api/v1/query'
@@ -97,9 +98,10 @@ def test_query_scrypt():
     private_key, public_address = get_test_account()
     query_data = {
         'address': public_address,
+        'lang': 'convex-scrypt',
         'source': f'balance("{public_address}")'
     }
-    url = 'https://convex.world/api/v1/query?lang=convex-scrypt'
+    url = 'https://convex.world/api/v1/query'
     print('query send', query_data)
     response = requests.post(url, data=json.dumps(query_data))
     if response.status_code != 200:
