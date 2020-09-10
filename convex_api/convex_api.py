@@ -106,7 +106,11 @@ class ConvexAPI:
         :returns: Returns address of the contract
 
         """
-        result = self.query(f'(address {function_name})', address_account, ConvexAPI.LANGUAGE_LISP)
+
+        line = f'(address {function_name})'
+        if self._language == ConvexAPI.LANGUAGE_SCRYPT:
+            line = f'address ("{function_name}")'
+        result = self.query(line, address_account)
         if result and 'value' in result:
             return result['value']
 
@@ -135,10 +139,12 @@ class ConvexAPI:
                 address_from = remove_0x_prefix(account_from)
             else:
                 address_from = remove_0x_prefix(account_from.address)
-
+        line = f'(balance "{address}")'
+        if self._language == ConvexAPI.LANGUAGE_SCRYPT:
+            line = f'balance("{address}")'
         try:
 
-            result = self._transaction_query(address_from, f'(balance "{address}")', ConvexAPI.LANGUAGE_LISP)
+            result = self._transaction_query(address_from, line)
         except ConvexAPIError as error:
             if error.code != 'UNDECLARED':
                 raise
@@ -163,7 +169,12 @@ class ConvexAPI:
             to_address = remove_0x_prefix(to_address_account.address)
         if not to_address:
             raise ValueError(f'You must provide a valid to account/address ("{to_address_account}") to transfer funds too')
-        result = self.send(f'(transfer "{to_address}" {amount})', account, ConvexAPI.LANGUAGE_LISP)
+
+        line = f'(transfer "{to_address}" {amount})'
+        if self._language == ConvexAPI.LANGUAGE_SCRYPT:
+            line = f'transfer("{to_address}", {amount})'
+
+        result = self.send(line, account)
         return result
 
     def _transaction_prepare(self, address, transaction, language=None):

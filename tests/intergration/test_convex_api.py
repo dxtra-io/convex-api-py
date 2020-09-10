@@ -85,6 +85,12 @@ def test_convex_api_call(convex_url):
     address = convex.get_address('storage-example', account)
     assert(address == contract_address )
 
+    # TODO: currently not implmented
+    #convex = ConvexAPI(convex_url, ConvexAPI.LANGUAGE_SCRYPT)
+    #address = convex.get_address('storage-example', account)
+    #assert(address == contract_address )
+
+
 def test_convex_api_transfer(convex_url):
     convex = ConvexAPI(convex_url)
     account_from = Account.create_new()
@@ -98,14 +104,16 @@ def test_convex_api_transfer(convex_url):
     balance_to = convex.get_balance(account_to)
     assert(balance_to == amount / 2)
 
-def test_covex_api_query_lisp(convex_url, test_account):
+
+
+def test_convex_api_query_lisp(convex_url, test_account):
     convex = ConvexAPI(convex_url)
     result = convex.query(f'(address "{test_account.address_api}")', test_account)
     assert(result)
     # return value is the address as a checksum
     assert(result['value'] == test_account.address_checksum)
 
-def test_covex_api_query_scrypt(convex_url, test_account):
+def test_convex_api_query_scrypt(convex_url, test_account):
     convex = ConvexAPI(convex_url, ConvexAPI.LANGUAGE_SCRYPT)
     result = convex.query(f'address("{test_account.address_api}")', test_account)
     assert(result)
