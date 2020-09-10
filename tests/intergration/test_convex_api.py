@@ -9,7 +9,10 @@ from eth_utils import remove_0x_prefix
 
 from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI
-from convex_api.exceptions import ConvexAPIError
+from convex_api.exceptions import (
+    ConvexAPIError,
+    ConvexRequestError
+)
 
 TEST_FUNDING_AMOUNT = 8000000
 
@@ -111,8 +114,11 @@ def test_convex_api_call(convex_url):
     call_get_result = convex.send(f'call "{contract_address_api}" get()', account)
     assert(call_get_result['value'] == test_number)
 
-    #address = convex.get_address('storage-example', account)
-    address = convex.get_address(contract_address_api, account)
+    with pytest.raises(ConvexRequestError, match='400'):
+        call_set_result = convex.send(f'call "{contract_address_api}".set({test_number})', account)
+
+    address = convex.get_address('storage_example', account)
+    #address = convex.get_address(contract_address_api, account)
     assert(address == contract_address )
 
 

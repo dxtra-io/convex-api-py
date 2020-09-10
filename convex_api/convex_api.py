@@ -113,7 +113,7 @@ class ConvexAPI:
 
         line = f'(address {function_name})'
         if self._language == ConvexAPI.LANGUAGE_SCRYPT:
-            line = f'address ("{function_name}")'
+            line = f'address({function_name})'
         result = self.query(line, address_account)
         if result and 'value' in result:
             return result['value']
