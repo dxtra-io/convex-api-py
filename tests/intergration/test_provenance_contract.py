@@ -21,9 +21,18 @@ provenance_contract = f"""
 (def {CONTRACT_NAME}
     (deploy
         '(do
-            (def provenance {{}})
+            (def provenance [])
             (defn version [] "{CONTRACT_VERSION}")
-            (export version)
+            (defn register [asset-id]
+                (let [record {{:owner *caller* :timestamp *timestamp* :asset-id (blob asset-id)}}]
+                    (def provenance (conj provenance record))
+                    record
+                )
+            )
+            (defn event-list [asset-id]
+                (mapcat (fn [record] (when (= (blob asset-id) (record :asset-id)) [record])) provenance)
+            )
+            (export event-list register version)
         )
     )
 )
@@ -32,9 +41,29 @@ provenance_contract = f"""
 
 def test_provenance_contract(convex, test_account):
     auto_topup_account(convex, test_account)
+    print(provenance_contract)
     result = convex.send(provenance_contract, test_account)
     assert(result['value'])
     auto_topup_account(convex, test_account)
     contract_address = result['value']
     assert(contract_address)
     print(contract_address)
+
+    asset_id = '0x' + secrets.token_hex(32)
+    event_count = 4
+    for index in range(0, event_count):
+        result = convex.send(f'(call {contract_address} (register {asset_id}))', test_account)
+        assert(result)
+        record = result['value']
+        assert(record['asset-id'] == asset_id)
+
+
+    result = convex.query(f'(call {contract_address} (event-list {asset_id}))', test_account)
+    assert(result)
+    event_list = result['value']
+    assert(event_list)
+    assert(len(event_list) == event_count)
+    for event_item in event_list:
+        assert(event_item['asset-id'] == asset_id)
+
+
