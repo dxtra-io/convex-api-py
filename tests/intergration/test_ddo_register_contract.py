@@ -5,7 +5,8 @@
 """
 
 import pytest
-import secretsfrom tests.helpers import auto_topup_account
+import secrets
+from tests.helpers import auto_topup_account
 
 from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI
