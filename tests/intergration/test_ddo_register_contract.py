@@ -15,7 +15,7 @@ from convex_api.exceptions import ConvexAPIError
 CONTRACT_NAME='starfish-ddo-register'
 CONTRACT_VERSION = '0.0.4'
 
-did_registry_contract = f"""
+ddo_register_contract = f"""
 (def {CONTRACT_NAME}
     (deploy
         '(do
@@ -103,7 +103,7 @@ deploy_single_contract_did_registry = """
 )
 """
 
-did_register_contract_address = None
+ddo_register_contract_address = None
 
 def auto_topup_account(convex, account, min_balance=None):
     amount = 10000000
@@ -125,14 +125,14 @@ def convex(convex_url):
 
 @pytest.fixture()
 def contract_address(convex, test_account):
-    global did_register_contract_address
+    global ddo_register_contract_address
     auto_topup_account(convex, test_account, 50000000)
-    if did_register_contract_address is None:
-        result = convex.send(did_registry_contract, test_account)
+    if ddo_register_contract_address is None:
+        result = convex.send(ddo_register_contract, test_account)
         assert(result['value'])
         auto_topup_account(convex, test_account)
-        did_register_contract_address = result['value']
-    return did_register_contract_address
+        ddo_register_contract_address = result['value']
+    return ddo_register_contract_address
 
 
 @pytest.fixture()
