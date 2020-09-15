@@ -9,6 +9,9 @@ import pytest
 from eth_utils import to_bytes
 
 from convex_api.account import Account
+from convex_api.convex_api import ConvexAPI
+
+from tests.helpers import auto_topup_account
 
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('urllib3').setLevel(logging.INFO)
@@ -47,3 +50,14 @@ def test_account(test_account_info):
 @pytest.fixture(scope='module')
 def convex_url():
     return CONVEX_URL
+
+@pytest.fixture(scope='module')
+def convex(convex_url):
+    api = ConvexAPI(convex_url)
+    return api
+
+@pytest.fixture(scope='module')
+def other_account(convex):
+    account = Account.create_new()
+    auto_topup_account(convex, account)
+    return account

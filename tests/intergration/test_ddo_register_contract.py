@@ -1,16 +1,16 @@
 """
 
-
-    Test Convex Contracts for Starfish
+    Test Convex ddo register contract for starfish
 
 """
 
 import pytest
-import secrets
+import secretsfrom tests.helpers import auto_topup_account
 
 from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
+
 
 CONTRACT_NAME='starfish-ddo-register'
 CONTRACT_VERSION = '0.0.4'
@@ -105,24 +105,6 @@ deploy_single_contract_did_registry = """
 
 ddo_register_contract_address = None
 
-def auto_topup_account(convex, account, min_balance=None):
-    amount = 10000000
-    retry_counter = 100
-    if min_balance is None:
-        min_balance = amount
-    balance = convex.get_balance(account)
-    while balance < min_balance and retry_counter > 0:
-        request_amount = convex.request_funds(amount, account)
-        balance = convex.get_balance(account)
-        retry_counter -= 1
-
-
-@pytest.fixture()
-def convex(convex_url):
-    api = ConvexAPI(convex_url)
-    return api
-
-
 @pytest.fixture()
 def contract_address(convex, test_account):
     global ddo_register_contract_address
@@ -134,12 +116,6 @@ def contract_address(convex, test_account):
         ddo_register_contract_address = result['value']
     return ddo_register_contract_address
 
-
-@pytest.fixture()
-def other_account(convex):
-    account = Account.create_new()
-    auto_topup_account(convex, account)
-    return account
 
 def test_contract_version(convex, test_account, contract_address):
     command = f'(call {contract_address} (version))'
