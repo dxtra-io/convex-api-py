@@ -17,3 +17,14 @@ jobs:
       run: make lint
     - name: Test
       run: make tests
+    # add docs for the time, in testing, later move to deploy
+    - name: Build Docs
+      run: |
+        make docs
+        touch docs/build/html/.nojekyll
+    - name: Deploy Docs
+      uses: peaceiris/actions-gh-pages@v2.5.0
+      env:
+        PERSONAL_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        PUBLISH_BRANCH: gh-pages
+        PUBLISH_DIR: docs/build/html
