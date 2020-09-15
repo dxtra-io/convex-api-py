@@ -23,13 +23,18 @@ provenance_contract = f"""
         '(do
             (def provenance [])
             (defn version [] "{CONTRACT_VERSION}")
+            (defn assert-asset-id [value]
+                (when-not (and (blob? value) (== 32 (count (blob value)))) (fail "INVALID" "invalid asset-id"))
+            )
             (defn register [asset-id]
+                (assert-asset-id asset-id)
                 (let [record {{:owner *caller* :timestamp *timestamp* :asset-id (blob asset-id)}}]
                     (def provenance (conj provenance record))
                     record
                 )
             )
             (defn event-list [asset-id]
+                (assert-asset-id asset-id)
                 (mapcat (fn [record] (when (= (blob asset-id) (record :asset-id)) [record])) provenance)
             )
             (export event-list register version)
@@ -67,3 +72,6 @@ def test_provenance_contract(convex, test_account):
         assert(event_item['asset-id'] == asset_id)
 
 
+    bad_asset_id = '0x' + secrets.token_hex(20)
+    with pytest.raises(ConvexAPIError, match='INVALID'):
+        result = convex.send(f'(call {contract_address} (register {bad_asset_id}))', test_account)
