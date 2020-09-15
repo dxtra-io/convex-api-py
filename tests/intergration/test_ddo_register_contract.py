@@ -276,7 +276,7 @@ def test_contract_ddo_transfer(convex, test_account, other_account):
 
     auto_topup_account(convex, test_account)
 
-    contract_address = convex.get_address('starfish-did-registry', test_account)
+    contract_address = convex.get_address(CONTRACT_NAME, test_account)
     assert(contract_address)
 
     did = f'0x{secrets.token_hex(32)}'
@@ -330,7 +330,7 @@ def test_contract_ddo_transfer(convex, test_account, other_account):
     assert(result['value'] == did)
 
 def test_contract_ddo_bulk_register(convex, test_account):
-    contract_address = convex.get_address('starfish-did-registry', test_account)
+    contract_address = convex.get_address(CONTRACT_NAME, test_account)
     assert(contract_address)
 
     for index in range(0, 2):
@@ -346,7 +346,7 @@ def test_contract_ddo_bulk_register(convex, test_account):
 
 def test_contract_ddo_dump(convex, test_account, other_account):
 
-    contract_address = convex.get_address('starfish-did-registry', test_account)
+    contract_address = convex.get_address(CONTRACT_NAME, test_account)
     assert(contract_address)
 
     did_list = []

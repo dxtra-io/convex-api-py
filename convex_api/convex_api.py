@@ -150,7 +150,7 @@ class ConvexAPI:
 
             result = self._transaction_query(address_from, line)
         except ConvexAPIError as error:
-            if error.code != 'UNDECLARED':
+            if error.code != 'NOBODY':
                 raise
         else:
             value = result['value']
