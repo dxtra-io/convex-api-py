@@ -12,11 +12,11 @@ from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
 
-CONTRACT_NAME='starfish-did-registry'
+CONTRACT_NAME='starfish-ddo-register'
 CONTRACT_VERSION = '0.0.4'
 
 did_registry_contract = f"""
-(def starfish-did-registry
+(def {CONTRACT_NAME}
     (deploy
         '(do
             (def registry {{}})
@@ -381,3 +381,4 @@ def test_contract_ddo_dump(convex, test_account, other_account):
     assert(result['value'])
     for did in did_list:
         assert(did in result['value'])
+
