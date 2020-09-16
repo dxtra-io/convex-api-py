@@ -106,7 +106,7 @@ deploy_single_contract_did_registry = """
 
 ddo_register_contract_address = None
 
-@pytest.fixture()
+@pytest.fixture
 def contract_address(convex, test_account):
     global ddo_register_contract_address
     auto_topup_account(convex, test_account, 50000000)

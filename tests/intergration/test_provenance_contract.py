@@ -79,18 +79,27 @@ def contract_address(convex, test_account):
     return provenance_contract_address
 
 
-@pytest.fixture()
+@pytest.fixture
 def register_test_list(pytestconfig, convex, test_account, contract_address):
-    event_list = []
-    event_count = 4
-    for index in range(0, event_count):
-        asset_id = '0x' + secrets.token_hex(32)
-        result = convex.send(f'(call {contract_address} (register {asset_id}))', test_account)
-        assert(result)
-        record = result['value']
-        assert(record['asset-id'] == asset_id)
-        event_list.append(record)
-    return event_list
+    global test_event_list
+    if not test_event_list:
+        test_event_list = []
+        event_count = 8
+        auto_topup_account(convex, test_account)
+        for index in range(0, event_count):
+            asset_id = '0x' + secrets.token_hex(32)
+            result = convex.send(f'(call {contract_address} (register {asset_id}))', test_account)
+            assert(result)
+            record = result['value']
+            assert(record['asset-id'] == asset_id)
+            test_event_list.append(record)
+    return test_event_list
+
+def test_contract_version(convex, test_account, contract_address):
+    command = f'(call {contract_address} (version))'
+    result = convex.query(command, test_account)
+    assert(result['value'])
+    assert(result['value'] == CONTRACT_VERSION)
 
 def test_provenance_contract_register(register_test_list):
     assert(register_test_list)
@@ -117,17 +126,25 @@ def test_provenance_contract_event_owner_list(convex, test_account, contract_add
         assert(event_item['owner'] == record["owner"])
 
 def test_provenance_contract_event_timestamp_list(convex, test_account, contract_address, register_test_list):
-    record_from = register_test_list[1]
-    record_to = register_test_list[2]
+    record_from = register_test_list[2]
+    record_to = register_test_list[len(register_test_list) - 2]
     timestamp_from = record_from['timestamp']
     timestamp_to = record_to['timestamp']
     result = convex.query(f'(call {contract_address} (event-timestamp {timestamp_from} {timestamp_to}))', test_account)
     event_list = result['value']
     assert(event_list)
-    print(timestamp_from, timestamp_to, event_list)
-    assert(len(event_list) == 2)
+    assert(len(event_list) == len(register_test_list) - 3)
     for event_item in event_list:
         assert(event_item['timestamp'] >= timestamp_from and event_item['timestamp'] <= timestamp_to)
+
+def test_provenance_contract_event_timestamp_item(convex, test_account, contract_address, register_test_list):
+    record = register_test_list[secrets.randbelow(len(register_test_list))]
+    timestamp = record['timestamp']
+    result = convex.query(f'(call {contract_address} (event-timestamp {timestamp} {timestamp}))', test_account)
+    event_list = result['value']
+    assert(len(event_list) == 1)
+    event_item = event_list[0]
+    assert(event_item['timestamp'] == timestamp)
 
 def test_bad_asset_id(convex, test_account, contract_address):
     bad_asset_id = '0x' + secrets.token_hex(20)
