@@ -99,7 +99,7 @@ def test_convex_api_call(convex_url):
     test_number = secrets.randbelow(1000)
     call_set_result = convex.send(f'(call storage-example(set {test_number}))', account)
     assert(call_set_result['value'] == test_number)
-    call_get_result = convex.send('(call storage-example(get))', account)
+    call_get_result = convex.query('(call storage-example(get))', account)
     assert(call_get_result['value'] == test_number)
 
 
@@ -111,10 +111,10 @@ def test_convex_api_call(convex_url):
     call_set_result = convex.send(f'call storage_example set({test_number})', account)
     assert(call_set_result['value'] == test_number)
 
-    call_get_result = convex.send('call storage_example get()', account)
+    call_get_result = convex.query('call storage_example get()', account)
     assert(call_get_result['value'] == test_number)
 
-    call_get_result = convex.send(f'call "{contract_address_api}" get()', account)
+    call_get_result = convex.query(f'call "{contract_address_api}" get()', account)
     assert(call_get_result['value'] == test_number)
 
     with pytest.raises(ConvexRequestError, match='400'):
