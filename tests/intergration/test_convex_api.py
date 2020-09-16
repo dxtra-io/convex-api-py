@@ -108,8 +108,11 @@ def test_convex_api_call(convex_url):
     contract_address_api = remove_0x_prefix(contract_address)
     convex = ConvexAPI(convex_url, ConvexAPI.LANGUAGE_SCRYPT)
     test_number = secrets.randbelow(1000)
-    call_set_result = convex.send(f'call "{contract_address_api}" set({test_number})', account)
+    call_set_result = convex.send(f'call storage_example set({test_number})', account)
     assert(call_set_result['value'] == test_number)
+
+    call_get_result = convex.send('call storage_example get()', account)
+    assert(call_get_result['value'] == test_number)
 
     call_get_result = convex.send(f'call "{contract_address_api}" get()', account)
     assert(call_get_result['value'] == test_number)
