@@ -78,18 +78,23 @@ def contract_address(convex, test_account):
         provenance_contract_address = result['value']
     return provenance_contract_address
 
-
 @pytest.fixture
-def register_test_list(pytestconfig, convex, test_account, contract_address):
+def register_test_list(pytestconfig, convex, test_account, other_account, contract_address):
     global test_event_list
     if not test_event_list:
         test_event_list = []
-        event_count = 8
+        event_count = 10
         auto_topup_account(convex, test_account)
+
+        register_account = other_account
         for index in range(0, event_count):
             if index % 2 == 0:
                 asset_id = '0x' + secrets.token_hex(32)
-            result = convex.send(f'(call {contract_address} (register {asset_id}))', test_account)
+                if register_account.address == test_account.address:
+                    register_account = other_account
+                else:
+                    register_account = test_account
+            result = convex.send(f'(call {contract_address} (register {asset_id}))', register_account)
             assert(result)
             record = result['value']
             assert(record['asset-id'] == asset_id)
@@ -114,15 +119,18 @@ def test_provenance_contract_event_list(convex, test_account, contract_address, 
     assert(len(event_list) == 2)
     event_item = event_list[0]
     assert(event_item['asset-id'] == record['asset-id'])
-    assert(event_item['timestamp'] == record['timestamp'])
     assert(event_item['owner'] == record['owner'])
 
 def test_provenance_contract_event_owner_list(convex, test_account, contract_address, register_test_list):
     record = register_test_list[secrets.randbelow(len(register_test_list))]
+    owner_count = 0
+    for item in register_test_list:
+        if item['owner'] == record['owner']:
+            owner_count += 1
     result = convex.query(f'(call {contract_address} (event-owner {record["owner"]}))', test_account)
     event_list = result['value']
     assert(event_list)
-    assert(len(event_list) >= len(register_test_list))
+    assert(len(event_list) == owner_count)
     for event_item in event_list:
         assert(event_item['owner'] == record["owner"])
 
