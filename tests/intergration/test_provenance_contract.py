@@ -87,7 +87,8 @@ def register_test_list(pytestconfig, convex, test_account, contract_address):
         event_count = 8
         auto_topup_account(convex, test_account)
         for index in range(0, event_count):
-            asset_id = '0x' + secrets.token_hex(32)
+            if index % 2 == 0:
+                asset_id = '0x' + secrets.token_hex(32)
             result = convex.send(f'(call {contract_address} (register {asset_id}))', test_account)
             assert(result)
             record = result['value']
@@ -105,19 +106,19 @@ def test_provenance_contract_register(register_test_list):
     assert(register_test_list)
 
 def test_provenance_contract_event_list(convex, test_account, contract_address, register_test_list):
-    record = register_test_list[0]
+    record = register_test_list[secrets.randbelow(len(register_test_list))]
     result = convex.query(f'(call {contract_address} (event-list {record["asset-id"]}))', test_account)
     assert(result)
     event_list = result['value']
     assert(event_list)
-    assert(len(event_list) == 1)
+    assert(len(event_list) == 2)
     event_item = event_list[0]
     assert(event_item['asset-id'] == record['asset-id'])
     assert(event_item['timestamp'] == record['timestamp'])
     assert(event_item['owner'] == record['owner'])
 
 def test_provenance_contract_event_owner_list(convex, test_account, contract_address, register_test_list):
-    record = register_test_list[0]
+    record = register_test_list[secrets.randbelow(len(register_test_list))]
     result = convex.query(f'(call {contract_address} (event-owner {record["owner"]}))', test_account)
     event_list = result['value']
     assert(event_list)
