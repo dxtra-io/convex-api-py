@@ -52,3 +52,37 @@ def test_convex_recursion(convex, test_account):
             assert(result['value'] == test_number)
     with pytest.raises(ConvexAPIError, match='DEPTH'):
         convex.query('(call chain-0 (get))', test_account)
+
+def test_schedule_transfer(convex, test_account, other_account):
+    contract = """
+(def transfer-for-ever
+    (deploy
+        '(do
+            (def call-counter 0)
+            (defn tx-delay [to-address amount event-time]
+                (schedule event-time (tx-now to-address amount))
+            )
+            (defn tx-now [to-address amount]
+                (def call-counter (+ call-counter 1))
+                (schedule (+ *timestamp* 1000) (tx-now to-address amount))
+                (transfer to-address amount)
+            )
+            (defn counter [] call-counter)
+            (export tx-delay tx-now counter)
+        )
+    )
+)
+"""
+# (call contract-address (tx-to to-address amount))
+
+    auto_topup_account(convex, test_account)
+    result = convex.send(contract, test_account)
+    contract_address = result['value']
+    convex.transfer(contract_address, 8000000, other_account)
+    auto_topup_account(convex, test_account)
+    result = convex.send(f'(call transfer-for-ever (tx-now {other_account.address} 1000))', test_account)
+    print(result)
+
+    #for index in range(0, 10):
+        #result = convex.query('(call transfer-for-ever (counter))', test_account)
+        #print(result)
