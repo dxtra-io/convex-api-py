@@ -73,12 +73,11 @@ ddo_register_contract = f"""
                     [did (address to-account)]
                 )
             )
-            (defn dump [] registry )
             (defn owner-list [the-owner]
                 (assert-address the-owner)
                 (mapcat (fn [v] (when (= (address the-owner) (get (last v) :owner)) [(first v)])) registry)
             )
-            (export dump resolve resolve? register unregister owner owner? owner-list transfer version)
+            (export resolve resolve? register unregister owner owner? owner-list transfer version)
         )
     )
 )
@@ -321,7 +320,7 @@ def test_contract_ddo_bulk_register(convex, test_account):
         assert(result['value'])
         assert(result['value'] == did)
 
-def test_contract_ddo_dump(convex, test_account, other_account):
+def test_contract_ddo_owner_list(convex, test_account, other_account):
 
     contract_address = convex.get_address(CONTRACT_NAME, test_account)
     assert(contract_address)
@@ -339,19 +338,6 @@ def test_contract_ddo_dump(convex, test_account, other_account):
         assert(result['value'])
         assert(result['value'] == did)
 
-
-    command = f'(call {contract_address} (dump))'
-    result = convex.query(command, test_account)
-    assert(result['value'])
-    for did in did_list:
-        assert(did in list(result['value'].keys()))
-
-
-    command = f'(call {contract_address} (dump))'
-    result = convex.query(command, other_account)
-    assert(result['value'])
-    for did in did_list:
-        assert(did in list(result['value'].keys()))
 
     command = f'(call {contract_address} (owner-list "{test_account.address_api}"))'
     result = convex.query(command, test_account)
