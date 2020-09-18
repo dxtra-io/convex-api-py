@@ -12,6 +12,8 @@ from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
 
+# (import convex.trust :as trust)
+
 
 CONTRACT_NAME='starfish-ddo-register'
 CONTRACT_VERSION = '0.0.4'

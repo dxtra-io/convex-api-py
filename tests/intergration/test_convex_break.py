@@ -60,12 +60,16 @@ def test_schedule_transfer(convex, test_account, other_account):
         '(do
             (defn tx-delay [to-address amount]
                 (transfer to-address amount)
-                (schedule (+ *timestamp* 1000) (recur tx-delay (to-address amount)))
+                (def call-address *address*)
+                (schedule (+ *timestamp* 1000) (call call-address (tx-delay to-address amount)))
             )
             (defn tx-now [to-address amount]
                 (transfer to-address amount)
             )
-            (export tx-delay tx-now)
+            (defn show-schedule []
+                [(get *state* :schedule) *address*]
+            )
+            (export show-schedule tx-delay tx-now)
         )
     )
 )
@@ -77,9 +81,7 @@ def test_schedule_transfer(convex, test_account, other_account):
     contract_address = result['value']
     convex.transfer(contract_address, 8000000, other_account)
     auto_topup_account(convex, test_account)
-    result = convex.send(f'(call transfer-for-ever (tx-delay {other_account.address} 1000))', test_account)
+    result = convex.send(f'(call {contract_address} (tx-delay {other_account.address} 1000))', test_account)
     print(result)
-
-    #for index in range(0, 10):
-        #result = convex.query('(call transfer-for-ever (counter))', test_account)
-        #print(result)
+    result = convex.send(f'(call {contract_address} (show-schedule))', test_account)
+    print(result)
