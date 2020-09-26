@@ -51,7 +51,7 @@ class ConvexAPI:
 
         hash_data = self._transaction_prepare(account.address, transaction, language)
         signed_data = account.sign(hash_data['hash'])
-        result = self._transaction_submit(account.address, hash_data['hash'], signed_data)
+        result = self._transaction_submit(account.address, hash_data['sequence_number'], hash_data['hash'], signed_data)
         return result
 
     def query(self, transaction, address_account, language=None):
@@ -205,13 +205,14 @@ class ConvexAPI:
 
         return result
 
-    def _transaction_submit(self, address, hash_data, signed_data):
+    def _transaction_submit(self, address, sequence_number, hash_data, signed_data):
         """
 
         """
         submit_url = urljoin(self._url, '/api/v1/transaction/submit')
         data = {
             'address': remove_0x_prefix(address),
+            'sequence_number': sequence_number,
             'hash': hash_data,
             'sig': remove_0x_prefix(signed_data)
         }
