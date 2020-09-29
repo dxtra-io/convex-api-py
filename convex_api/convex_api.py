@@ -182,6 +182,30 @@ class ConvexAPI:
         return result
 
     def get_account_info(self, address_account):
+        """
+        Get account information. This will only work with an account that has a balance or has had some transactions
+        processed on the convex network. New accounts with no transfer or transactions will raise:
+
+            ConvexRequestError(404, 'The Account for this Address does not exist.') error
+
+        The returned information is dictionary of account information.
+
+        :param Account, str address_account: Account or str address of an account to get current information on.
+        :returns: dict of information, such as
+
+            {
+                "address": "7E66429CA9c10e68eFae2dCBF1804f0F6B3369c7164a3187D6233683c258710f",
+                "is_library": false,
+                "is_actor": false,
+                "memory_size": 75,
+                "allowance": 10000000,
+                "type": "user",
+                "balance": 10000000000,
+                "sequence": 0,
+                "environment": {}
+            }
+
+        """
         if isinstance(address_account, str):
             address = remove_0x_prefix(address_account)
         else:
