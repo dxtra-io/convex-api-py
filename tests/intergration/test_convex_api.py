@@ -14,7 +14,7 @@ from convex_api.exceptions import (
     ConvexRequestError
 )
 
-TEST_FUNDING_AMOUNT = 8000000
+TEST_FUNDING_AMOUNT = 8888888
 
 def test_convex_api_language_setup(convex_url):
     convex = ConvexAPI(convex_url)
@@ -47,6 +47,11 @@ def test_convex_get_account_info(convex_url, test_account):
     account = Account.create_new()
     with pytest.raises(ConvexRequestError, match='Address does not exist'):
         info = convex.get_account_info(account)
+
+    request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, account)
+    info = convex.get_account_info(account)
+    assert(info)
+    assert(info['balance'] == TEST_FUNDING_AMOUNT)
 
 def test_convex_api_send_basic_lisp(convex_url, test_account):
     convex = ConvexAPI(convex_url)
