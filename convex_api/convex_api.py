@@ -67,9 +67,9 @@ class ConvexAPI:
                     if sequence_retry_count == 0:
                         raise
                     sequence_retry_count -= 1
-                    # now sleep < 1 second for some random milli secconds
-                    sleep_time = (secrets.randbelow(max_sleep_time_seconds * 1000) + 1) / 1000
-                    time.sleep(sleep_time)
+                    # now sleep < 1 second for at least 1 millisecond
+                    sleep_time = secrets.randbelow(round(max_sleep_time_seconds * 1000)) / 1000
+                    time.sleep(sleep_time + 1)
                 else:
                     raise
             else:

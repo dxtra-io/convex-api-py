@@ -16,7 +16,7 @@ def process_on_convex(convex, test_account):
     values = []
     inc_values = []
     is_sent = False
-    for counter in range(0, secrets.randbelow(4) + 1):
+    for counter in range(0, 4):
         for index in range(secrets.randbelow(10) + 1):
             value = secrets.randbelow(1000)
             values.append(str(value))
@@ -31,7 +31,7 @@ def process_on_convex(convex, test_account):
 
 def test_convex_api_multi_thread(convex_url, test_account):
 
-    process_count = 8
+    process_count = 4
     convex = ConvexAPI(convex_url)
     auto_topup_account(convex, test_account)
     process_list = []
