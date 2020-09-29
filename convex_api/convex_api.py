@@ -266,9 +266,7 @@ class ConvexAPI:
         logger.debug(f'_transaction_query repsonse {result}')
         if 'error-code' in result:
             raise ConvexAPIError('_transaction_query', result['error-code'], result['value'])
-
         return result
-
 
     @property
     def language(self):
