@@ -7,12 +7,12 @@
 
 import json
 import logging
-from urllib.parse import urljoin
-import requests
 import secrets
 import time
 
+from urllib.parse import urljoin
 
+import requests
 from eth_utils import remove_0x_prefix
 
 from convex_api.exceptions import (
@@ -55,14 +55,10 @@ class ConvexAPI:
         if not isinstance(transaction, str):
             raise TypeError('The transaction must be a type str')
 
-        # number of retries for a SEQUENCE error
-        counter = 0
-        last_sequence_number = None
         result = None
-        last_id = None
         while sequence_retry_count >= 0:
             try:
-                hash_data = self._transaction_prepare(account.address, transaction, last_sequence_number, language)
+                hash_data = self._transaction_prepare(account.address, transaction, language=language)
                 signed_data = account.sign(hash_data['hash'])
                 result = self._transaction_submit(account.address, hash_data['hash'], signed_data)
             except ConvexAPIError as error:
@@ -247,7 +243,7 @@ class ConvexAPI:
         logger.debug(f'get_account_info repsonse {result}')
         return result
 
-    def _transaction_prepare(self, address, transaction, sequence_number=None, language=None):
+    def _transaction_prepare(self, address, transaction, language=None, sequence_number=None):
         """
 
         """
