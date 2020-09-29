@@ -56,6 +56,7 @@ class ConvexAPI:
             raise TypeError('The transaction must be a type str')
 
         result = None
+        max_sleep_time_seconds = 1
         while sequence_retry_count >= 0:
             try:
                 hash_data = self._transaction_prepare(account.address, transaction, language=language)
@@ -66,7 +67,9 @@ class ConvexAPI:
                     if sequence_retry_count == 0:
                         raise
                     sequence_retry_count -= 1
-                    time.sleep((secrets.randbelow(1000) + 1) / 1000)
+                    # now sleep < 1 second for some random milli secconds
+                    sleep_time = (secrets.randbelow(max_sleep_time_seconds * 1000) + 1) / 1000
+                    time.sleep(sleep_time)
                 else:
                     raise
             else:
