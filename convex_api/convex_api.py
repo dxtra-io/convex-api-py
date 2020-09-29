@@ -9,6 +9,8 @@ import json
 import logging
 from urllib.parse import urljoin
 import requests
+import secrets
+import time
 
 
 from eth_utils import remove_0x_prefix
@@ -34,12 +36,16 @@ class ConvexAPI:
             raise ValueError(f'Invalid language: {language}')
         self._language = language
 
-    def send(self, transaction, account, language=None):
+    def send(self, transaction, account, language=None, sequence_retry_count=20):
         """
         Send transaction code to the block chain node.
 
         :param str transaction: The transaction as a string to send
         :param Account account: The account that needs to sign the message to send
+        :param str language: Language to use for this transaction. Defaults to LANGUAGE_LISP.
+        :param int sequence_retry_count: Number of retries to do if a SEQUENCE error occurs.
+            When sending multiple send requsts on the same account, you can get SEQUENCE errors,
+            This send method will automatically retry again
 
         :returns: The dict returned from the result of the sent transaction.
 
@@ -49,9 +55,26 @@ class ConvexAPI:
         if not isinstance(transaction, str):
             raise TypeError('The transaction must be a type str')
 
-        hash_data = self._transaction_prepare(account.address, transaction, language)
-        signed_data = account.sign(hash_data['hash'])
-        result = self._transaction_submit(account.address, hash_data['sequence_number'], hash_data['hash'], signed_data)
+        # number of retries for a SEQUENCE error
+        counter = 0
+        last_sequence_number = None
+        result = None
+        last_id = None
+        while sequence_retry_count >= 0:
+            try:
+                hash_data = self._transaction_prepare(account.address, transaction, last_sequence_number, language)
+                signed_data = account.sign(hash_data['hash'])
+                result = self._transaction_submit(account.address, hash_data['hash'], signed_data)
+            except ConvexAPIError as error:
+                if error.code == 'SEQUENCE':
+                    if sequence_retry_count == 0:
+                        raise
+                    sequence_retry_count -= 1
+                    time.sleep((secrets.randbelow(1000) + 1) / 1000)
+                else:
+                    raise
+            else:
+                break
         return result
 
     def query(self, transaction, address_account, language=None):
@@ -193,6 +216,7 @@ class ConvexAPI:
         :param Account, str address_account: Account or str address of an account to get current information on.
         :returns: dict of information, such as
 
+        .. code-block: json
             {
                 "address": "7E66429CA9c10e68eFae2dCBF1804f0F6B3369c7164a3187D6233683c258710f",
                 "is_library": false,
@@ -204,6 +228,7 @@ class ConvexAPI:
                 "sequence": 0,
                 "environment": {}
             }
+
 
         """
         if isinstance(address_account, str):
@@ -222,7 +247,7 @@ class ConvexAPI:
         logger.debug(f'get_account_info repsonse {result}')
         return result
 
-    def _transaction_prepare(self, address, transaction, language=None):
+    def _transaction_prepare(self, address, transaction, sequence_number=None, language=None):
         """
 
         """
@@ -234,6 +259,8 @@ class ConvexAPI:
             'lang': language,
             'source': transaction,
         }
+        if sequence_number:
+            data['sequence'] = sequence_number
         logger.debug(f'_transaction_prepare {prepare_url} {data}')
         response = requests.post(prepare_url, data=json.dumps(data))
         if response.status_code != 200:
@@ -246,14 +273,13 @@ class ConvexAPI:
 
         return result
 
-    def _transaction_submit(self, address, sequence_number, hash_data, signed_data):
+    def _transaction_submit(self, address, hash_data, signed_data):
         """
 
         """
         submit_url = urljoin(self._url, '/api/v1/transaction/submit')
         data = {
             'address': remove_0x_prefix(address),
-            'sequence_number': sequence_number,
             'hash': hash_data,
             'sig': remove_0x_prefix(signed_data)
         }

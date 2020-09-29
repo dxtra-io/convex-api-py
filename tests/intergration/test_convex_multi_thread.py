@@ -16,22 +16,17 @@ def process_on_convex(convex, test_account):
     values = []
     inc_values = []
     is_sent = False
-    for index in range(secrets.randbelow(10) + 1):
-        value = secrets.randbelow(1000)
-        values.append(str(value))
-        inc_values.append(value + 1)
-        value_text = " ".join(values)
-    while (not is_sent):
-        try:
-            result = convex.send(f'(map inc [{value_text}])', test_account)
-        except ConvexAPIError as error:
-            print('retrying again...')
-            is_sent = False
-        else:
-            is_sent = True
-    assert 'id' in result
-    assert 'value' in result
-    assert(result['value'] == inc_values)
+    for counter in range(0, 4):
+        for index in range(secrets.randbelow(10) + 1):
+            value = secrets.randbelow(1000)
+            values.append(str(value))
+            inc_values.append(value + 1)
+            value_text = " ".join(values)
+        result = convex.send(f'(map inc [{value_text}])', test_account)
+        assert(result)
+        assert('id' in result)
+        assert('value' in result)
+        assert(result['value'] == inc_values)
 
 
 def test_convex_api_multi_thread(convex_url, test_account):
