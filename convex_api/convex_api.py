@@ -181,6 +181,23 @@ class ConvexAPI:
         result = self.send(line, account)
         return result
 
+    def get_account_info(self, address_account):
+        if isinstance(address_account, str):
+            address = remove_0x_prefix(address_account)
+        else:
+            address = remove_0x_prefix(address_account.address)
+
+        account_url = urljoin(self._url, f'/api/v1/accounts/{address}')
+        logger.debug(f'get_account_info {account_url}')
+
+        response = requests.get(account_url)
+        if response.status_code != 200:
+            raise ConvexRequestError('get_account_info', response.status_code, response.text)
+
+        result = response.json()
+        logger.debug(f'get_account_info repsonse {result}')
+        return result
+
     def _transaction_prepare(self, address, transaction, language=None):
         """
 
@@ -251,6 +268,7 @@ class ConvexAPI:
             raise ConvexAPIError('_transaction_query', result['error-code'], result['value'])
 
         return result
+
 
     @property
     def language(self):
