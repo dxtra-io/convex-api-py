@@ -21,6 +21,7 @@ install_requirements = [
     'cryptography',
     'eth-utils',
     'requests',
+    'mnemonic'
 ]
 
 setup_requirements = ['pytest-runner', ]

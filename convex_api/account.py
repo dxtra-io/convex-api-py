@@ -15,6 +15,8 @@ from eth_utils import (
     to_hex
 )
 
+from mnemonic import Mnemonic
+
 from convex_api.utils import to_address_checksum
 
 
@@ -60,6 +62,15 @@ class Account:
             encryption_algorithm=serialization.BestAvailableEncryption(password)
         )
         return private_data.decode()
+
+    @property
+    def export_to_mnemonic(self):
+        mnemonic = Mnemonic('english')
+        return mnemonic.to_mnemonic(self._private_key.private_bytes(
+            encoding=serialization.Encoding.Raw,
+            format=serialization.PrivateFormat.Raw,
+            encryption_algorithm=serialization.NoEncryption()
+        ))
 
     def export_to_file(self, filename, password):
         """
@@ -160,6 +171,12 @@ class Account:
         private_key = serialization.load_pem_private_key(text, password, backend=default_backend())
         if private_key:
             return Account(private_key)
+
+    @staticmethod
+    def import_from_mnemonic(words):
+        mnemonic = Mnemonic('english')
+        value = mnemonic.to_entropy(words)
+        return Account(Ed25519PrivateKey.from_private_bytes(value))
 
     @staticmethod
     def import_from_file(filename, password):

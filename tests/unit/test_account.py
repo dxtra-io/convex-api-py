@@ -72,3 +72,10 @@ def test_account_import_export_to_file(test_account):
     assert(import_account.address == test_account.address)
     os.remove(filename)
 
+def test_account_export_to_mnemonic(test_account):
+    words = test_account.export_to_mnemonic
+    assert(words)
+    new_account = Account.import_from_mnemonic(words)
+    assert(new_account)
+    assert(test_account.address == new_account.address)
+    assert(test_account.export_to_mnemonic == new_account.export_to_mnemonic)
