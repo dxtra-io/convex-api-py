@@ -1,5 +1,8 @@
 ## Change log
 
+### 0.0.4
++   Import/export account private keys as a word phrase
+
 ### 0.0.3
 +   Pre-alpha release
 
