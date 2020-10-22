@@ -54,8 +54,7 @@ def test_convex_recursion(convex, test_account):
         convex.query('(call chain-0 (get))', test_account)
 
 def test_schedule_transfer(convex, test_account, other_account):
-    # you cannot send coins to
-    # an actor , if it exports the receive-coin function:
+    # you can send coins to an actor , if it exports the receive-coin function
 
     contract = """
 (def transfer-for-ever
