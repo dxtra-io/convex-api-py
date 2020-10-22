@@ -190,15 +190,15 @@ class ConvexAPI:
 
         """
         if isinstance(to_address_account, str):
-            to_address = remove_0x_prefix(to_address_account)
+            to_address = to_address_account
         else:
-            to_address = remove_0x_prefix(to_address_account.address)
+            to_address = to_address_account.address_checksum
         if not to_address:
             raise ValueError(f'You must provide a valid to account/address ("{to_address_account}") to transfer funds too')
 
-        line = f'(transfer "{to_address}" {amount})'
+        line = f'(transfer {to_address} {amount})'
         if self._language == ConvexAPI.LANGUAGE_SCRYPT:
-            line = f'transfer("{to_address}", {amount})'
+            line = f'transfer({to_address}, {amount})'
 
         result = self.send(line, account)
         return result

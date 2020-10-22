@@ -54,6 +54,9 @@ def test_convex_recursion(convex, test_account):
         convex.query('(call chain-0 (get))', test_account)
 
 def test_schedule_transfer(convex, test_account, other_account):
+    # you cannot send coins to
+    # an actor , if it exports the receive-coin function:
+
     contract = """
 (def transfer-for-ever
     (deploy
@@ -69,7 +72,8 @@ def test_schedule_transfer(convex, test_account, other_account):
             (defn show-schedule []
                 [(get *state* :schedule) *address*]
             )
-            (export show-schedule tx-delay tx-now)
+            (defn receive-coin [sender amount data] (accept amount))
+            (export show-schedule tx-delay tx-now, receive-coin)
         )
     )
 )
@@ -77,6 +81,7 @@ def test_schedule_transfer(convex, test_account, other_account):
 # (call contract-address (tx-to to-address amount))
 
     auto_topup_account(convex, test_account)
+    auto_topup_account(convex, other_account)
     result = convex.send(contract, test_account)
     contract_address = result['value']
     convex.transfer(contract_address, 8000000, other_account)
