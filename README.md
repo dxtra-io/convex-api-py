@@ -34,4 +34,4 @@ You can request some funds to the new account and then get the account informati
 You can export the accounts private key encoded as PKCS8 encrypt the key with a password:
 
     >>> account.export_to_text('secret')
-    '-----BEGIN ENCRYPTED PRIVATE KEY-----\nMIGbMFcGCSqGSIb3DQEFDTBKMCkGCSqGSIb3DQEFDDAcBAizl38718A38wICCAAw\nDAYIKoZIhvcNAgkFADAdBglghkgBZQMEASoEEGOHaBSsm8TSScgUSBK8pDAEQJCL\nMmES7ElmI+SB7xmfRdFq8Afh4FE9rhOsb6vSWlTkWcYDoZ8T4hYuZ9NDPJ/nNIsi\nh9Kwp0dVyN7SczuZqi0=\n-----END ENCRYPTED PRIVATE KEY-----\n'
+    '-----BEGIN ENCRYPTED PRIVATE KEY-----\nMIGbMFcGCSqGSIb3DQEFDTBKMCkGCSqGSIb3DQEFDDAcBAiMY42UY4PXHAICCAAw\nDAYIKoZIhvcNAgkFADAdBglghkgBZQMEASoEEJpwDMicGbGj2iSJesktIVYEQBsp\nKMTAHzvUyw8jZRr8WSrmxH7938sjma8XWI6lgd9jwTZzcGamog7p3zatw0Wp+jFK\nKruWAZmIqhBZ/2ezDv8=\n-----END ENCRYPTED PRIVATE KEY-----\n'
