@@ -15,6 +15,12 @@ from convex_api import Account as ConvexAccount
 from convex_api import ConvexAPI
 
 DEFAULT_URL = 'https://convex.world'
+COMMAND_HELP_TEXT = '''
+
+create                      Create a new account using the provided --password. If no password auto generate one.
+new                         Same as 'create' command.
+info [address]              Get information about an account, you can pass the account address, or the keywords or keyfile/password of the account.
+'''
 
 logger = logging.getLogger('convex_wallet')
 
@@ -35,9 +41,20 @@ def auto_topup_account(convex, account, min_balance=None):
         retry_counter -= 1
 
 
+def load_account(args):
+    account = None
+    if args.keyfile and args.password:
+        account = ConvexAccount.import_from_file(args.keyfile, args.password)
+    elif args.keywords:
+        account = ConvexAccount.import_from_mnemonic(args.keywords)
+    return account
+
 def main():
 
-    parser = argparse.ArgumentParser(description='Convex Wallet')
+    parser = argparse.ArgumentParser(
+        description='Convex Wallet',
+        formatter_class=argparse.RawTextHelpFormatter
+    )
 
     parser.add_argument(
         '-a',
@@ -56,13 +73,13 @@ def main():
     parser.add_argument(
         '-k',
         '--keyfile',
-        help='account key file'
+        help='account private key encrypted with password saved in a file'
     )
 
     parser.add_argument(
         '-p',
         '--password',
-        help='password to access the account'
+        help='password to access the private key enrcypted in a keyfile'
     )
 
     parser.add_argument(
@@ -80,7 +97,12 @@ def main():
 
     parser.add_argument(
         'command',
-        help='Wallet command'
+        help=f'Wallet commands are as follows: \r\n{COMMAND_HELP_TEXT}'
+    )
+
+    parser.add_argument(
+        'command_args',
+        nargs='*',
     )
 
     args = parser.parse_args()
@@ -100,7 +122,6 @@ def main():
             logger.debug('auto topup of account balance')
             auto_topup_account(convex, account)
 
-        values = {}
         if args.password:
             password = args.password
         else:
@@ -114,7 +135,26 @@ def main():
             'balance': convex.get_balance(account)
         }
         print(json.dumps(values, sort_keys=True, indent=4))
+    elif args.command == 'info':
+        address = None
+        if len(args.command_args) > 0:
+            address = args.command_args[0]
 
+        account = load_account(args)
+        if account:
+            address = account.address_checksum
+
+        if not address:
+            print('you must provide account keywords/keyfile or an account address')
+            return
+
+        convex = ConvexAPI(args.url)
+        if not convex:
+            print(f'Cannot connect to the convex network at {args.url}')
+            return
+
+        values = convex.get_account_info(address)
+        print(json.dumps(values, sort_keys=True, indent=4))
 
 if __name__ == "__main__":
     main()
