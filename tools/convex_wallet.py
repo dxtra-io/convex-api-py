@@ -15,12 +15,13 @@ from convex_api import Account as ConvexAccount
 from convex_api import ConvexAPI
 
 DEFAULT_URL = 'https://convex.world'
+
 COMMAND_HELP_TEXT = '''
 
 create                      Create a new account using the provided --password. If no password auto generate one.
 new                         Same as 'create' command.
 info [address]              Get information about an account, you can pass the account address, or the keywords or keyfile/password of the account.
-'''
+'''         # noqa: E501
 
 logger = logging.getLogger('convex_wallet')
 
@@ -48,6 +49,7 @@ def load_account(args):
     elif args.keywords:
         account = ConvexAccount.import_from_mnemonic(args.keywords)
     return account
+
 
 def main():
 
@@ -155,6 +157,7 @@ def main():
 
         values = convex.get_account_info(address)
         print(json.dumps(values, sort_keys=True, indent=4))
+
 
 if __name__ == "__main__":
     main()
