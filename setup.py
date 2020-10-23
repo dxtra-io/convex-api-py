@@ -72,6 +72,9 @@ setup(
     keywords='convex api',
     name='convex-api-py',
     packages=find_packages(),
+    scripts=[
+        'tools/convex_wallet.py',
+    ],
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,

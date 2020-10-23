@@ -19,8 +19,9 @@ DEFAULT_URL = 'https://convex.world'
 COMMAND_HELP_TEXT = '''
 
 create                      Create a new account using the provided --password. If no password auto generate one.
-new                         Same as 'create' command.
-info [address]              Get information about an account, you can pass the account address, or the keywords or keyfile/password of the account.
+new                         Same as 'create' account command.
+info [address]              Get information about an account, you can pass the account address, or the options <keywords> or <keyfile>/<password> of the account.
+
 '''         # noqa: E501
 
 logger = logging.getLogger('convex_wallet')
