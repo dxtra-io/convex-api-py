@@ -7,7 +7,7 @@
 
 IGNORE_VENV ?= FALSE
 
-PACKAGE_FOLDERS = convex_api
+PACKAGE_FOLDERS = convex_api tools
 
 FLAKE8_PARAMETERS = --max-line-length=132 --statistics $(PACKAGE_FOLDERS)
 
