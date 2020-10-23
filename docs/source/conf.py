@@ -142,7 +142,7 @@ font_family_monospace = ("'Fira Code', 'Fira Mono', Menlo, Monaco, Consolas, "
 
 html_theme_options = {
     # Colors
-    'logo': 'logo-dex.svg',
+    'logo': 'convex_world_logo.png',
     'logo_name': True,
     'logo_text_align': 'center',
     'show_powered_by': False,
