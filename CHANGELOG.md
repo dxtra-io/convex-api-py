@@ -1,7 +1,7 @@
 ## Change log
 
 ### 0.0.5
-+   Return an address with the 0x prefix added
++   Add a 0x prefix to retuned addresses
 
 ### 0.0.4
 +   Import/export account private keys as a word phrase
