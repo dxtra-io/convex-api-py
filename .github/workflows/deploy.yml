@@ -1,9 +1,11 @@
 name: deploy
 on:
   push:
-    tags:
-      - v*
-# if: github.event_name == 'push' && startsWith(github.event.ref, 'refs/tags')
+    branches:
+    - master
+#    tags:
+#      - v*
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -26,11 +28,11 @@ jobs:
         PERSONAL_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         PUBLISH_BRANCH: gh-pages
         PUBLISH_DIR: docs/build/html
-    #- name: Build Package
-      #run: |
-        #python3 setup.py sdist
-    #- name: Deploy Package
-      #uses: pypa/gh-action-pypi-publish@master
-      #with:
-        #user: __token__
-        #password: ${{ secrets.PYPI_TOKEN }}
+    - name: Build Package
+      run: |
+        python3 setup.py sdist
+    - name: Deploy Package
+      uses: pypa/gh-action-pypi-publish@master
+      with:
+        user: __token__
+        password: ${{ secrets.PYPI_TOKEN }}

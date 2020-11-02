@@ -7,6 +7,8 @@
 
 import pytest
 import secrets
+from eth_utils import add_0x_prefix
+
 
 from tests.helpers import auto_topup_account
 
@@ -35,7 +37,7 @@ def test_convex_recursion(convex, test_account):
 """
         auto_topup_account(convex, test_account)
         result = convex.send(contract, test_account)
-        address_list.append(result['value'])
+        address_list.append(add_0x_prefix(result['value']))
     for index in range(0, chain_length):
         next_index = index + 1
         if next_index == chain_length:
@@ -82,7 +84,7 @@ def test_schedule_transfer(convex, test_account, other_account):
     auto_topup_account(convex, test_account)
     auto_topup_account(convex, other_account)
     result = convex.send(contract, test_account)
-    contract_address = result['value']
+    contract_address = add_0x_prefix(result['value'])
     convex.transfer(contract_address, 8000000, other_account)
     auto_topup_account(convex, test_account)
     result = convex.send(f'(call {contract_address} (tx-delay {other_account.address} 1000))', test_account)

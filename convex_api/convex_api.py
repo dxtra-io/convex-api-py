@@ -13,7 +13,10 @@ import time
 from urllib.parse import urljoin
 
 import requests
-from eth_utils import remove_0x_prefix
+from eth_utils import (
+    remove_0x_prefix,
+    add_0x_prefix
+)
 
 from convex_api.exceptions import (
     ConvexAPIError,
@@ -138,7 +141,7 @@ class ConvexAPI:
             line = f'address({function_name})'
         result = self.query(line, address_account)
         if result and 'value' in result:
-            return result['value']
+            return add_0x_prefix(result['value'])
 
     def get_balance(self, address_account, account_from=None):
         """

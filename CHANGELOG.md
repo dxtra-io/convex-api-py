@@ -1,5 +1,8 @@
 ## Change log
 
+### 0.0.5
++   Return an address with the 0x prefix added
+
 ### 0.0.4
 +   Import/export account private keys as a word phrase
 +   Convex Wallet tool
