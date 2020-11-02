@@ -14,8 +14,8 @@ from urllib.parse import urljoin
 
 import requests
 from eth_utils import (
-    remove_0x_prefix,
-    add_0x_prefix
+    add_0x_prefix,
+    remove_0x_prefix
 )
 
 from convex_api.exceptions import (
