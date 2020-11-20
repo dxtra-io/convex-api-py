@@ -39,6 +39,17 @@ def test_convex_api_request_funds(convex_url, test_account):
     request_amount = convex.request_funds(amount, test_account)
     assert(request_amount == amount)
 
+def test_convex_api_topup_account(convex_url):
+    convex = ConvexAPI(convex_url)
+    account = Account.create_new()
+    topup_amount = TEST_FUNDING_AMOUNT
+    amount = convex.topup_account(account, topup_amount)
+    assert(amount >= topup_amount)
+
+    account = Account.create_new()
+    amount = convex.topup_account(account)
+    assert(amount >= 0)
+
 def test_convex_get_account_info(convex_url, test_account):
     convex = ConvexAPI(convex_url)
     info = convex.get_account_info(test_account)

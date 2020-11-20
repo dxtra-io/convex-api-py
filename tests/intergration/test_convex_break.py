@@ -10,8 +10,6 @@ import secrets
 from eth_utils import add_0x_prefix
 
 
-from tests.helpers import auto_topup_account
-
 from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
@@ -35,7 +33,7 @@ def test_convex_recursion(convex, test_account):
     )
 )
 """
-        auto_topup_account(convex, test_account)
+        convex.topup_account(test_account)
         result = convex.send(contract, test_account)
         address_list.append(add_0x_prefix(result['value']))
     for index in range(0, chain_length):
@@ -81,12 +79,12 @@ def test_schedule_transfer(convex, test_account, other_account):
 """
 # (call contract-address (tx-to to-address amount))
 
-    auto_topup_account(convex, test_account)
-    auto_topup_account(convex, other_account)
+    convex.topup_account(test_account)
+    convex.topup_account(other_account, 8000000)
     result = convex.send(contract, test_account)
     contract_address = add_0x_prefix(result['value'])
-    convex.transfer(contract_address, 8000000, other_account)
-    auto_topup_account(convex, test_account)
+    convex.transfer(contract_address, 800000, other_account)
+    convex.topup_account(test_account)
     result = convex.send(f'(call {contract_address} (tx-delay {other_account.address} 1000))', test_account)
     print(result)
     result = convex.send(f'(call {contract_address} (show-schedule))', test_account)

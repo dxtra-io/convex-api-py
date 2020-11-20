@@ -123,6 +123,28 @@ class ConvexAPI:
             raise ValueError(f'request_funds: returned account is not correct {result["address"]}')
         return result['amount']
 
+    def topup_account(self, account, min_balance=1000000, retry_count=2):
+        """
+        Topup an account from the block chain faucet, so that the balance of the account is above or equal to
+        the `min_balanace`.
+
+        :param number amount: The amount of funds to request
+        :param Account account: The account to receive funds for
+        :param number min_balance: Minimum account balance that will allowed before a topup occurs
+        :Param number retry_count: The number of times the faucet will be called to get above or equal to the  `min_balance`
+
+        :returns: The amount transfered to the account
+
+        """
+
+        request_amount = min(9000000, min_balance)
+        retry_count = min(5, retry_count)
+        transfer_amount = 0
+        while min_balance > self.get_balance(account) and retry_count > 0:
+            transfer_amount += self.request_funds(request_amount, account)
+            retry_count -= 1
+        return transfer_amount
+
     def get_address(self, function_name, address_account):
         """
 

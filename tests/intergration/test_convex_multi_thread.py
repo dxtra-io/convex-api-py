@@ -10,8 +10,6 @@ from multiprocessing import Process
 from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
 
-from tests.helpers import auto_topup_account
-
 def process_on_convex(convex, test_account):
     values = []
     inc_values = []
@@ -33,7 +31,7 @@ def test_convex_api_multi_thread(convex_url, test_account):
 
     process_count = 4
     convex = ConvexAPI(convex_url)
-    auto_topup_account(convex, test_account)
+    convex.topup_account(test_account)
     process_list = []
     for index in range(process_count):
         proc = Process(target=process_on_convex, args=(convex, test_account))
