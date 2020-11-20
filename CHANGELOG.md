@@ -1,5 +1,8 @@
 ## Change log
 
+### 0.0.6
++   Add topup_account method to api
+
 ### 0.0.5
 +   Add a 0x prefix to retuned addresses
 
