@@ -1,5 +1,9 @@
 ## Change log
 
+### 0.0.7
++   Rename Account create_new to create
++   Rename Account create_from_bytes to import_from_bytes
+
 ### 0.0.6
 +   Add topup_account method to api
 
