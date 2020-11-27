@@ -133,7 +133,7 @@ class Account:
         return to_address_checksum(self.address)
 
     @staticmethod
-    def create_new():
+    def create():
         """
         Create a new account with a random key and address
 
@@ -143,9 +143,9 @@ class Account:
         return Account(Ed25519PrivateKey.generate())
 
     @staticmethod
-    def create_from_bytes(value):
+    def import_from_bytes(value):
         """
-        Create the an account from a private key in bytes.
+        Import an account from a private key in bytes.
 
         :returns: Account object with the private/public key
 

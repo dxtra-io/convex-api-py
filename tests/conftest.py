@@ -43,7 +43,7 @@ def test_account_info():
 
 @pytest.fixture(scope='module')
 def test_account(test_account_info):
-    return Account.create_from_bytes(test_account_info['private_bytes'])
+    return Account.import_from_bytes(test_account_info['private_bytes'])
 
 @pytest.fixture(scope='module')
 def convex_url():
@@ -56,6 +56,6 @@ def convex(convex_url):
 
 @pytest.fixture(scope='module')
 def other_account(convex):
-    account = Account.create_new()
+    account = Account.create()
     convex.topup_account(account)
     return account

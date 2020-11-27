@@ -41,12 +41,12 @@ def test_convex_api_request_funds(convex_url, test_account):
 
 def test_convex_api_topup_account(convex_url):
     convex = ConvexAPI(convex_url)
-    account = Account.create_new()
+    account = Account.create()
     topup_amount = TEST_FUNDING_AMOUNT
     amount = convex.topup_account(account, topup_amount)
     assert(amount >= topup_amount)
 
-    account = Account.create_new()
+    account = Account.create()
     amount = convex.topup_account(account)
     assert(amount >= 0)
 
@@ -59,7 +59,7 @@ def test_convex_get_account_info(convex_url, test_account):
     assert(info['sequence'] > 0)
 
 
-    account = Account.create_new()
+    account = Account.create()
     with pytest.raises(ConvexRequestError, match='Address does not exist'):
         info = convex.get_account_info(account)
 
@@ -86,13 +86,13 @@ def test_convex_api_send_basic_scrypt(convex_url, test_account):
 
 def test_convex_api_get_balance_no_funds(convex_url):
     convex = ConvexAPI(convex_url)
-    account = Account.create_new()
+    account = Account.create()
     new_balance = convex.get_balance(account)
     assert(new_balance == 0)
 
 def test_convex_api_get_balance_small_funds(convex_url, test_account):
     convex = ConvexAPI(convex_url)
-    account = Account.create_new()
+    account = Account.create()
     amount = 100
     request_amount = convex.request_funds(amount, account)
     new_balance = convex.get_balance(account)
@@ -100,7 +100,7 @@ def test_convex_api_get_balance_small_funds(convex_url, test_account):
 
 def test_convex_api_get_balance_new_account(convex_url):
     convex = ConvexAPI(convex_url)
-    account = Account.create_new()
+    account = Account.create()
     amount = TEST_FUNDING_AMOUNT
     request_amount = convex.request_funds(amount, account)
     assert(request_amount == amount)
@@ -122,7 +122,7 @@ def test_convex_api_call(convex_url):
 )
 """
     convex = ConvexAPI(convex_url)
-    account = Account.create_new()
+    account = Account.create()
     amount = TEST_FUNDING_AMOUNT
     request_amount = convex.request_funds(amount, account)
     result = convex.send(deploy_storage, account)
@@ -158,8 +158,8 @@ def test_convex_api_call(convex_url):
 
 def test_convex_api_transfer(convex_url):
     convex = ConvexAPI(convex_url)
-    account_from = Account.create_new()
-    account_to = Account.create_new()
+    account_from = Account.create()
+    account_to = Account.create()
     amount = TEST_FUNDING_AMOUNT
     request_amount = convex.request_funds(amount, account_from)
     assert(request_amount == amount)
