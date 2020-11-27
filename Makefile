@@ -1,7 +1,7 @@
 .PHONY: clean clean-pyc clean-build  \
 	install install-dev install-test install-docs \
 	lint flake8 isort \
-	tests test-unit test-integration docs
+	tests test-unit test-integration docs publish
 
 # all: clean lint test docs
 
@@ -18,9 +18,9 @@ PIP_CMD=pip3
 clean: clean-build clean-pyc
 
 clean-build:
-	rm -fr build/
-	rm -fr dist/
-	rm -fr *.egg-info
+	rm -rf build/
+	rm -rf dist/
+	rm -rf *.egg-info
 
 clean-pyc:
 	find . -name '*.pyc' -exec rm -f {} +
@@ -71,4 +71,8 @@ docs:
 	$(MAKE) -C docs html
 	$(MAKE) -C docs man
 
-
+publish:
+	make clean
+	pip install twine
+	python3 setup.py sdist bdist_wheel
+	echo "__token__" | python3 -m twine upload dist/*

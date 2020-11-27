@@ -1,5 +1,8 @@
 ## Change log
 
+### 0.0.8
++   Rebuild with new release
+
 ### 0.0.7
 +   Rename Account create_new to create
 +   Rename Account create_from_bytes to import_from_bytes
