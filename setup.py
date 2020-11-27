@@ -80,6 +80,6 @@ setup(
     tests_require=test_requirements,
     python_requires='>=3.6',
     url='https://github.com/DEX-Company/convex-api-py',
-    version='0.0.7',
+    version='0.0.8',
     zip_safe=False,
 )
