@@ -31,14 +31,12 @@ def test_utils_is_public_key_checksum():
     public_key_checksum = to_public_key_checksum(public_key)
     assert(is_public_key_checksum(public_key_checksum))
 
-
 def test_utils_to_public_key_checksum():
     # generate a ethereum public_key
     # convex public_key to checksum
     public_key_checksum = to_public_key_checksum(PUBLIC_KEY)
     assert(is_public_key_checksum(public_key_checksum))
     assert(public_key_checksum == PUBLIC_KEY_CHECKSUM)
-
 
 def test_utils_is_address():
     address_int = secrets.randbelow(pow(2, 1024)) + 1
