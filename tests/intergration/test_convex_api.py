@@ -141,7 +141,6 @@ def test_convex_api_call(convex_url):
     call_get_result = convex.query('(call storage-example(get))', account)
     assert(call_get_result['value'] == test_number)
 
-
     # now api calls using language scrypt
 
     convex = ConvexAPI(convex_url, ConvexAPI.LANGUAGE_SCRYPT)
