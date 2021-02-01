@@ -48,7 +48,7 @@ def process_convex_account_creation(convex):
     assert(account.address)
 
 def test_convex_api_multi_thread_account_creation(convex_url):
-    process_count = 4
+    process_count = 20
     convex = ConvexAPI(convex_url)
     process_list = []
     for index in range(process_count):

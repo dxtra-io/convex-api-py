@@ -7,6 +7,7 @@
 
 import json
 import logging
+import re
 import secrets
 import time
 
@@ -60,13 +61,11 @@ class ConvexAPI:
                 result = response.json()
                 break
             elif response.status_code == 400:
-                error_data = response.json()
-
-                if not re.find(response.text, 'SEQUENCE'):
+                if not re.search('\:SEQUENCE ', response.text):
                     raise ConvexRequestError('create_account', response.status_code, response.text)
 
                 if sequence_retry_count == 0:
-                    raise
+                    raise ConvexRequestError('create_account', response.status_code, response.text)
                 sequence_retry_count -= 1
                 # now sleep < 1 second for at least 1 millisecond
                 sleep_time = secrets.randbelow(round(max_sleep_time_seconds * 1000)) / 1000
