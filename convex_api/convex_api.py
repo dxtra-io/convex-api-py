@@ -61,7 +61,7 @@ class ConvexAPI:
                 result = response.json()
                 break
             elif response.status_code == 400:
-                if not re.search('\:SEQUENCE ', response.text):
+                if not re.search(':SEQUENCE ', response.text):
                     raise ConvexRequestError('create_account', response.status_code, response.text)
 
                 if sequence_retry_count == 0:
