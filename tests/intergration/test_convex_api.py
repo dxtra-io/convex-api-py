@@ -60,13 +60,10 @@ def test_convex_get_account_info(convex_url, test_account):
     assert(info['balance'] > 0)
     assert(info['sequence'] >= 0)
 
-    # at the moment the account info server cann handle large integers
-    with pytest.raises(ConvexRequestError, match='Our server failed'):
-    # with pytest.raises(ConvexRequestError, match='Address does not exist'):
+    with pytest.raises(ConvexRequestError, match='Invalid Address'):
         info = convex.get_account_info(pow(2, 100))
 
-    with pytest.raises(ConvexRequestError, match='Our server failed'):
-    # with pytest.raises(ConvexRequestError, match='Address does not exist'):
+    with pytest.raises(ConvexRequestError, match='Invalid Address'):
         info = convex.get_account_info(pow(2, 1024))
 
     account = convex.create_account()
