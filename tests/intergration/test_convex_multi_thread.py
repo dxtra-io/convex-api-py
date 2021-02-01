@@ -40,3 +40,21 @@ def test_convex_api_multi_thread(convex_url, test_account):
 
     for proc in process_list:
         proc.join()
+
+
+def process_convex_account_creation(convex):
+    account = convex.create_account()
+    assert(account)
+    assert(account.address)
+
+def test_convex_api_multi_thread_account_creation(convex_url):
+    process_count = 4
+    convex = ConvexAPI(convex_url)
+    process_list = []
+    for index in range(process_count):
+        proc = Process(target=process_convex_account_creation, args=(convex,))
+        proc.start()
+        process_list.append(proc)
+
+    for proc in process_list:
+        proc.join()

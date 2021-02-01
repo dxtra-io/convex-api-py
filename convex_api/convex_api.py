@@ -43,18 +43,36 @@ class ConvexAPI:
             raise ValueError(f'Invalid language: {language}')
         self._language = language
 
-    def create_account(self, account=None):
+    def create_account(self, account=None, sequence_retry_count=20):
         if account is None:
             account = Account.create()
         create_account_url = urljoin(self._url, '/api/v1/create-account')
         account_data = {
             'public_key': remove_0x_prefix(account.public_key),
         }
+
         logger.debug(f'create_account {create_account_url} {account_data}')
-        response = requests.post(create_account_url, data=json.dumps(account_data))
-        if response.status_code != 200:
-            raise ConvexRequestError('create_account', response.status_code, response.text)
-        result = response.json()
+
+        max_sleep_time_seconds = 1
+        while sequence_retry_count >= 0:
+            response = requests.post(create_account_url, data=json.dumps(account_data))
+            if response.status_code == 200:
+                result = response.json()
+                break
+            elif response.status_code == 400:
+                error_data = response.json()
+
+                if not re.find(response.text, 'SEQUENCE'):
+                    raise ConvexRequestError('create_account', response.status_code, response.text)
+
+                if sequence_retry_count == 0:
+                    raise
+                sequence_retry_count -= 1
+                # now sleep < 1 second for at least 1 millisecond
+                sleep_time = secrets.randbelow(round(max_sleep_time_seconds * 1000)) / 1000
+                time.sleep(sleep_time + 1)
+            else:
+                raise ConvexRequestError('create_account', response.status_code, response.text)
         logger.debug(f'create_account result {result}')
         account.address = to_address(result['address'])
         return account
