@@ -36,11 +36,11 @@ You can export the accounts private key encoded as PKCS8 encrypt the key with a 
     >>> account.export_to_text('secret')
     '-----BEGIN ENCRYPTED PRIVATE KEY-----\nMIGbMFcGCSqGSIb3DQEFDTBKMCkGCSqGSIb3DQEFDDAcBAiMY42UY4PXHAICCAAw\nDAYIKoZIhvcNAgkFADAdBglghkgBZQMEASoEEJpwDMicGbGj2iSJesktIVYEQBsp\nKMTAHzvUyw8jZRr8WSrmxH7938sjma8XWI6lgd9jwTZzcGamog7p3zatw0Wp+jFK\nKruWAZmIqhBZ/2ezDv8=\n-----END ENCRYPTED PRIVATE KEY-----\n'
 
-To re-use your account again you need to import the encrypted private key and set the correct account address, that was created with the account
+To re-use your account again you need to import the encrypted private key and set the correct account address
 
     >>> from convex_api import Account
-    >>> account = Account.import_from_file('my_key.dat', address=809)
+    >>> account = Account.import_from_file('my_key.dat', 'secret', address=809)
 
-To create a new address with the same account keys in the account object, you can do:
+To create a new address with the same account keys in your new or imported account object, you can do:
 
     >>> new_account = convex.create_account(account)
