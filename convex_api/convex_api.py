@@ -18,10 +18,17 @@ from eth_utils import (
     remove_0x_prefix
 )
 
+from convex_api.account import Account
+
 from convex_api.exceptions import (
     ConvexAPIError,
     ConvexRequestError
 )
+from convex_api.utils import (
+    is_address,
+    to_address
+)
+
 
 logger = logging.getLogger(__name__)
 
@@ -38,6 +45,22 @@ class ConvexAPI:
         if language not in ConvexAPI.LANGUAGE_ALLOWED:
             raise ValueError(f'Invalid language: {language}')
         self._language = language
+
+    def create_account(self, account=None):
+        if account is None:
+            account = Account.create()
+        create_account_url = urljoin(self._url, '/api/v1/create-account')
+        account_data = {
+            'public_key': remove_0x_prefix(account.public_key),
+        }
+        logger.debug(f'create_account {create_account_url} {account_data}')
+        response = requests.post(create_account_url, data=json.dumps(account_data))
+        if response.status_code != 200:
+            raise ConvexRequestError('create_account', response.status_code, response.text)
+        result = response.json()
+        logger.debug(f'create_account result {result}')
+        account.address = to_address(result['address'])
+        return account
 
     def send(self, transaction, account, language=None, sequence_retry_count=20):
         """
@@ -64,7 +87,7 @@ class ConvexAPI:
             try:
                 hash_data = self._transaction_prepare(account.address, transaction, language=language)
                 signed_data = account.sign(hash_data['hash'])
-                result = self._transaction_submit(account.address, hash_data['hash'], signed_data)
+                result = self._transaction_submit(account.address, account.public_key_checksum, hash_data['hash'], signed_data)
             except ConvexAPIError as error:
                 if error.code == 'SEQUENCE':
                     if sequence_retry_count == 0:
@@ -91,10 +114,10 @@ class ConvexAPI:
         :returns: Return the resultant query transaction
 
         """
-        if isinstance(address_account, str):
-            address = remove_0x_prefix(address_account)
+        if is_address(address_account):
+            address = to_address(address_account)
         else:
-            address = remove_0x_prefix(address_account.address)
+            address = address_account.address
 
         return self._transaction_query(address, transaction, language)
 
@@ -110,7 +133,7 @@ class ConvexAPI:
         """
         faucet_url = urljoin(self._url, '/api/v1/faucet')
         faucet_data = {
-            'address': remove_0x_prefix(account.address),
+            'address': account.address,
             'amount': amount
         }
         logger.debug(f'request_funds {faucet_url} {faucet_data}')
@@ -119,7 +142,7 @@ class ConvexAPI:
             raise ConvexRequestError('request_funds', response.status_code, response.text)
         result = response.json()
         logger.debug(f'request_funds result {result}')
-        if result['address'] != remove_0x_prefix(account.address):
+        if result['address'] != account.address:
             raise ValueError(f'request_funds: returned account is not correct {result["address"]}')
         return result['amount']
 
@@ -163,7 +186,7 @@ class ConvexAPI:
             line = f'address({function_name})'
         result = self.query(line, address_account)
         if result and 'value' in result:
-            return add_0x_prefix(result['value'])
+            return to_address(result['value'])
 
     def get_balance(self, address_account, account_from=None):
         """
@@ -179,20 +202,20 @@ class ConvexAPI:
 
         """
         value = 0
-        if isinstance(address_account, str):
-            address = remove_0x_prefix(address_account)
+        if is_address(address_account):
+            address = to_address(address_account)
         else:
-            address = remove_0x_prefix(address_account.address)
+            address = address_account.address
 
         address_from = address
         if account_from:
-            if isinstance(account_from, str):
-                address_from = remove_0x_prefix(account_from)
+            if is_address(account_from):
+                address_from = to_address(account_from)
             else:
-                address_from = remove_0x_prefix(account_from.address)
-        line = f'(balance "{address}")'
+                address_from = account_from.address
+        line = f'(balance {address})'
         if self._language == ConvexAPI.LANGUAGE_SCRYPT:
-            line = f'balance("{address}")'
+            line = f'balance({address})'
         try:
 
             result = self._transaction_query(address_from, line)
@@ -214,16 +237,16 @@ class ConvexAPI:
         :returns: The transfer record sent back after the transfer has been made
 
         """
-        if isinstance(to_address_account, str):
-            to_address = to_address_account
+        if is_address(to_address_account):
+            transfer_to_address = to_address(to_address_account)
         else:
-            to_address = to_address_account.address_checksum
+            transfer_to_address = to_address_account.address
         if not to_address:
-            raise ValueError(f'You must provide a valid to account/address ("{to_address_account}") to transfer funds too')
+            raise ValueError(f'You must provide a valid to account/address ({transfer_to_address}) to transfer funds too')
 
-        line = f'(transfer {to_address} {amount})'
+        line = f'(transfer {transfer_to_address} {amount})'
         if self._language == ConvexAPI.LANGUAGE_SCRYPT:
-            line = f'transfer({to_address}, {amount})'
+            line = f'transfer({transfer_to_address}, {amount})'
 
         result = self.send(line, account)
         return result
@@ -242,7 +265,7 @@ class ConvexAPI:
 
         .. code-block: json
             {
-                "address": "7E66429CA9c10e68eFae2dCBF1804f0F6B3369c7164a3187D6233683c258710f",
+                "address": "42",
                 "is_library": false,
                 "is_actor": false,
                 "memory_size": 75,
@@ -255,10 +278,10 @@ class ConvexAPI:
 
 
         """
-        if isinstance(address_account, str):
-            address = remove_0x_prefix(address_account)
+        if is_address(address_account):
+            address = to_address(address_account)
         else:
-            address = remove_0x_prefix(address_account.address)
+            address = address_account.address
 
         account_url = urljoin(self._url, f'/api/v1/accounts/{address}')
         logger.debug(f'get_account_info {account_url}')
@@ -279,7 +302,7 @@ class ConvexAPI:
             language = self._language
         prepare_url = urljoin(self._url, '/api/v1/transaction/prepare')
         data = {
-            'address': remove_0x_prefix(address),
+            'address': address,
             'lang': language,
             'source': transaction,
         }
@@ -297,13 +320,14 @@ class ConvexAPI:
 
         return result
 
-    def _transaction_submit(self, address, hash_data, signed_data):
+    def _transaction_submit(self, address, public_key, hash_data, signed_data):
         """
 
         """
         submit_url = urljoin(self._url, '/api/v1/transaction/submit')
         data = {
-            'address': remove_0x_prefix(address),
+            'address': to_address(address),
+            'account_key': remove_0x_prefix(public_key),
             'hash': hash_data,
             'sig': remove_0x_prefix(signed_data)
         }
@@ -327,7 +351,7 @@ class ConvexAPI:
 
         prepare_url = urljoin(self._url, '/api/v1/query')
         data = {
-            'address': remove_0x_prefix(address),
+            'address': address,
             'lang': language,
             'source': transaction,
         }
