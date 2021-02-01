@@ -9,6 +9,9 @@ from multiprocessing import Process
 
 from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
+from convex_api.utils import to_address
+
+TEST_FUNDING_AMOUNT = 8000000
 
 def process_on_convex(convex, test_account):
     values = []
@@ -58,3 +61,42 @@ def test_convex_api_multi_thread_account_creation(convex_url):
 
     for proc in process_list:
         proc.join()
+
+
+def process_convex_depoly(convex):
+    deploy_storage = """
+(def storage-example
+    (deploy
+        '(do
+            (def stored-data nil)
+            (defn get [] stored-data)
+            (defn set [x] (def stored-data x))
+            (export get set)
+        )
+    )
+)
+"""
+    account = convex.create_account()
+    for index in range(0, 10):
+        convex.topup_account(account)
+        result = convex.send(deploy_storage, account)
+        assert(result['value'])
+        contract_address = to_address(result['value'])
+        assert(contract_address)
+
+
+def test_convex_api_multi_thread_deploy(convex_url):
+    process_count = 10
+    convex = ConvexAPI(convex_url)
+    # account = convex.create_account()
+    # request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, account)
+    process_list = []
+    for index in range(process_count):
+        proc = Process(target=process_convex_depoly, args=(convex, ))
+        proc.start()
+        process_list.append(proc)
+
+    for proc in process_list:
+        proc.join()
+
+
