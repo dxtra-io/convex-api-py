@@ -18,8 +18,8 @@ from eth_utils import (
 from mnemonic import Mnemonic
 
 from convex_api.utils import (
-    to_public_key_checksum,
-    to_address
+    to_address,
+    to_public_key_checksum
 )
 
 

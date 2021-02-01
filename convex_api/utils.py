@@ -16,6 +16,7 @@ from eth_utils import (
     to_hex
 )
 
+
 def to_address(text):
     if isinstance(text, int):
         return int(text)
@@ -27,11 +28,13 @@ def to_address(text):
         return value
     return None
 
+
 def is_address(text):
     value = to_address(text)
     if isinstance(value, int):
         return value >= 0
     return False
+
 
 def is_public_key_hex(public_key):
     if is_hexstr(public_key):

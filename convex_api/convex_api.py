@@ -13,10 +13,7 @@ import time
 from urllib.parse import urljoin
 
 import requests
-from eth_utils import (
-    add_0x_prefix,
-    remove_0x_prefix
-)
+from eth_utils import remove_0x_prefix
 
 from convex_api.account import Account
 
