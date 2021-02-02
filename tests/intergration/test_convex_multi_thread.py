@@ -5,7 +5,10 @@
 """
 import pytest
 import secrets
-from multiprocessing import Process
+from multiprocessing import (
+    Process,
+    Value
+)
 
 from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
@@ -13,7 +16,7 @@ from convex_api.utils import to_address
 
 TEST_FUNDING_AMOUNT = 8000000
 
-def process_on_convex(convex, test_account):
+def process_on_convex(convex, test_account, result_value):
     values = []
     inc_values = []
     is_sent = False
@@ -28,42 +31,55 @@ def process_on_convex(convex, test_account):
         assert('id' in result)
         assert('value' in result)
         assert(result['value'] == inc_values)
+    result_value.value = 1
 
 
-def test_convex_api_multi_thread(convex_url, test_account):
+def test_convex_api_multi_thread_send(convex_url, test_account):
 
     process_count = 4
     convex = ConvexAPI(convex_url)
     convex.topup_account(test_account)
-    process_list = []
+    process_items = {}
     for index in range(process_count):
-        proc = Process(target=process_on_convex, args=(convex, test_account))
+        result_value = Value('i', 0)
+        proc = Process(target=process_on_convex, args=(convex, test_account, result_value))
+        process_items[index] = {
+            'process': proc,
+            'result_value': result_value
+        }
         proc.start()
-        process_list.append(proc)
 
-    for proc in process_list:
-        proc.join()
+    for index, process_item in process_items.items():
+        process_item['process'].join()
+        assert(process_item['result_value'].value == 1)
 
 
-def process_convex_account_creation(convex):
+def process_convex_account_creation(convex, result_value):
     account = convex.create_account()
     assert(account)
     assert(account.address)
+    result_value.value = 1
+
 
 def test_convex_api_multi_thread_account_creation(convex_url):
     process_count = 20
     convex = ConvexAPI(convex_url)
-    process_list = []
+    process_items = {}
     for index in range(process_count):
-        proc = Process(target=process_convex_account_creation, args=(convex,))
+        result_value = Value('i', 0)
+        proc = Process(target=process_convex_account_creation, args=(convex, result_value))
+        process_items[index] = {
+            'process': proc,
+            'result_value': result_value
+        }
         proc.start()
-        process_list.append(proc)
 
-    for proc in process_list:
-        proc.join()
+    for index, process_item in process_items.items():
+        process_item['process'].join()
+        assert(process_item['result_value'].value == 1)
 
 
-def process_convex_depoly(convex):
+def process_convex_depoly(convex, result_value):
     deploy_storage = """
 (def storage-example
     (deploy
@@ -79,10 +95,17 @@ def process_convex_depoly(convex):
     account = convex.create_account()
     for index in range(0, 10):
         convex.topup_account(account)
-        result = convex.send(deploy_storage, account)
+        try:
+            result = convex.send(deploy_storage, account)
+        except ConvexAPIError as e:
+            print('failed send', e)
+            result_value.value = 99
+            return
+        assert(result)
         assert(result['value'])
         contract_address = to_address(result['value'])
         assert(contract_address)
+    result_value.value = 1
 
 
 def test_convex_api_multi_thread_deploy(convex_url):
@@ -90,13 +113,17 @@ def test_convex_api_multi_thread_deploy(convex_url):
     convex = ConvexAPI(convex_url)
     # account = convex.create_account()
     # request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, account)
-    process_list = []
+    process_items = {}
     for index in range(process_count):
-        proc = Process(target=process_convex_depoly, args=(convex, ))
+        result_value = Value('i', 0)
+        proc = Process(target=process_convex_depoly, args=(convex, result_value))
+        process_items[index] = {
+            'process': proc,
+            'result_value': result_value
+        }
         proc.start()
-        process_list.append(proc)
 
-    for proc in process_list:
-        proc.join()
-
+    for index, process_item in process_items.items():
+        process_item['process'].join()
+        assert(process_item['result_value'].value == 1)
 

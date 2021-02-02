@@ -176,11 +176,11 @@ def test_convex_api_query_lisp(convex_url, test_account):
     result = convex.query(f'(address {test_account.address})', test_account)
     assert(result)
     # return value is the address as a checksum
-    assert(result['value'] == f'#{test_account.address}')
+    assert(to_address(result['value']) == test_account.address)
 
 def test_convex_api_query_scrypt(convex_url, test_account):
     convex = ConvexAPI(convex_url, ConvexAPI.LANGUAGE_SCRYPT)
     result = convex.query(f'address({test_account.address})', test_account)
     assert(result)
     # return value is the address as a checksum
-    assert(result['value'] == f'#{test_account.address}')
+    assert(to_address(result['value']) == test_account.address)
