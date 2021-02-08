@@ -98,8 +98,11 @@ def process_convex_depoly(convex, result_value):
         try:
             result = convex.send(deploy_storage, account)
         except ConvexAPIError as e:
-            print('failed send', e)
-            result_value.value = 99
+            balance = convex.get_balance(account)
+            print('*' * 132)
+            print('failed send', e, balance)
+            print('*' * 132)
+            result_value.value = balance
             return
         assert(result)
         assert(result['value'])
