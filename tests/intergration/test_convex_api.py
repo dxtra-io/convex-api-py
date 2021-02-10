@@ -60,10 +60,10 @@ def test_convex_get_account_info(convex_url, test_account):
     assert(info['balance'] > 0)
     assert(info['sequence'] >= 0)
 
-    with pytest.raises(ConvexRequestError, match='Invalid Address'):
+    with pytest.raises(ConvexRequestError, match='INCORRECT'):
         info = convex.get_account_info(pow(2, 100))
 
-    with pytest.raises(ConvexRequestError, match='Invalid Address'):
+    with pytest.raises(ConvexRequestError, match='INCORRECT'):
         info = convex.get_account_info(pow(2, 1024))
 
     account = convex.create_account()
@@ -76,7 +76,6 @@ def test_convex_api_send_basic_lisp(convex_url, test_account):
     convex = ConvexAPI(convex_url)
     request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, test_account)
     result = convex.send('(map inc [1 2 3 4 5])', test_account)
-    assert 'id' in result
     assert 'value' in result
     assert(result['value'] == [2, 3, 4, 5, 6])
 
@@ -84,7 +83,6 @@ def test_convex_api_send_basic_scrypt(convex_url, test_account):
     convex = ConvexAPI(convex_url, ConvexAPI.LANGUAGE_SCRYPT)
     request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, test_account)
     result = convex.send('map(inc, [1, 2, 3, 4, 5])', test_account)
-    assert 'id' in result
     assert 'value' in result
     assert(result['value'] == [2, 3, 4, 5, 6])
 

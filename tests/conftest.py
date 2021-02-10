@@ -28,7 +28,7 @@ JAr4iFzPLkM18YEP2ZE=
 """
 PRIVATE_TEST_KEY_PASSWORD = 'secret'
 
-CONVEX_URL = 'http://34.89.82.154:3000'
+CONVEX_URL = 'https://convex.world'
 
 
 @pytest.fixture(scope='module')

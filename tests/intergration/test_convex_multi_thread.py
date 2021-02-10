@@ -28,7 +28,6 @@ def process_on_convex(convex, test_account, result_value):
             value_text = " ".join(values)
         result = convex.send(f'(map inc [{value_text}])', test_account, sequence_retry_count=100)
         assert(result)
-        assert('id' in result)
         assert('value' in result)
         assert(result['value'] == inc_values)
     result_value.value = 1

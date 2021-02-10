@@ -47,9 +47,9 @@ class ConvexAPI:
     def create_account(self, account=None, sequence_retry_count=20):
         if account is None:
             account = Account.create()
-        create_account_url = urljoin(self._url, '/api/v1/create-account')
+        create_account_url = urljoin(self._url, '/api/v1/createAccount')
         account_data = {
-            'public_key': remove_0x_prefix(account.public_key),
+            'accountKey': remove_0x_prefix(account.public_key),
         }
 
         logger.debug(f'create_account {create_account_url} {account_data}')
@@ -280,14 +280,13 @@ class ConvexAPI:
         .. code-block: json
             {
                 "address": "42",
-                "is_library": false,
-                "is_actor": false,
-                "memory_size": 75,
+                "isLibrary": false,
+                "isActor": false,
+                "memorySize": 75,
                 "allowance": 10000000,
                 "type": "user",
                 "balance": 10000000000,
                 "sequence": 0,
-                "environment": {}
             }
 
 
@@ -329,8 +328,8 @@ class ConvexAPI:
 
         result = response.json()
         logger.debug(f'_transaction_prepare repsonse {result}')
-        if 'error-code' in result:
-            raise ConvexAPIError('_transaction_prepare', result['error-code'], result['value'])
+        if 'errorCode' in result:
+            raise ConvexAPIError('_transaction_prepare', result['errorCode'], result['value'])
 
         return result
 
@@ -341,7 +340,7 @@ class ConvexAPI:
         submit_url = urljoin(self._url, '/api/v1/transaction/submit')
         data = {
             'address': to_address(address),
-            'account_key': remove_0x_prefix(public_key),
+            'accountKey': remove_0x_prefix(public_key),
             'hash': hash_data,
             'sig': remove_0x_prefix(signed_data)
         }
@@ -352,8 +351,8 @@ class ConvexAPI:
 
         result = response.json()
         logger.debug(f'_transaction_submit response {result}')
-        if 'error-code' in result:
-            raise ConvexAPIError('_transaction_submit', result['error-code'], result['value'])
+        if 'errorCode' in result:
+            raise ConvexAPIError('_transaction_submit', result['errorCode'], result['value'])
         return result
 
     def _transaction_query(self, address, transaction, language=None):
@@ -376,8 +375,8 @@ class ConvexAPI:
 
         result = response.json()
         logger.debug(f'_transaction_query repsonse {result}')
-        if 'error-code' in result:
-            raise ConvexAPIError('_transaction_query', result['error-code'], result['value'])
+        if 'errorCode' in result:
+            raise ConvexAPIError('_transaction_query', result['errorCode'], result['value'])
         return result
 
     @property

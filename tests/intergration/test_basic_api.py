@@ -28,10 +28,10 @@ def get_test_account():
 
 def create_account(convex_url, public_address):
     account_data = {
-        'public_key': public_address,
+        'accountKey': public_address,
     }
     print('create_account send', account_data)
-    url = f'{convex_url}/api/v1/create-account'
+    url = f'{convex_url}/api/v1/createAccount'
     response = requests.post(url, data=json.dumps(account_data))
     assert(response.status_code == 200)
     result = response.json()
@@ -47,7 +47,7 @@ def request_funds(convex_url, address):
     response = requests.post(url, data=json.dumps(faucet_data))
     if response.status_code != 200:
         print('error', response.text)
-        return
+        assert(response.status_code == 200)
     print('faucet response', response.json())
 
 
@@ -68,8 +68,7 @@ def test_submit_transaction(convex_url):
     response = requests.post(url, data=json.dumps(prepare_data))
     if response.status_code != 200:
         print('prepare error', response.text)
-        return
-    print(response.json())
+        assert(response.status_code == 200)
 
     result = response.json()
 
@@ -80,7 +79,7 @@ def test_submit_transaction(convex_url):
     signed_hash = to_hex(signed_hash_bytes)
     submit_data = {
         'address': address,
-        'public_key': public_address,
+        'accountKey': public_address,
         'hash': result['hash'],
         'sig': remove_0x_prefix(signed_hash)
     }
@@ -89,7 +88,8 @@ def test_submit_transaction(convex_url):
     print('submit send', submit_data)
     response = requests.post(url, data=json.dumps(submit_data))
     if response.status_code != 200:
-        print('submit error', response.text)
+        print('submit error', response.text, response.status_code)
+        assert(response.status_code == 200)
     print(response.json())
 
 
@@ -108,6 +108,7 @@ def test_query_lisp(convex_url):
     response = requests.post(url, data=json.dumps(query_data))
     if response.status_code != 200:
         print('query error', response.text)
+        assert(response.status_code == 200)
     result = response.json()
     assert(result)
     assert(result['value'] > 0)
@@ -127,6 +128,7 @@ def test_query_scrypt(convex_url):
     response = requests.post(url, data=json.dumps(query_data))
     if response.status_code != 200:
         print('query error', response.text)
+        assert(response.status_code == 200)
     result = response.json()
     assert(result)
     print(result)
