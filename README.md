@@ -13,8 +13,8 @@ First you need to download the Convex-API-py package from the python package ind
 You can now access the convex network, and get a balance from an existing account on the network by doing the following:
 
     >>> from convex_api import ConvexAPI
-    >>> convex = ConvexAPI('https://convex.world')
-    >>> convex.get_balance(9)
+    >>> convex_api = ConvexAPI('https://convex.world')
+    >>> convex_api.get_balance(9)
     99396961137042
 
 You can create a new emtpy account, with now balance:
@@ -25,7 +25,7 @@ You can create a new emtpy account, with now balance:
 
 You can request some funds to the new account and then get the account information:
 
-    >>> convex.request_funds(1000000, account)
+    >>> convex_api.request_funds(1000000, account)
     1000000
     >>> convex.get_account_info(account)
     {'environment': {}, 'address': 809, 'is_library': False, 'is_actor': False, 'memory_size': 42, 'balance': 1000000, 'allowance': 0, 'sequence': 0, 'type': 'user'}
@@ -51,4 +51,27 @@ To create a new address with the same account keys in your new or imported accou
     809
     >>> new_account.address
     934
+
+To submit a transaction, use ConvexAPI.send(). This will cost a small about of juice, and reduce your balance
+
+    >>> convex_api.request_funds(1000000, account)
+    1000000
+    >>> convex_api.send('(map inc [1 2 3 4])', account)
+    {'value': [2, 3, 4, 5]}
+    >>> convex_api.get_balance(account)
+    996360
+
+To query a transaction, this is free and can be performed out by any valid account address.
+Get the balance of the new account:
+
+    >>> convex_api.query(f'(balance {account.address})', account)
+    {'value': 996360}
+
+    # this is the same as above
+    >>> convex_api.query(f'(balance {account.address})', account.address)
+    {'value': 996360}
+
+    # get the balance using one of the standard account addresses (#1)
+    >>> convex_api.query(f'(balance {account.address})', 1)
+    {'value': 996360}
 
