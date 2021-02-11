@@ -1,5 +1,9 @@
 ## Change log
 
+### 0.1.0
++   Now need to use ConvexAPI.create_account method to create a new account, and get the address number
++   Internal bug fixes, and name conventions for the API calls
+
 ### 0.0.8
 +   Rebuild with new release
 
