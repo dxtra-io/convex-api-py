@@ -352,7 +352,7 @@ class Account:
     def create():
         """
 
-        Create a new account with a random key and address.
+        Create a new account with a random key and an empty address.
 
         :returns: New Account object
         :rtype: Account
@@ -361,6 +361,8 @@ class Account:
 
             >>> # create an account with no address
             >>> account = Account.create()
+            >> account.is_address
+            False
 
             >>> # create two accounts with the same public/private keys
             >>> account_1 = convex_api.create_account(account)
@@ -370,6 +372,7 @@ class Account:
             >>> account_2 = convex_api.create_account(account)
             >>> print(account_2.address)
             43
+
 
 
         """
