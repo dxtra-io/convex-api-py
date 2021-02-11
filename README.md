@@ -19,7 +19,7 @@ You can now access the convex network, and get a balance from an existing accoun
 
 You can create a new emtpy account, with now balance:
 
-    >>> account = convex.create_account()
+    >>> account = convex_api.create_account()
     >>> account.address
     809
 
@@ -27,7 +27,7 @@ You can request some funds to the new account and then get the account informati
 
     >>> convex_api.request_funds(1000000, account)
     1000000
-    >>> convex.get_account_info(account)
+    >>> convex_api.get_account_info(account)
     {'environment': {}, 'address': 809, 'is_library': False, 'is_actor': False, 'memory_size': 42, 'balance': 1000000, 'allowance': 0, 'sequence': 0, 'type': 'user'}
 
 
@@ -46,7 +46,7 @@ To re-use your account again you need to import the encrypted private key and se
 
 To create a new address with the same account keys in your new or imported account object, you can do:
 
-    >>> new_account = convex.create_account(account)
+    >>> new_account = convex_api.create_account(account)
     >>> account.address
     809
     >>> new_account.address
