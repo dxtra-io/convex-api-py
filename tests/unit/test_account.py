@@ -21,28 +21,28 @@ SIGN_TEXT = '0x7eceffab47295be3891ea745838a99102bfaf525ec43632366c7ec3f54db4822b
 def test_account_create_new():
     account = Account.create()
     assert(account)
-    assert(account.address)
+    assert(account.public_key)
 
 
 def test_account_create_from_bytes(test_account_info):
     account = Account.import_from_bytes(test_account_info['private_bytes'])
     assert(account)
-    assert(account.address == test_account_info['address'])
+    assert(account.public_key == test_account_info['public_key'])
 
 def test_account_address_bytes(test_account_info):
     account = Account.import_from_bytes(test_account_info['private_bytes'])
     assert(account)
-    assert(account.address_bytes == to_bytes(hexstr=test_account_info['address']))
+    assert(account.public_key_bytes == to_bytes(hexstr=test_account_info['public_key']))
 
 def test_account_address_api(test_account_info):
     account = Account.import_from_bytes(test_account_info['private_bytes'])
     assert(account)
-    assert(account.address_api == remove_0x_prefix(test_account_info['address']))
+    assert(account.public_key_api == remove_0x_prefix(test_account_info['public_key']))
 
 def test_account_address_checksum(test_account_info):
     account = Account.import_from_bytes(test_account_info['private_bytes'])
     assert(account)
-    assert(account.address_checksum.lower() == test_account_info['address'])
+    assert(account.public_key_checksum.lower() == test_account_info['public_key'])
 
 def test_account_sign(test_account_info):
     hash_text = SIGN_HASH_TEXT
@@ -56,7 +56,7 @@ def test_account_import_export_to_text(test_account):
     text = test_account.export_to_text(password)
     import_account = Account.import_from_text(text, password)
     assert(import_account)
-    assert(import_account.address == test_account.address)
+    assert(import_account.public_key == test_account.public_key)
 
 
 def test_account_import_export_to_file(test_account):
@@ -69,7 +69,7 @@ def test_account_import_export_to_file(test_account):
     assert(os.path.exists(filename))
     import_account = Account.import_from_file(filename, password)
     assert(import_account)
-    assert(import_account.address == test_account.address)
+    assert(import_account.public_key == test_account.public_key)
     os.remove(filename)
 
 def test_account_export_to_mnemonic(test_account):
@@ -77,5 +77,5 @@ def test_account_export_to_mnemonic(test_account):
     assert(words)
     new_account = Account.import_from_mnemonic(words)
     assert(new_account)
-    assert(test_account.address == new_account.address)
+    assert(test_account.public_key == new_account.public_key)
     assert(test_account.export_to_mnemonic == new_account.export_to_mnemonic)

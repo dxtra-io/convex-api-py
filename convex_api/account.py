@@ -17,20 +17,27 @@ from eth_utils import (
 
 from mnemonic import Mnemonic
 
-from convex_api.utils import to_address_checksum
+from convex_api.utils import (
+    to_address,
+    to_public_key_checksum
+)
 
 
 class Account:
 
-    def __init__(self, private_key):
+    def __init__(self, private_key, address=None):
         """
         Create a new account with a private key as a Ed25519PrivateKey
 
         :param Ed25519PrivateKey private_key: The public/private key as an Ed25519PrivateKey object
+        :param int address: address of the account
 
         """
         self._private_key = private_key
         self._public_key = private_key.public_key()
+        self._address = None
+        if address is not None:
+            self._address = to_address(address)
 
     def sign(self, hash_text):
         """
@@ -88,9 +95,17 @@ class Account:
         return f'Account {self.address}'
 
     @property
-    def address_bytes(self):
+    def address(self):
+        return self._address
+
+    @address.setter
+    def address(self, value):
+        self._address = to_address(value)
+
+    @property
+    def public_key_bytes(self):
         """
-        Return the public address of the account in the byte format
+        Return the public key address of the account in the byte format
 
         :returns: str Address in bytes
 
@@ -102,35 +117,35 @@ class Account:
         return public_key_bytes
 
     @property
-    def address(self):
+    def public_key(self):
         """
-        Return the public address of the account in the format '0x....'
+        Return the public key of the account in the format '0x....'
 
-        :returns: str Address with leading '0x'
+        :returns: str public_key with leading '0x'
 
         """
-        return to_hex(self.address_bytes)
+        return to_hex(self.public_key_bytes)
 
     @property
-    def address_api(self):
+    def public_key_api(self):
         """
-        Return the public address of the account without the leading '0x'
+        Return the public key of the account without the leading '0x'
 
-        :returns: str Address without the leading '0x'
+        :returns: str public_key without the leading '0x'
 
         """
-        return remove_0x_prefix(self.address)
+        return remove_0x_prefix(self.public_key)
 
     @property
-    def address_checksum(self):
+    def public_key_checksum(self):
         """
-        Return the public address of the account with checksum upper/lower case characters
+        Return the public key of the account with checksum upper/lower case characters
 
-        :returns: str Public address in checksum format
+        :returns: str public_key in checksum format
 
         """
 
-        return to_address_checksum(self.address)
+        return to_public_key_checksum(self.public_key)
 
     @staticmethod
     def create():
@@ -143,22 +158,25 @@ class Account:
         return Account(Ed25519PrivateKey.generate())
 
     @staticmethod
-    def import_from_bytes(value):
+    def import_from_bytes(value, address=None):
         """
         Import an account from a private key in bytes.
+
+        :param int address: address of the account
 
         :returns: Account object with the private/public key
 
         """
-        return Account(Ed25519PrivateKey.from_private_bytes(value))
+        return Account(Ed25519PrivateKey.from_private_bytes(value), address=address)
 
     @staticmethod
-    def import_from_text(text, password):
+    def import_from_text(text, password, address=None):
         """
         Import an accout from an encrypted PEM string.
 
         :param str text: PAM text string with the encrypted key text
         :param str password: password to decrypt the private key
+        :param int address: address of the account
 
         :returns: Account object with the public/private key
 
@@ -170,24 +188,25 @@ class Account:
 
         private_key = serialization.load_pem_private_key(text, password, backend=default_backend())
         if private_key:
-            return Account(private_key)
+            return Account(private_key, address=address)
 
     @staticmethod
-    def import_from_mnemonic(words):
+    def import_from_mnemonic(words, address=None):
         mnemonic = Mnemonic('english')
         value = mnemonic.to_entropy(words)
-        return Account(Ed25519PrivateKey.from_private_bytes(value))
+        return Account(Ed25519PrivateKey.from_private_bytes(value), address=address)
 
     @staticmethod
-    def import_from_file(filename, password):
+    def import_from_file(filename, password, address=None):
         """
         Load the encrypted private key from file. The file is saved in PEM format encrypted with a password
 
         :param str filename: Filename to read
         :param str password: password to decrypt the private key
+        :param int address: address of the account
 
         :returns: Account with the private/public key
 
         """
         with open(filename, 'r') as fp:
-            return Account.import_from_text(fp.read(), password)
+            return Account.import_from_text(fp.read(), password, address=address)
