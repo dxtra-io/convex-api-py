@@ -25,57 +25,60 @@ from convex_api.utils import (
 
 
 class Account:
-    """
 
-    The Convex account class, contains the public/private keys and possibly an address.
-
-    You can create a new account object, it will only have it's public/private keys but does not have a valid account address.
-    To obtain a new account address, you need to call the :py:meth:`.ConvexAPI.create_account` with the new account object.
-
-    This is so that you can use the same public/private keys for multiple convex accounts.
-
-    Once you have your new account you need to save the public/private keys using the `export..` methods and also you
-    need to save the account address.
-
-    To re-use the account again, you can import the keys and set the account address using one of the `import..` methods.
-
-    **Note**
-    For security reasons all of the keys, and text returned by the accounts are only truncated ending with a **`...`**
-
-    .. code-block:: python
-
-        >>> # import convex-api
-        >>> from convex_api import ConvexAPI
-
-        >>> # setup the network connection
-        >>> convex_api = ConvexAPI('https://convex.world')
-
-        >>> # create a new account and address
-        >>> account = convex_api.create_account()
-
-        >>> # export the private key to a file
-        >>> account.export_to_file('/tmp/my_account.pem', 'my secret password')
-
-        >>> # save the address for later
-        >>> my_address = account.address
-
-        >>> # ----
-
-        >>> # now import the account and address for later use
-        >>> reload_account = Account.import_from_file('/tmp/my_account.pem', 'my secret password', my_address)
-
-    """
     def __init__(self, private_key, address=None):
         """
 
         Create a new account with a private key as a Ed25519PrivateKey. It is better to use
-        one of the `create` or `import` methods instead of creating this object directly.
+        one of the following static methods to create an Account object:
+
+            * :meth:`.create`
+            * :meth:`import_from_bytes`
+            * :meth:`import_from_file`
+            * :meth:`import_from_mnemonic`
+            * :meth:`import_from_text`
 
         :param Ed25519PrivateKey private_key: The public/private key as an Ed25519PrivateKey object
 
         :param int address: address of the account
 
 
+        The Convex account class, contains the public/private keys and possibly an address.
+
+        You can create a new account object, it will only have it's public/private keys but does not have a valid account address.
+        To obtain a new account address, you need to call the :py:meth:`.ConvexAPI.create_account` with the new account object.
+
+        This is so that you can use the same public/private keys for multiple convex accounts.
+
+        Once you have your new account you need to save the public/private keys using the `export..` methods and also you
+        need to save the account address.
+
+        To re-use the account again, you can import the keys and set the account address using one of the `import..` methods.
+
+        **Note**
+        For security reasons all of the keys, and text returned by the accounts are only truncated ending with a **`...`**
+
+        .. code-block:: python
+
+            >>> # import convex-api
+            >>> from convex_api import ConvexAPI
+
+            >>> # setup the network connection
+            >>> convex_api = ConvexAPI('https://convex.world')
+
+            >>> # create a new account and address
+            >>> account = convex_api.create_account()
+
+            >>> # export the private key to a file
+            >>> account.export_to_file('/tmp/my_account.pem', 'my secret password')
+
+            >>> # save the address for later
+            >>> my_address = account.address
+
+            >>> # ----
+
+            >>> # now import the account and address for later use
+            >>> reload_account = Account.import_from_file('/tmp/my_account.pem', 'my secret password', my_address)
 
         """
         self._private_key = private_key

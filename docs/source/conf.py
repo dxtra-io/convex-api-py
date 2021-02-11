@@ -17,7 +17,7 @@ import sys
 import shutil
 from sphinx.domains.python import PythonDomain
 
-print(os.path.abspath('../../'))
+# print(os.path.abspath('../../'))
 sys.path.insert(0, os.path.abspath('../../'))
 
 # -- Project information -----------------------------------------------------
@@ -52,6 +52,7 @@ extensions = [
 apidoc_module_dir = '../../convex_api'
 # apidoc_output_dir = 'api' by default, and leave it that way!
 apidoc_separate_modules = True
+
 # See https://www.sphinx-doc.org/en/master/man/sphinx-apidoc.html
 apidoc_extra_args = []
 apidoc_excluded_paths = [
@@ -71,6 +72,7 @@ apidoc_excluded_paths = [
 #     'special-members': None,
 #     'inherited-members': None,
 # }
+autoclass_content = 'both'
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
