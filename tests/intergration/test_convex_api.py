@@ -153,8 +153,7 @@ def test_convex_api_call(convex_url):
         call_set_result = convex.send(f'call {contract_address}.set({test_number})', account)
 
     address = convex.get_address('storage_example', account)
-    #address = convex.get_address(contract_address_api, account)
-    assert(address == contract_address )
+    assert(address == contract_address)
 
 def test_convex_api_transfer(convex_url):
     convex = ConvexAPI(convex_url)
@@ -164,10 +163,13 @@ def test_convex_api_transfer(convex_url):
     request_amount = convex.request_funds(amount, account_from)
     assert(request_amount == amount)
 
-    result = convex.transfer(account_to, amount / 2, account_from)
+    transfer_amount = int(amount / 2)
+    result = convex.transfer(account_to, transfer_amount, account_from)
+    assert(result)
+    assert(result == transfer_amount)
     balance_from = convex.get_balance(account_from)
     balance_to = convex.get_balance(account_to)
-    assert(balance_to == amount / 2)
+    assert(balance_to == transfer_amount)
 
 def test_convex_api_query_lisp(convex_url, test_account):
     convex = ConvexAPI(convex_url)
