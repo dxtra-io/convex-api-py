@@ -61,8 +61,8 @@ To submit a transaction, use ConvexAPI.send(). This will cost a small about of j
     >>> convex_api.get_balance(account)
     996360
 
-To query a transaction, this is free and can be performed out by any valid account address.
-Get the balance of the new account:
+To send a query a transaction, this is free and can be performed by any valid account address.
+So for example to query a balance of an account:
 
     >>> convex_api.query(f'(balance {account.address})', account)
     {'value': 996360}
