@@ -104,7 +104,6 @@ highlight_language = 'python3'
 # Example configuration for intersphinx: refer to the Python standard library.
 intersphinx_mapping = {
     'python': ('https://docs.python.org/3', None),
-    'starfishapi': ('https://dex-company.github.io/starfish-py', None)
 }
 
 # -- Options for HTML output -------------------------------------------------

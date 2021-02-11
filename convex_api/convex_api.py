@@ -1,7 +1,6 @@
 """
 
-
-    Convex
+    Convex API
 
 """
 
@@ -45,6 +44,19 @@ class ConvexAPI:
         self._language = language
 
     def create_account(self, account=None, sequence_retry_count=20):
+        """
+
+        Create a new account with the convex network.
+
+        :param object account: Account object that you whish to use as the signing account. The Account object
+            contains the public/private keys to access and submit commands on the convex network.
+
+        :param int sequence_retry_count: Number of retries to create the account. If too many clients are trying to
+            create accounts on the same node, then we will get sequence errors.
+
+        :returns: A new account object, or the current supplied account object with a new `address` property set
+
+        """
         if account is None:
             account = Account.create()
         create_account_url = urljoin(self._url, '/api/v1/createAccount')

@@ -24,7 +24,21 @@ from convex_api.utils import (
 
 
 class Account:
+    """
 
+        The Convex account class, contains the public/private keys and possibly an address.
+
+        You can create a new account object, it will only have it's public/private keys but does not have a valid account address.
+        To obtain a new account address, you need to call the :py:meth:`.ConvexAPI.create_account` with the new account object.
+
+        This is so that you can use the same public/private keys for multiple convex accounts.
+
+        Once you have your new account you need to save the public/private keys using the `export..` methods and also you
+        need to save the account address.
+
+        To re-use the account again, you can import the keys and set the account address using one of the `import..` methods.
+
+    """
     def __init__(self, private_key, address=None):
         """
         Create a new account with a private key as a Ed25519PrivateKey
