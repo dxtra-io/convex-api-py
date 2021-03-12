@@ -26,7 +26,7 @@ from convex_api.utils import (
 
 class Account:
 
-    def __init__(self, private_key, address=None):
+    def __init__(self, private_key, address=None, name=None):
         """
 
         Create a new account with a private key as a Ed25519PrivateKey. It is better to use
@@ -86,27 +86,7 @@ class Account:
         self._address = None
         if address is not None:
             self._address = to_address(address)
-
-    def copy(self):
-        """
-
-        Copies the account public/private keys and returns a new account object with the same address
-
-        :returns: A new account object.
-        :rtype: Account
-
-        .. code-block:: python
-
-            >>> # create an account with the network
-            >>> account = convex_api.create_account()
-            >>> new_account = account.copy()
-            >>> print(new_account.is_address)
-            True
-
-        """
-        temp_secret = secrets.token_hex(64)
-        pem_text = self.export_to_text(temp_secret)
-        return Account.import_from_text(pem_text, temp_secret, self.address)
+        self._name = name
 
     def sign(self, hash_text):
         """
@@ -263,6 +243,14 @@ class Account:
         self._address = to_address(value)
 
     @property
+    def name(self):
+        return self._name
+
+    @name.setter
+    def name(self, value):
+        self._name = value
+
+    @property
     def public_key_bytes(self):
         """
 
@@ -382,7 +370,7 @@ class Account:
         return Account(Ed25519PrivateKey.generate())
 
     @staticmethod
-    def import_from_bytes(value, address=None):
+    def import_from_bytes(value, address=None, name=None):
         """
 
         Import an account from a private key in bytes.
@@ -400,10 +388,10 @@ class Account:
 
 
         """
-        return Account(Ed25519PrivateKey.from_private_bytes(value), address=address)
+        return Account(Ed25519PrivateKey.from_private_bytes(value), address=address, name=name)
 
     @staticmethod
-    def import_from_text(text, password, address=None):
+    def import_from_text(text, password, address=None, name=None):
         """
 
         Import an accout from an encrypted PEM string.
@@ -436,10 +424,10 @@ class Account:
 
         private_key = serialization.load_pem_private_key(text, password, backend=default_backend())
         if private_key:
-            return Account(private_key, address=address)
+            return Account(private_key, address=address, name=name)
 
     @staticmethod
-    def import_from_mnemonic(words, address=None):
+    def import_from_mnemonic(words, address=None, name=None):
         """
 
         Creates a new account object using a list of words. These words contain the private key and must be kept secret.
@@ -463,10 +451,10 @@ class Account:
 
         mnemonic = Mnemonic('english')
         value = mnemonic.to_entropy(words)
-        return Account(Ed25519PrivateKey.from_private_bytes(value), address=address)
+        return Account(Ed25519PrivateKey.from_private_bytes(value), address=address, name=name)
 
     @staticmethod
-    def import_from_file(filename, password, address=None):
+    def import_from_file(filename, password, address=None, name=None):
         """
 
         Load the encrypted private key from file. The file is saved in PEM format encrypted with a password
@@ -489,4 +477,10 @@ class Account:
 
         """
         with open(filename, 'r') as fp:
-            return Account.import_from_text(fp.read(), password, address=address)
+            return Account.import_from_text(fp.read(), password, address=address, name=name)
+
+    @staticmethod
+    def import_from_account(account, address=None, name=None):
+        password = secrets.token_hex(64)
+        text = account.export_to_text(password)
+        return Account.import_from_text(text, password, address=address, name=name)

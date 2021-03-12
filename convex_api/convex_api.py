@@ -21,6 +21,7 @@ from convex_api.exceptions import (
     ConvexAPIError,
     ConvexRequestError
 )
+from convex_api.registry import Registry
 from convex_api.utils import (
     is_address,
     to_address
@@ -44,6 +45,7 @@ class ConvexAPI:
         if language not in ConvexAPI.LANGUAGE_ALLOWED:
             raise ValueError(f'Invalid language: {language}')
         self._language = language
+        self._registry = Registry(self)
 
     def create_account(self, account=None, sequence_retry_count=20):
         """
@@ -56,6 +58,7 @@ class ConvexAPI:
 
             If no object given, then this method will automatically create a new :class:`.Account` object.
         :type account: Account, optional
+
 
         :param sequence_retry_count: Number of retries to create the account. If too many clients are trying to
             create accounts on the same node, then we will get sequence errors.
@@ -74,17 +77,19 @@ class ConvexAPI:
             >>> 42
 
             >>> #create a new account address, but use the same keys as `account`
-            >>> new_account_address = convex_api.create_account(account)
+            >>> new_account_address = convex_api.create_account(account=account)
             >>> print(new_account.address)
             >>> 43
 
 
         """
 
+        if account and not isinstance(account, Account):
+            raise TypeError(f'account value {account} must be a type convex_api.Account')
+
         # if account, then copy it
         if account:
-            new_account = account.copy()
-            new_account.address = None
+            new_account = Account.import_from_account(account)
         else:
             # create a new account with new keys
             new_account = Account.create()
@@ -116,7 +121,30 @@ class ConvexAPI:
                 raise ConvexRequestError('create_account', response.status_code, response.text)
         logger.debug(f'create_account result {result}')
         new_account.address = to_address(result['address'])
+
         return new_account
+
+    def load_account(self, name, account):
+        """
+
+        Load an account using the account name. If successfull return the account address
+
+        """
+        address = self.resolve_account_name(name)
+        if address:
+            new_account = Account.import_from_account(account, address=address, name=name)
+            return new_account
+
+
+    def register_account_name(self, name, account):
+        """
+
+        Register an account with the given address, with a name.
+
+        """
+        if account.address:
+            self._registry.register(f'account.{name}', account.address, account)
+            return Account.import_from_account(account, address=account.address, name=name)
 
     def send(self, transaction, account, language=None, sequence_retry_count=20):
         """
@@ -475,6 +503,9 @@ class ConvexAPI:
         result = response.json()
         logger.debug(f'get_account_info repsonse {result}')
         return result
+
+    def resolve_account_name(self, name):
+        return self._registry.resolve_address(f'account.{name}')
 
     def _transaction_prepare(self, address, transaction, language=None, sequence_number=None):
         """

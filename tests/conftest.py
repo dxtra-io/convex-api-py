@@ -30,6 +30,7 @@ PRIVATE_TEST_KEY_PASSWORD = 'secret'
 
 CONVEX_URL = 'https://convex.world'
 
+TEST_ACCOUNT_NAME = 'test.convex-api'
 
 @pytest.fixture(scope='module')
 def test_account_info():
@@ -44,7 +45,12 @@ def test_account_info():
 @pytest.fixture(scope='module')
 def test_account(convex, test_account_info):
     import_account = Account.import_from_bytes(test_account_info['private_bytes'])
-    account = convex.create_account(import_account)
+    if convex.resolve_account_name(TEST_ACCOUNT_NAME):
+        account = convex.load_account(TEST_ACCOUNT_NAME, import_account)
+    else:
+        account = convex.create_account(account=import_account)
+        convex.topup_account(account)
+        convex.register_account_name(TEST_ACCOUNT_NAME, account)
     convex.topup_account(account)
     return account
 
