@@ -54,7 +54,7 @@ class ConvexAPI:
 
         :param `Account` account: :class:`.Account` object that you whish to use as the signing account.
             The :class:`.Account` object contains the public/private keys to access and submit commands
-            on the convex network. The address property will be changed by this method.
+            on the convex network.
 
             If no object given, then this method will automatically create a new :class:`.Account` object.
         :type account: Account, optional
@@ -64,7 +64,7 @@ class ConvexAPI:
             create accounts on the same node, then we will get sequence errors.
         :type sequence_retry_count: int, optional
 
-        :returns: A new :class:`.Account` object, or the current supplied :class:`.Account` object with a new `address` property set
+        :returns: A new :class:`.Account` object, or copy of the :class:`.Account` object with a new `address` property value set
 
 
         .. code-block:: python
@@ -127,7 +127,25 @@ class ConvexAPI:
     def load_account(self, name, account):
         """
 
-        Load an account using the account name. If successfull return the account address
+        Load an account using the account name. If successfull return the :class:`.Account` object with the address set.
+
+        This is a Query operation, so no convex tokens are used in loading the account.
+
+        :param str name: name of the account to load
+        :param Account account: :class:`.Account` object to import
+
+        :results: :class:`.Account` object with the address and name set, if not found then return None
+
+
+        .. code-block:: python
+
+            >>> # Create a new account with new public/priavte keys and address
+            >>> import_account = Account.import_from_file('my_account.pem', 'secret')
+            >>> account = convex.load_account('my_account, import_account)
+            >>> print(account.name)
+            my_account
+            >>> print(account.address)
+            930
 
         """
         address = self.resolve_account_name(name)
@@ -135,10 +153,60 @@ class ConvexAPI:
             new_account = Account.import_from_account(account, address=address, name=name)
             return new_account
 
+    def setup_account(self, name, import_account):
+        """
+
+        Convenience method to create or load an account based on the account name.
+        If the account name cannot be found then account will be created and account name registered,
+        if the name is found, then account and it's address with that name will be loaded.
+
+        :param str name: name of the account to create or load
+        :param Account account: :class:`.Account` object to import
+
+        :results: :class:`.Account` object with the address and name set, if not found then return None
+
+        **Note** This method calls the :meth:`.topup_account` method to get enougth funds to register an account name.
+
+
+        .. code-block:: python
+
+            >>> import_account = Account.import_from_file('my_account.pem', 'secret')
+            >>> # create or load the account named 'my_account'
+            >>> account = convex.setup_account('my_account', import_account)
+            >>> print(account.name)
+            my_account
+
+        """
+        if self.resolve_account_name(name):
+            account = self.load_account(name, import_account)
+        else:
+            account = self.create_account(account=import_account)
+            self.topup_account(account)
+            self.register_account_name(name, account)
+        self.topup_account(account)
+        return account
+
     def register_account_name(self, name, account):
         """
 
-        Register an account with the given address, with a name.
+        Register an account address with an account name.
+
+        This call will submit to the CNS (Convex Name Service), a name in the format
+        "`account.<your_name>`". You need to have some convex balance in your account, and
+        a valid account address.
+
+        :param str name: name of the account to register
+        :param Account account: :class:`.Account` object to register the account name
+
+
+        >>> # create a new account
+        >>> account = convex.create_account()
+        >>> # add some convex tokens to the account
+        >>> convex.topup_account(account)
+        10000000
+        >>> account = convex.register_account('my_new_account', account)
+        >>> print(account.name)
+        my_new_account
 
         """
         if account.address:

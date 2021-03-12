@@ -44,3 +44,13 @@ def test_account_name(convex_url, test_account_info):
     assert(account.name)
     assert(account.name == TEST_ACCOUNT_NAME)
     assert(convex.resolve_account_name(TEST_ACCOUNT_NAME) == account.address)
+
+
+def test_account_setup_account(convex_url, test_account_info):
+    convex = ConvexAPI(convex_url)
+    import_account = Account.import_from_bytes(test_account_info['private_bytes'])
+    account = convex.setup_account(TEST_ACCOUNT_NAME, import_account)
+    assert(account.address)
+    assert(account.name)
+    assert(account.name == TEST_ACCOUNT_NAME)
+    assert(convex.resolve_account_name(TEST_ACCOUNT_NAME) == account.address)
