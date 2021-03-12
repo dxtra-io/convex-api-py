@@ -135,7 +135,6 @@ class ConvexAPI:
             new_account = Account.import_from_account(account, address=address, name=name)
             return new_account
 
-
     def register_account_name(self, name, account):
         """
 
