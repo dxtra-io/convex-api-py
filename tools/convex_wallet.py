@@ -13,6 +13,8 @@ import secrets
 
 from convex_api import Account as ConvexAccount
 from convex_api import ConvexAPI
+from convex_api.utils import is_address
+
 
 DEFAULT_URL = 'https://convex.world'
 
@@ -26,21 +28,6 @@ info [address]              Get information about an account, you can pass the a
 
 logger = logging.getLogger('convex_wallet')
 
-
-def auto_topup_account(convex, account, min_balance=None):
-    if isinstance(account, (list, tuple)):
-        for account_item in account:
-            auto_topup_account(convex, account_item, min_balance)
-        return
-    amount = 10000000
-    retry_counter = 100
-    if min_balance is None:
-        min_balance = amount
-    balance = convex.get_balance(account)
-    while balance < min_balance and retry_counter > 0:
-        convex.request_funds(amount, account)
-        balance = convex.get_balance(account)
-        retry_counter -= 1
 
 
 def load_account(args):
@@ -60,7 +47,6 @@ def main():
     )
 
     parser.add_argument(
-        '-a',
         '--auto-topup',
         action='store_true',
         help='Auto topup account with sufficient funds. This only works for development networks. Default: False',
@@ -76,19 +62,29 @@ def main():
     parser.add_argument(
         '-k',
         '--keyfile',
+        nargs='?',
         help='account private key encrypted with password saved in a file'
     )
 
     parser.add_argument(
         '-p',
         '--password',
+        nargs='?',
         help='password to access the private key enrcypted in a keyfile'
     )
 
     parser.add_argument(
         '-w',
         '--keywords',
+        nargs='?',
         help='account private key as words'
+    )
+
+    parser.add_argument(
+        '-n',
+        '--name',
+        nargs='?',
+        help='account name to register'
     )
 
     parser.add_argument(
@@ -109,21 +105,26 @@ def main():
     )
 
     args = parser.parse_args()
+    convex = ConvexAPI(args.url)
+    if not convex:
+        print(f'Cannot connect to the convex network at {args.url}')
+        return
 
     if args.debug:
         logging.basicConfig(level=logging.DEBUG)
         logging.getLogger('urllib3').setLevel(logging.INFO)
 
     if args.command == 'create' or args.command == 'new':
-        account = ConvexAccount.create_new()
-        convex = ConvexAPI(args.url)
-        if not convex:
-            print(f'Cannot connect to the convex network at {args.url}')
-            return
+        import_account = load_account(args)
+        account = convex.create_account(account=import_account)
 
         if args.auto_topup:
             logger.debug('auto topup of account balance')
-            auto_topup_account(convex, account)
+            convex.topup_account(account)
+
+        if args.name:
+            convex.topup_account(account)
+            account = convex.register_account_name(args.name, account)
 
         if args.password:
             password = args.password
@@ -132,30 +133,26 @@ def main():
 
         values = {
             'password': password,
-            'address': account.address_checksum,
+            'address': account.address,
             'keyfile': account.export_to_text(password),
             'keywords': account.export_to_mnemonic,
             'balance': convex.get_balance(account)
         }
+        if account.name:
+            values['name'] = account.name
+
         print(json.dumps(values, sort_keys=True, indent=4))
     elif args.command == 'info':
         address = None
         if len(args.command_args) > 0:
-            address = args.command_args[0]
-
-        account = load_account(args)
-        if account:
-            address = account.address_checksum
-
+            if is_address(args.command_args[0]):
+                address = args.command_args[0]
+            else:
+                name = args.command_args[0]
+                address = convex.resolve_account_name(name)
         if not address:
-            print('you must provide account keywords/keyfile or an account address')
+            print('cannot find account address using name or address provided')
             return
-
-        convex = ConvexAPI(args.url)
-        if not convex:
-            print(f'Cannot connect to the convex network at {args.url}')
-            return
-
         values = convex.get_account_info(address)
         print(json.dumps(values, sort_keys=True, indent=4))
 
