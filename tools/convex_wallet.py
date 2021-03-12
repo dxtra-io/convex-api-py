@@ -29,7 +29,6 @@ info [address]              Get information about an account, you can pass the a
 logger = logging.getLogger('convex_wallet')
 
 
-
 def load_account(args):
     account = None
     if args.keyfile and args.password:
