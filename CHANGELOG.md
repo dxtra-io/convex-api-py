@@ -2,6 +2,7 @@
 
 ### 0.1.1
 +   Incease minimum topup_account funds to 10,000,000
++   Allow to register and load accounts using a name
 
 ### 0.1.0
 +   Now need to use ConvexAPI.create_account method to create a new account, and get the address number
