@@ -52,6 +52,20 @@ To create a new address with the same account keys in your new or imported accou
     >>> new_account.address
     934
 
+To use account names, where an account name is resolved to a fixed address. You can create or load
+an account based on it's name by doing the following:
+
+    >>> account = convex_api.setup_account('my-account-name', import_account)
+    >>> account.address
+    934
+
+    >>> convex_api.resolve_account_name('my-account-name')
+    934
+
+    >>> same_account = convex_api.setup_account('my-account-name', import_account)
+    >>> same_account.address
+    934
+
 To submit a transaction, use ConvexAPI.send(). This will cost a small about of juice, and reduce your balance
 
     >>> convex_api.request_funds(1000000, account)
