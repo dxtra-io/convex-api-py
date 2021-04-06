@@ -72,6 +72,39 @@ def test_convex_get_account_info(convex_url, test_account):
     assert(info)
     assert(info['balance'] == TEST_FUNDING_AMOUNT)
 
+def test_convex_account_name_registry(convex_url, test_account, import_account):
+    account_name = f'test.convex-api.{secrets.token_hex(4)}'
+    convex = ConvexAPI(convex_url)
+
+    address = convex.resolve_account_name(account_name)
+    assert(not address)
+
+    account = convex.load_account(account_name, import_account)
+    assert(not account)
+
+
+    register_account = convex.register_account_name(account_name, test_account)
+    assert(register_account.address == test_account.address)
+
+    assert(convex.resolve_account_name(account_name) == test_account.address)
+
+    new_account = convex.create_account(import_account)
+    register_account = convex.register_account_name(account_name, new_account, test_account)
+
+    assert(register_account.address == new_account.address)
+    assert(convex.resolve_account_name(account_name) == new_account.address)
+
+    # clear the cache in the registry
+    convex.registry.clear()
+    assert(convex.resolve_account_name(account_name) == new_account.address)
+
+
+def test_convex_resolve_name(convex_url):
+    convex = ConvexAPI(convex_url)
+    address = convex.resolve_name('convex.nft-tokens')
+    assert(address)
+
+
 def test_convex_api_send_basic_lisp(convex_url, test_account):
     convex = ConvexAPI(convex_url)
     request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, test_account)

@@ -1,5 +1,8 @@
 ## Change log
 
+### 0.1.2
++   Improve registration of account names and resolving account names from the CNS registry
+
 ### 0.1.1
 +   Incease minimum topup_account funds to 10,000,000
 +   Allow to register and load accounts using a name

@@ -153,7 +153,7 @@ class ConvexAPI:
             new_account = Account.import_from_account(account, address=address, name=name)
             return new_account
 
-    def setup_account(self, name, import_account):
+    def setup_account(self, name, import_account, register_account=None):
         """
 
         Convenience method to create or load an account based on the account name.
@@ -162,10 +162,12 @@ class ConvexAPI:
 
         :param str name: name of the account to create or load
         :param Account account: :class:`.Account` object to import
+        :param Account register_account: Optional :class:`.Account` object to use for registration of the account
 
         :results: :class:`.Account` object with the address and name set, if not found then return None
 
-        **Note** This method calls the :meth:`.topup_account` method to get enougth funds to register an account name.
+        **Note** If you do not provide a register_account, then this method calls the
+        :meth:`.topup_account` method to get enougth funds to register an account name.
 
 
         .. code-block:: python
@@ -177,41 +179,73 @@ class ConvexAPI:
             my_account
 
         """
+
+        # check to see if we can resolve the account name
         if self.resolve_account_name(name):
+            # if so just load the account
             account = self.load_account(name, import_account)
         else:
+            # new name , so first create the account
             account = self.create_account(account=import_account)
-            self.topup_account(account)
-            self.register_account_name(name, account)
-        self.topup_account(account)
+            if not register_account:
+                # make sure we have enougth funds to do the registration
+                self.topup_account(account)
+                register_account = account
+            account = self.register_account_name(name, account, register_account)
         return account
 
-    def register_account_name(self, name, account):
+    def register_account_name(self, name, address_account, account=None):
         """
 
-        Register an account address with an account name.
+        Register or update an account address with an account name.
 
         This call will submit to the CNS (Convex Name Service), a name in the format
         "`account.<your_name>`". You need to have some convex balance in your account, and
         a valid account address.
 
-        :param str name: name of the account to register
-        :param Account account: :class:`.Account` object to register the account name
+        :param str name: name of the account to register.
+        :param number|Account account_address: Account or address to register.
+        :param Account account: :class:`.Account` object to register the account name.
 
+        .. code-block:: python
 
-        >>> # create a new account
-        >>> account = convex.create_account()
-        >>> # add some convex tokens to the account
-        >>> convex.topup_account(account)
-        10000000
-        >>> account = convex.register_account('my_new_account', account)
-        >>> print(account.name)
-        my_new_account
+            >>> # load the register account
+            >>> register_account = convex.load_account('register_account', import_account)
+            >>> account = convex.create_account(import_account)
+            >>> print(account.address)
+            1024
+            >>> account = convex.register_account('my_new_account', account.address, register_account)
+            >>> print(account.address)
+            1024
+
+            # or you can call with only one account, this will use the address of that account
+            >>> print(register_account.address)
+            404
+            >>> account = convex.register_account('my_new_account', register_account)
+            >>> print(account.address)
+            404
 
         """
-        if account.address:
-            self._registry.register(f'account.{name}', account.address, account)
-            return Account.import_from_account(account, address=account.address, name=name)
+
+        # is the address_account field only an address?
+        if is_address(address_account):
+            address = to_address(address_account)
+        else:
+            # if account then use the account address, and also see if we can use it for the
+            # registration
+            address = address_account.address
+            if account is None:
+                account = address_account
+
+        # we must have a valid account to do the registration
+        if not account:
+            raise ValueError('you need to provide a registration account to register an account name')
+
+        if not address:
+            raise ValueError('You need to provide a valid address to register an account name')
+
+        self._registry.register(f'account.{name}', address, account)
+        return Account.import_from_account(account, address=address, name=name)
 
     def send(self, transaction, account, language=None, sequence_retry_count=20):
         """
@@ -551,9 +585,6 @@ class ConvexAPI:
             'isLibrary': False, 'isActor': False, 'allowance': 0,
             'sequence': 0, 'type': 'user'}
 
-
-
-
         """
         if is_address(address_account):
             address = to_address(address_account)
@@ -572,7 +603,30 @@ class ConvexAPI:
         return result
 
     def resolve_account_name(self, name):
+        """
+        Resolves an account name to an address.
+        :param string name Name of the account to resolve.
+
+        .. code-block:: python
+
+            >>> convex.resolve_account_name('my_account')
+            405
+
+        """
         return self._registry.resolve_address(f'account.{name}')
+
+    def resolve_name(self, name):
+        """
+        Resolves any Convex Name Services to an address.
+        :param string name Name of the the CNS Service.
+
+        .. code-block:: python
+
+            >>> convex.resolve_account_name('convex.nft-tokens')
+            25
+
+        """
+        return self._registry.resolve_address(name)
 
     def _transaction_prepare(self, address, transaction, language=None, sequence_number=None):
         """
@@ -654,3 +708,7 @@ class ConvexAPI:
 
         """
         return self._language
+
+    @property
+    def registry(self):
+        return self._registry
