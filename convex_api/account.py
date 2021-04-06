@@ -56,7 +56,8 @@ class Account:
         To re-use the account again, you can import the keys and set the account address using one of the `import..` methods.
 
         **Note**
-        For security reasons all of the keys and password text displayed below in the documentation are only truncated ending with a **`...`**
+        For security reasons all of the keys and password text displayed below in the documentation
+        are only truncated ending with a **`...`**
 
         .. code-block:: python
 
