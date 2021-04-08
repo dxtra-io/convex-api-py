@@ -1,5 +1,8 @@
 ## Change log
 
+### 0.1.3
++   Add transfer_account, the ability to change your account public key for a given account address
+
 ### 0.1.2
 +   Improve registration of account names and resolving account names from the CNS registry
 
