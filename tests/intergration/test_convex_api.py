@@ -105,6 +105,28 @@ def test_convex_resolve_name(convex_url):
     assert(address)
 
 
+def test_convex_transfer_account(convex_url, test_account):
+    convex = ConvexAPI(convex_url)
+
+    # create a new account with a random keys
+    account_1 = convex.create_account()
+    convex.topup_account(account_1)
+    result = convex.send('(map inc [1 2 3 4 5])', account_1)
+    assert 'value' in result
+    assert(result['value'] == [2, 3, 4, 5, 6])
+
+    # transfer the new account to use the same keys as the test_account
+    account_change = convex.transfer_account(test_account, account_1)
+    # public key should be the same as the test_account
+    assert(account_change.public_key == test_account.public_key)
+    # adress still the same
+    assert(account_change.address == account_1.address )
+
+    result = convex.send('(map inc [1 2 3 4 5])', account_change)
+    assert 'value' in result
+    assert(result['value'] == [2, 3, 4, 5, 6])
+
+
 def test_convex_api_send_basic_lisp(convex_url, test_account):
     convex = ConvexAPI(convex_url)
     request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, test_account)

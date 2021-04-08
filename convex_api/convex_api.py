@@ -96,7 +96,7 @@ class ConvexAPI:
 
         create_account_url = urljoin(self._url, '/api/v1/createAccount')
         account_data = {
-            'accountKey': remove_0x_prefix(new_account.public_key),
+            'accountKey': new_account.public_key_api,
         }
 
         logger.debug(f'create_account {create_account_url} {account_data}')
@@ -295,7 +295,7 @@ class ConvexAPI:
             try:
                 hash_data = self._transaction_prepare(account.address, transaction, language=language)
                 signed_data = account.sign(hash_data['hash'])
-                result = self._transaction_submit(account.address, account.public_key_checksum, hash_data['hash'], signed_data)
+                result = self._transaction_submit(account.address, account.public_key_api, hash_data['hash'], signed_data)
             except ConvexAPIError as error:
                 if error.code == 'SEQUENCE':
                     if sequence_retry_count == 0:
@@ -559,6 +559,55 @@ class ConvexAPI:
             return result['value']
         return 0
 
+    def transfer_account(self, from_account, to_account):
+        """
+        Transfer and copy the keys from the `from_account` over too the `to_acount`.
+
+        :param Account from_account: :class:`.Account` object that has public/private keys you with to copy
+
+        :param Account to_account: :class:`.Account` object that has an address and you wish to change to now
+        use the `to_account` access keys.
+
+
+        :returns: A new account object that has the same name and address as the `to_account`, but with
+        the access keys of the `from_account`.
+
+
+        .. code-block:: python
+
+            # Create a new account with new public/priavte keys and address
+            >>> account = convex_api.create_account()
+            >>> account.public_key
+            '0xae4c019e68591e085d52cdb41924bde067d864cecb1780faa37142054b0fd8ef'
+
+            # get a saved account keys
+            >>> import_account = Account.import_from_file('my_account.pem', 'secret')
+            >> import_account.public_key
+            '5288fec4153b702430771dfac8aed0b21cafca4344dae0d47b97f0bf532b3306'
+
+
+            # transfer the loaded keys from the `import_account`, to `account`
+            >>> account = convex.transfer_account(import_account, account)
+            >>> account.public_key
+            '5288fec4153b702430771dfac8aed0b21cafca4344dae0d47b97f0bf532b3306'
+
+        """
+        if not isinstance(to_account, Account):
+            raise TypeError('The to account must be a type Convex API Account Class')
+        if not isinstance(from_account, Account):
+            raise TypeError('The from account must be a type Convex API Account Class')
+
+        if not to_account.address:
+            raise ValueError('You need to have the to account registered with an address')
+
+        line = f'(set-key "{to_account.public_key_api}")'
+
+        if self._language == ConvexAPI.LANGUAGE_SCRYPT:
+            line = f'set-key("{to_account.public_key_api}")'
+        result = self.send(line, to_account)
+        if result and 'value' in result and result['value'] == from_account.public_key_api:
+            return Account.import_from_account(from_account, to_account.address, to_account.name)
+
     def get_account_info(self, address_account):
         """
 
@@ -622,7 +671,7 @@ class ConvexAPI:
 
         .. code-block:: python
 
-            >>> convex.resolve_account_name('convex.nft-tokens')
+            >>> convex.resolve_name('convex.nft-tokens')
             25
 
         """
@@ -661,7 +710,7 @@ class ConvexAPI:
         submit_url = urljoin(self._url, '/api/v1/transaction/submit')
         data = {
             'address': to_address(address),
-            'accountKey': remove_0x_prefix(public_key),
+            'accountKey': public_key,
             'hash': hash_data,
             'sig': remove_0x_prefix(signed_data)
         }

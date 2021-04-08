@@ -317,7 +317,7 @@ class Account:
 
 
         """
-        return remove_0x_prefix(self.public_key)
+        return remove_0x_prefix(self.public_key_checksum)
 
     @property
     def public_key_checksum(self):
