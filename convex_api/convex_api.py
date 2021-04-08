@@ -600,9 +600,9 @@ class ConvexAPI:
         if not to_account.address:
             raise ValueError('You need to have the to account registered with an address')
 
-        line = f'(set-key "{from_account.public_key_api}")'
+        line = f'(set-key {from_account.public_key_checksum})'
         if self._language == ConvexAPI.LANGUAGE_SCRYPT:
-            line = f'set-key("{from_account.public_key_api}")'
+            line = f'set-key({from_account.public_key_checksum})'
         result = self.send(line, to_account)
         if result and 'value' in result and result['value'] == from_account.public_key_api:
             return Account.import_from_account(from_account, to_account.address, to_account.name)
