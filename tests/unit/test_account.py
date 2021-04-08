@@ -27,7 +27,7 @@ def test_account_create_new():
 def test_account_create_from_bytes(test_account_info):
     account = Account.import_from_bytes(test_account_info['private_bytes'])
     assert(account)
-    assert(account.public_key == test_account_info['public_key'])
+    assert(account.public_key == test_account_info['public_key'].lower())
 
 def test_account_address_bytes(test_account_info):
     account = Account.import_from_bytes(test_account_info['private_bytes'])
@@ -42,7 +42,7 @@ def test_account_address_api(test_account_info):
 def test_account_address_checksum(test_account_info):
     account = Account.import_from_bytes(test_account_info['private_bytes'])
     assert(account)
-    assert(account.public_key_checksum.lower() == test_account_info['public_key'])
+    assert(account.public_key_checksum == test_account_info['public_key'])
 
 def test_account_sign(test_account_info):
     hash_text = SIGN_HASH_TEXT

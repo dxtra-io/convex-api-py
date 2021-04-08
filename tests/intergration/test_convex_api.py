@@ -118,7 +118,7 @@ def test_convex_transfer_account(convex_url, test_account):
     # transfer the new account to use the same keys as the test_account
     account_change = convex.transfer_account(test_account, account_1)
     # public key should be the same as the test_account
-    assert(account_change.public_key == test_account.public_key)
+    assert(account_change.public_key_api == test_account.public_key_api)
     # adress still the same
     assert(account_change.address == account_1.address )
 
