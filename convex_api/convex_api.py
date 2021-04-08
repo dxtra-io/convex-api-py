@@ -561,6 +561,11 @@ class ConvexAPI:
 
     def transfer_account(self, from_account, to_account):
         """
+
+        **WARNING**
+        If you do not save the `from_account` keys for later use, this call can stop you
+        from accessing your transfered `to_account`.
+
         Transfer and copy the keys from the `from_account` over too the `to_acount`.
 
         :param Account from_account: :class:`.Account` object that has public/private keys you with to copy
