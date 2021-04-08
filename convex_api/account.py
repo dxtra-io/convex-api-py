@@ -295,7 +295,7 @@ class Account:
             0x36d8c5c40dbe2d1b0131acf41c38b9d37ebe04d85...
 
         """
-        return to_hex(self.public_key_bytes)
+        return to_hex(self.public_key_bytes).lower()
 
     @property
     def public_key_api(self):

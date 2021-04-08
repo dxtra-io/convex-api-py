@@ -115,14 +115,16 @@ def test_convex_transfer_account(convex_url, test_account):
     assert 'value' in result
     assert(result['value'] == [2, 3, 4, 5, 6])
 
-    # transfer the new account to use the same keys as the test_account
-    account_change = convex.transfer_account(test_account, account_1)
+    # transfer the new account_1 to use the same keys as the test_account
+    account_1_change = convex.transfer_account(test_account, account_1)
+    assert(account_1_change)
     # public key should be the same as the test_account
-    assert(account_change.public_key_api == test_account.public_key_api)
+    assert(account_1_change.public_key_api == test_account.public_key_api)
     # adress still the same
-    assert(account_change.address == account_1.address )
+    assert(account_1_change.address == account_1.address )
 
-    result = convex.send('(map inc [1 2 3 4 5])', account_change)
+    # test out new key
+    result = convex.send('(map inc [1 2 3 4 5])', account_1_change)
     assert 'value' in result
     assert(result['value'] == [2, 3, 4, 5, 6])
 
