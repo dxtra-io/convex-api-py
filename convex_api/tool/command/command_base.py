@@ -13,7 +13,7 @@ from convex_api import ConvexAPI
 from convex_api.utils import is_address
 
 
-DEFAULT_NETWORK_URL = 'https://convex.world'
+DEFAULT_CONVEX_URL = 'https://convex.world'
 
 
 class CommandBase(ABC):
@@ -30,7 +30,7 @@ class CommandBase(ABC):
         if url is None:
             url = default_url
         if url is None:
-            url = DEFAULT_NETWORK_URL
+            url = DEFAULT_CONVEX_URL
         return ConvexAPI(url)
 
     def process_sub_command(self, args, output, command):

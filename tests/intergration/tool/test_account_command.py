@@ -8,7 +8,10 @@ from unittest.mock import Mock
 from convex_api.tool.command.account_balance_command import AccountBalanceCommand
 from convex_api.tool.command.account_create_command import AccountCreateCommand
 from convex_api.tool.command.account_info_command import AccountInfoCommand
+from convex_api.tool.command.account_fund_command import AccountFundCommand
 from convex_api.tool.command.account_name_resolve_command import AccountNameResolveCommand
+from convex_api.tool.command.account_topup_command import AccountTopupCommand
+
 from convex_api.tool.output import Output
 
 
@@ -90,3 +93,33 @@ def test_account_name_resolve_command(convex_url, test_account):
     output = Output()
     command.execute(args, output)
     assert(output.values['address'] == test_account.address)
+
+def test_account_topup_command(convex_url, test_account):
+    args = Mock()
+
+    args.url = convex_url
+    args.keywords = test_account.export_to_mnemonic
+    args.keyfile = None
+    args.password = None
+    args.name_address = test_account.address
+
+    command = AccountTopupCommand()
+    output = Output()
+    command.execute(args, output)
+    assert(output.values['balance'])
+
+def test_account_fund_command(convex_url, test_account):
+    args = Mock()
+
+    args.url = convex_url
+    args.keywords = test_account.export_to_mnemonic
+    args.keyfile = None
+    args.password = None
+    args.name_address = test_account.address
+    args.amount = 1000
+
+    command = AccountFundCommand()
+    output = Output()
+    command.execute(args, output)
+    assert(output.values['balance'])
+    assert(output.values['amount'] == args.amount)
