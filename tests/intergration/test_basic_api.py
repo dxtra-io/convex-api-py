@@ -5,10 +5,14 @@
 import json
 import requests
 
-from eth_utils import to_hex, remove_0x_prefix, to_bytes
-
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from cryptography.hazmat.primitives import serialization
+
+from convex_api.utils import (
+    to_hex,
+    remove_0x_prefix,
+    to_bytes
+)
 
 PRIVATE_TEST_KEY = 0x973f69bcd654b264759170724e1e30ccd2e75fc46b7993fd24ce755f0a8c24d0
 PUBLIC_ADDRESS = '5288fec4153b702430771dfac8aed0b21cafca4344dae0d47b97f0bf532b3306'

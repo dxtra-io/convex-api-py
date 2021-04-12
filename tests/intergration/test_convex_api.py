@@ -5,10 +5,6 @@
 """
 import pytest
 import secrets
-from eth_utils import (
-    remove_0x_prefix,
-    add_0x_prefix
-)
 
 from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI

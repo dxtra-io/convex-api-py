@@ -10,16 +10,14 @@ from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
-from eth_utils import (
-    remove_0x_prefix,
-    to_bytes,
-    to_hex
-)
 
 from mnemonic import Mnemonic
 
 from convex_api.utils import (
+    remove_0x_prefix,
     to_address,
+    to_bytes,
+    to_hex,
     to_public_key_checksum
 )
 
@@ -295,7 +293,7 @@ class Account:
             0x36d8c5c40dbe2d1b0131acf41c38b9d37ebe04d85...
 
         """
-        return to_hex(self.public_key_bytes).lower()
+        return to_hex(self.public_key_bytes)
 
     @property
     def public_key_api(self):

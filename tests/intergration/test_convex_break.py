@@ -7,13 +7,15 @@
 
 import pytest
 import secrets
-from eth_utils import add_0x_prefix
-
 
 from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
-from convex_api.utils import to_address
+from convex_api.utils import (
+    add_0x_prefix,
+    to_address
+)
+
 
 def test_convex_recursion(convex, test_account):
     chain_length = 4

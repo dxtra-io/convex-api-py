@@ -6,10 +6,10 @@
 
 import logging
 import pytest
-from eth_utils import to_bytes
 
 from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI
+from convex_api.utils import to_bytes
 
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('urllib3').setLevel(logging.INFO)

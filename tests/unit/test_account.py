@@ -8,12 +8,11 @@ import secrets
 
 
 from convex_api.account import Account
-from eth_utils import (
-    remove_0x_prefix,
+from convex_api.utils import (
     to_bytes,
-    to_checksum_address,
-    to_hex
+    remove_0x_prefix
 )
+
 
 
 SIGN_HASH_TEXT = '5bb1ce718241bfec110552b86bb7cccf0d95b8a5f462fbf6dff7c48543622ba5'
