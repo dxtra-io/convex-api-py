@@ -13,6 +13,7 @@ import logging
 from convex_api.tool.command.account_command import AccountCommand
 from convex_api.tool.command.command_base import DEFAULT_CONVEX_URL
 from convex_api.tool.command.query_command import QueryCommand
+from convex_api.tool.command.submit_command import SubmitCommand
 from convex_api.tool.output import Output
 
 
@@ -82,7 +83,8 @@ def convex_tool():
 
     command_list = [
         AccountCommand(command_parser),
-        QueryCommand(command_parser)
+        QueryCommand(command_parser),
+        SubmitCommand(command_parser)
     ]
 
     args = parser.parse_args()

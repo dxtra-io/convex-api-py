@@ -96,7 +96,7 @@ class CommandBase(ABC):
 
         import_account = self.import_account(args)
         if not import_account:
-            output.add_error('you need to set the "--keywords" or "--password" a "--keyfile" to a valid account')
+            output.add_error('you need to set the "--keywords" or "--password" and "--keyfile/--keytext" to a valid account')
             return
 
         return Account.import_from_account(import_account, address=info['address'], name=info['name'])
