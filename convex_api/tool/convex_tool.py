@@ -11,8 +11,8 @@ import logging
 
 
 from convex_api.tool.command.account_command import AccountCommand
-from convex_api.tool.command.query_command import QueryCommand
 from convex_api.tool.command.command_base import DEFAULT_CONVEX_URL
+from convex_api.tool.command.query_command import QueryCommand
 from convex_api.tool.output import Output
 
 
