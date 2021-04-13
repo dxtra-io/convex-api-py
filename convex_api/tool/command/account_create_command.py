@@ -7,7 +7,6 @@
 import logging
 import secrets
 
-from .account_utils import load_account
 from .command_base import CommandBase
 
 logger = logging.getLogger(__name__)
@@ -43,7 +42,8 @@ class AccountCreateCommand(CommandBase):
     def execute(self, args, output):
         convex = self.load_convex(args.url)
 
-        import_account = load_account(args)
+        import_account = self.import_account(args)
+        logger.debug('creating account')
         account = convex.create_account(account=import_account)
 
         if args.topup:

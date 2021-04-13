@@ -29,21 +29,27 @@ def main():
         '-k',
         '--keyfile',
         nargs='?',
-        help='account private key encrypted with password saved in a file'
+        help='account private key encrypted with password saved in a file, must include the --password parameter.'
+    )
+
+    parser.add_argument(
+        '--keytext',
+        nargs='?',
+        help='account private key encrypted with password as a text string, must include the --password parameter.'
     )
 
     parser.add_argument(
         '-p',
         '--password',
         nargs='?',
-        help='password to access the private key enrcypted in a keyfile'
+        help='password to access the private key enrcypted in a --keyfile or --keytext'
     )
 
     parser.add_argument(
         '-w',
         '--keywords',
         nargs='?',
-        help='account private key as words'
+        help='account private key as words.'
     )
 
     parser.add_argument(
@@ -57,7 +63,7 @@ def main():
         '-j',
         '--json',
         action='store_true',
-        help='Output data as JSON values'
+        help='Output data as JSON values.'
     )
 
     parser.add_argument(
@@ -96,22 +102,6 @@ def main():
         parser.print_help()
 
     output.printout(args.json)
-
-    """
-    elif args.command == 'info':
-        address = None
-        if len(args.command_args) > 0:
-            if is_address(args.command_args[0]):
-                address = args.command_args[0]
-            else:
-                name = args.command_args[0]
-                address = convex.resolve_account_name(name)
-        if not address:
-            print('cannot find account address using name or address provided')
-            return
-        values = convex.get_account_info(address)
-        print(json.dumps(values, sort_keys=True, indent=4))
-    """
 
 
 if __name__ == "__main__":

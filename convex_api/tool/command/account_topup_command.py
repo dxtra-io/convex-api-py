@@ -4,9 +4,6 @@
 
 """
 
-from convex_api import Account
-
-from .account_utils import load_account
 from .command_base import CommandBase
 
 
@@ -33,32 +30,15 @@ class AccountTopupCommand(CommandBase):
 
     def execute(self, args, output):
         convex = self.load_convex(args.url)
-        address = None
-        name = None
-        account = None
-        if args.name_address:
-            address = convex.resolve_account_name(args.name_address)
-            name = args.name_address
-
-        if not address:
-            address = args.name_address
-
-        if not self.is_address(address):
-            output.add_error(f'{address} is not an convex account address')
+        account = self.load_account(args, args.name_address, output)
+        if not account:
             return
-
-        import_account = load_account(args)
-        if not import_account:
-            output.add_error('you need to set the "--keywords" or "--password" a "--keyfile" to a valid account')
-            return
-
-        account = Account.import_from_account(import_account, address=address, name=name)
 
         amount = convex.topup_account(account)
         balance = convex.get_balance(account)
-        output.add_line(f'topup account by {amount} to balance: {balance} for account at {address}')
+        output.add_line(f'topup account by {amount} to balance: {balance} for account at {account.address}')
         output.set_value('amount', amount)
         output.set_value('balance', balance)
-        output.set_value('address', address)
-        if name:
-            output.set_value('name', name)
+        output.set_value('address', account.address)
+        if account.name:
+            output.set_value('name', account.name)

@@ -4,14 +4,21 @@
 
 """
 
+import logging
+
 from abc import (
     ABC,
     abstractmethod
 )
 
-from convex_api import ConvexAPI
+from convex_api import (
+    Account,
+    ConvexAPI
+)
 from convex_api.utils import is_address
 
+
+logger = logging.getLogger('convex_tools')
 
 DEFAULT_CONVEX_URL = 'https://convex.world'
 
@@ -19,6 +26,7 @@ DEFAULT_CONVEX_URL = 'https://convex.world'
 class CommandBase(ABC):
     def __init__(self, name, sub_parser=None):
         self._name = name
+        self._convex = None
         self._sub_parser = sub_parser
         if sub_parser:
             self.create_parser(sub_parser)
@@ -31,7 +39,8 @@ class CommandBase(ABC):
             url = default_url
         if url is None:
             url = DEFAULT_CONVEX_URL
-        return ConvexAPI(url)
+        self._convex = ConvexAPI(url)
+        return self._convex
 
     def process_sub_command(self, args, output, command):
         is_found = False
@@ -46,6 +55,51 @@ class CommandBase(ABC):
 
     def print_help(self):
         self._sub_parser.choices[self._name].print_help()
+
+    def resolve_to_name_address(self, name_address, output):
+        name = None
+        address = None
+        if name_address:
+            address = self._convex.resolve_account_name(name_address)
+            name = name_address
+
+        if not address:
+            address = name_address
+
+        if not self.is_address(address):
+            output.add_error(f'{address} is not an convex account address')
+            return
+        return {
+            'name': name,
+            'address': address
+        }
+
+    def import_account(self, args):
+        import_account = None
+        if args.keyfile and args.password:
+            logger.debug(f'importing keyfile {args.keyfile}')
+            import_account = Account.import_from_file(args.keyfile, args.password)
+        elif args.keywords:
+            logger.debug('importing key from mnemonic')
+            import_account = Account.import_from_mnemonic(args.keywords)
+        elif args.keytext and args.password:
+            logger.debug('importing keytext')
+            import_account = Account.import_from_text(args.keytext, args.password)
+
+        return import_account
+
+    def load_account(self, args, name_address, output):
+
+        info = self.resolve_to_name_address(name_address, output)
+        if not info:
+            return
+
+        import_account = self.import_account(args)
+        if not import_account:
+            output.add_error('you need to set the "--keywords" or "--password" a "--keyfile" to a valid account')
+            return
+
+        return Account.import_from_account(import_account, address=info['address'], name=info['name'])
 
     def is_address(self, value):
         return is_address(value)

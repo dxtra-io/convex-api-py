@@ -6,8 +6,6 @@
 
 from .command_base import CommandBase
 
-DEFAULT_AMOUNT = 10
-
 
 class AccountInfoCommand(CommandBase):
 
@@ -33,22 +31,13 @@ class AccountInfoCommand(CommandBase):
 
     def execute(self, args, output):
         convex = self.load_convex(args.url)
-        address = None
-        name = None
-        if args.name_address:
-            address = convex.resolve_account_name(args.name_address)
-            name = args.name_address
-
-        if not address:
-            address = args.name_address
-
-        if not self.is_address(address):
-            output.add_error(f'{address} is not an convex account address')
+        info = self.resolve_to_name_address(args.name_address, output)
+        if not info:
             return
 
-        info = convex.get_account_info(address)
-        output.set_value('address', address)
-        if name:
-            output.set_value('name', name)
-        output.add_line_values(info)
-        output.set_values(info)
+        account_info = convex.get_account_info(info['address'])
+        output.set_value('address', info['address'])
+        if info['name']:
+            output.set_value('name', info['name'])
+        output.add_line_values(account_info)
+        output.set_values(account_info)

@@ -6,8 +6,6 @@
 
 from .command_base import CommandBase
 
-DEFAULT_AMOUNT = 10
-
 
 class AccountNameResolveCommand(CommandBase):
 

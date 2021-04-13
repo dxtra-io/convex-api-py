@@ -10,6 +10,7 @@ from convex_api.tool.command.account_create_command import AccountCreateCommand
 from convex_api.tool.command.account_info_command import AccountInfoCommand
 from convex_api.tool.command.account_fund_command import AccountFundCommand
 from convex_api.tool.command.account_name_resolve_command import AccountNameResolveCommand
+from convex_api.tool.command.account_name_register_command import AccountNameRegisterCommand
 from convex_api.tool.command.account_topup_command import AccountTopupCommand
 
 from convex_api.tool.output import Output
@@ -22,6 +23,7 @@ def test_account_create_command(convex_url):
     args.url = convex_url
     args.password = 'test_password'
     args.keyfile = None
+    args.keytext = None
     args.keywords = None
     args.name = None
 
@@ -100,6 +102,7 @@ def test_account_topup_command(convex_url, test_account):
     args.url = convex_url
     args.keywords = test_account.export_to_mnemonic
     args.keyfile = None
+    args.keytext = None
     args.password = None
     args.name_address = test_account.address
 
@@ -114,6 +117,7 @@ def test_account_fund_command(convex_url, test_account):
     args.url = convex_url
     args.keywords = test_account.export_to_mnemonic
     args.keyfile = None
+    args.keytext = None
     args.password = None
     args.name_address = test_account.address
     args.amount = 1000
@@ -123,3 +127,21 @@ def test_account_fund_command(convex_url, test_account):
     command.execute(args, output)
     assert(output.values['balance'])
     assert(output.values['amount'] == args.amount)
+
+def test_account_register_command(convex_url, test_account):
+    args = Mock()
+
+    args.url = convex_url
+    args.keywords = test_account.export_to_mnemonic
+    args.keyfile = None
+    args.keytext = None
+    args.password = None
+    args.name_address = test_account.address
+    args.name = test_account.name
+    args.address = test_account.address
+
+    command = AccountNameRegisterCommand()
+    output = Output()
+    command.execute(args, output)
+    assert(output.values['name'] == args.name)
+    assert(output.values['address'] == args.address)

@@ -8,6 +8,7 @@ from .account_balance_command import AccountBalanceCommand
 from .account_create_command import AccountCreateCommand
 from .account_fund_command import AccountFundCommand
 from .account_info_command import AccountInfoCommand
+from .account_name_register_command import AccountNameRegisterCommand
 from .account_name_resolve_command import AccountNameResolveCommand
 from .account_topup_command import AccountTopupCommand
 from .command_base import CommandBase
@@ -39,6 +40,7 @@ class AccountCommand(CommandBase):
             AccountCreateCommand(account_parser),
             AccountInfoCommand(account_parser),
             AccountFundCommand(account_parser),
+            AccountNameRegisterCommand(account_parser),
             AccountNameResolveCommand(account_parser),
             AccountTopupCommand(account_parser),
             HelpCommand(account_parser, self)
