@@ -43,7 +43,7 @@ def test_convex_recursion(convex, test_account):
         if next_index == chain_length:
             next_index = 0
         call_address = address_list[next_index]
-        result = convex.send(f'(call chain-{index} (set-chain-address {call_address}))', test_account)
+        result = convex.send(f'(call chain-{index} (set-chain-address #{call_address}))', test_account)
         test_number = secrets.randbelow(1000)
         if index == chain_length - 1:
             with pytest.raises(ConvexAPIError, match='DEPTH'):
@@ -87,7 +87,7 @@ def test_schedule_transfer(convex, test_account, other_account):
     contract_address = to_address(result['value'])
     convex.transfer(contract_address, 800000, other_account)
     convex.topup_account(test_account)
-    result = convex.send(f'(call {contract_address} (tx-delay {other_account.address} 1000))', test_account)
+    result = convex.send(f'(call #{contract_address} (tx-delay #{other_account.address} 1000))', test_account)
     print(result)
-    result = convex.send(f'(call {contract_address} (show-schedule))', test_account)
+    result = convex.send(f'(call #{contract_address} (show-schedule))', test_account)
     print(result)

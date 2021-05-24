@@ -375,7 +375,7 @@ class ConvexAPI:
         """
         faucet_url = urljoin(self._url, '/api/v1/faucet')
         faucet_data = {
-            'address': account.address,
+            'address': f'#{account.address}',
             'amount': amount
         }
         logger.debug(f'request_funds {faucet_url} {faucet_data}')
@@ -497,9 +497,9 @@ class ConvexAPI:
                 address_from = to_address(account_from)
             else:
                 address_from = account_from.address
-        line = f'(balance {address})'
+        line = f'(balance #{address})'
         if self._language == ConvexAPI.LANGUAGE_SCRYPT:
-            line = f'balance({address})'
+            line = f'balance(#{address})'
         try:
 
             result = self._transaction_query(address_from, line)
@@ -550,9 +550,9 @@ class ConvexAPI:
         if not to_address:
             raise ValueError(f'You must provide a valid to account/address ({transfer_to_address}) to transfer funds too')
 
-        line = f'(transfer {transfer_to_address} {amount})'
+        line = f'(transfer #{transfer_to_address} {amount})'
         if self._language == ConvexAPI.LANGUAGE_SCRYPT:
-            line = f'transfer({transfer_to_address}, {amount})'
+            line = f'transfer(#{transfer_to_address}, {amount})'
 
         result = self.send(line, account)
         if result and 'value' in result:
@@ -689,7 +689,7 @@ class ConvexAPI:
             language = self._language
         prepare_url = urljoin(self._url, '/api/v1/transaction/prepare')
         data = {
-            'address': address,
+            'address': f'#{address}',
             'lang': language,
             'source': transaction,
         }
@@ -713,7 +713,7 @@ class ConvexAPI:
         """
         submit_url = urljoin(self._url, '/api/v1/transaction/submit')
         data = {
-            'address': to_address(address),
+            'address': f'#{to_address(address)}',
             'accountKey': public_key,
             'hash': hash_data,
             'sig': remove_0x_prefix(signed_data)
@@ -738,7 +738,7 @@ class ConvexAPI:
 
         prepare_url = urljoin(self._url, '/api/v1/query')
         data = {
-            'address': address,
+            'address': f'#{address}',
             'lang': language,
             'source': transaction,
         }

@@ -16,7 +16,7 @@ logging.getLogger('urllib3').setLevel(logging.INFO)
 
 PRIVATE_TEST_KEY = 0x973f69bcd654b264759170724e1e30ccd2e75fc46b7993fd24ce755f0a8c24d0
 PUBLIC_KEY = '0x5288Fec4153b702430771DFAC8AeD0B21CAFca4344daE0d47B97F0bf532b3306'
-
+PRIVATE_KEY_MNEMONIC = 'now win hundred protect enroll cram stone come inch ill method often common quiz balance hundred negative truck crime turkey vague ecology nation balcony'
 
 PRIVATE_TEST_KEY_TEXT = """
 -----BEGIN ENCRYPTED PRIVATE KEY-----
@@ -39,12 +39,14 @@ def test_account_info():
         'private_bytes': to_bytes(PRIVATE_TEST_KEY),
         'private_text': PRIVATE_TEST_KEY_TEXT,
         'private_password': PRIVATE_TEST_KEY_PASSWORD,
+        'private_mnemonic': PRIVATE_KEY_MNEMONIC,
         'public_key': PUBLIC_KEY
     }
 
 @pytest.fixture(scope='module')
 def import_account(test_account_info):
-    return Account.import_from_bytes(test_account_info['private_bytes'])
+    account = Account.import_from_bytes(test_account_info['private_bytes'])
+    return account
 
 @pytest.fixture(scope='module')
 def test_account(convex, import_account):

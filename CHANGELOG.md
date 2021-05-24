@@ -1,5 +1,8 @@
 ## Change log
 
+### 0.1.4
++	Add address '#' ident before each address number.
+
 ### 0.1.3
 +   Add transfer_account, the ability to change your account public key for a given account address
 +   Remove eth-utils library dependency

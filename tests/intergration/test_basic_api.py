@@ -43,7 +43,7 @@ def create_account(convex_url, public_address):
 
 def request_funds(convex_url, address):
     faucet_data = {
-        'address': address,
+        'address': f'#{address}',
         'amount': 10000000
     }
     print('faucet send', faucet_data)
@@ -64,7 +64,7 @@ def test_submit_transaction(convex_url):
 
     # prepare
     prepare_data = {
-        'address': address,
+        'address': f'#{address}',
         'source': '(map inc [1 2 3])'
     }
     url = f'{convex_url}/api/v1/transaction/prepare'
@@ -82,7 +82,7 @@ def test_submit_transaction(convex_url):
     signed_hash_bytes = private_key.sign(hash_data)
     signed_hash = to_hex(signed_hash_bytes)
     submit_data = {
-        'address': address,
+        'address': f'#{address}',
         'accountKey': public_address,
         'hash': result['hash'],
         'sig': remove_0x_prefix(signed_hash)
@@ -103,9 +103,9 @@ def test_query_lisp(convex_url):
     address = create_account(convex_url, public_address)
     request_funds(convex_url, address)
     query_data = {
-        'address': address,
+        'address': f'#{address}',
         'lang': 'convex-lisp',
-        'source': f'(balance {address})'
+        'source': f'(balance #{address})'
     }
     url = f'{convex_url}/api/v1/query'
     print('query send', query_data)
@@ -123,9 +123,9 @@ def test_query_scrypt(convex_url):
     address = create_account(convex_url, public_address)
     request_funds(convex_url, address)
     query_data = {
-        'address': address,
+        'address': f'#{address}',
         'lang': 'convex-scrypt',
-        'source': f'balance({address})'
+        'source': f'balance(#{address})'
     }
     url = f'{convex_url}/api/v1/query'
     print('query send', query_data)

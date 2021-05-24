@@ -199,11 +199,11 @@ def test_convex_api_call(convex_url):
     call_get_result = convex.query('call storage_example get()', account)
     assert(call_get_result['value'] == test_number)
 
-    call_get_result = convex.query(f'call {contract_address} get()', account)
+    call_get_result = convex.query(f'call #{contract_address} get()', account)
     assert(call_get_result['value'] == test_number)
 
     with pytest.raises(ConvexRequestError, match='400'):
-        call_set_result = convex.send(f'call {contract_address}.set({test_number})', account)
+        call_set_result = convex.send(f'call #{contract_address}.set({test_number})', account)
 
     address = convex.get_address('storage_example', account)
     assert(address == contract_address)
