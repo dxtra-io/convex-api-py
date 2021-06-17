@@ -22,13 +22,12 @@ from convex_api.utils import (
 
 class KeyPair:
 
-    def __init__(self, private_key):
+    def __init__(self, private_key=None):
         """
 
         Create a new keypair object with a public and private key as a Ed25519PrivateKey. It is better to use
         one of the following static methods to create an KeyPair object:
 
-            * :meth:`.create`
             * :meth:`import_from_bytes`
             * :meth:`import_from_file`
             * :meth:`import_from_mnemonic`
@@ -54,6 +53,8 @@ class KeyPair:
             >>> convex_api = ConvexAPI('https://convex.world')
 
         """
+        if private_key is None:
+            private_key = Ed25519PrivateKey.generate()
         self._private_key = private_key
         self._public_key = private_key.public_key()
 
@@ -89,7 +90,7 @@ class KeyPair:
         .. code-block:: python
 
             >>> # create a keypair
-            >>> key_pair = KeyPair.create()
+            >>> key_pair = KeyPair()
 
             >>> # export the private key for later use
             >>> print(key_pair.export_to_text('secret password'))
@@ -120,7 +121,7 @@ class KeyPair:
         .. code-block:: python
 
             >>> # create a keypair
-            >>> key_pair = KeyPair.create()
+            >>> key_pair = KeyPair()
 
             >>> # export the private key for later use
             >>> print(key_pair.export_to_mnemonic())
@@ -147,7 +148,7 @@ class KeyPair:
         .. code-block:: python
 
             >>> # create a keypair
-            >>> key_pair = KeyPair.create()
+            >>> key_pair = KeyPair()
 
             >>> # export the private key to a file
             >>> key_pair.export_to_file('my_key_pair.pem', 'secret password')
@@ -172,7 +173,7 @@ class KeyPair:
         .. code-block:: python
 
             >>> # create a keypair
-            >>> key_pair = KeyPair.create()
+            >>> key_pair = KeyPair()
 
             >>> # show the public key as bytes
             >>> print(key_pair.public_key_bytes)
@@ -197,7 +198,7 @@ class KeyPair:
         .. code-block:: python
 
             >>> # create a random KeyPair
-            >>> key_pair = KeyPair.create()
+            >>> key_pair = KeyPair()
 
             >>> # show the public key as a hex string
             >>> print(key_pair.public_key)
@@ -218,7 +219,7 @@ class KeyPair:
         .. code-block:: python
 
             >>> # create a random KeyPair
-            >>> key_pair = KeyPair.create()
+            >>> key_pair = KeyPair()
 
             >>> # show the public key as a hex string with the leading '0x' removed
             >>> print(key_pair.public_key_api)
@@ -239,7 +240,7 @@ class KeyPair:
         .. code-block:: python
 
             >>> # create a random KeyPair
-            >>> key_pair = KeyPair.create()
+            >>> key_pair = KeyPair()
 
             >>> # show the public key as a hex string in checksum format
             >>> print(key_pair.public_key_checksum)
@@ -268,24 +269,6 @@ class KeyPair:
             raise TypeError('invalid key_pair or public_key')
 
         return remove_0x_prefix(self.public_key_checksum).lower() == remove_0x_prefix(public_key).lower()
-
-    @staticmethod
-    def create():
-        """
-
-        Create a new key pair with a random key.
-
-        :returns: New KeyPair object
-        :rtype: KeyPair
-
-        .. code-block:: python
-
-            >>> # create a keypair
-            >>> key_pair = KeyPair.create()
-
-
-        """
-        return KeyPair(Ed25519PrivateKey.generate())
 
     @staticmethod
     def import_from_bytes(value):

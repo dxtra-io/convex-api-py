@@ -17,8 +17,8 @@ from convex_api.utils import (
 
 
 def test_account_create_new():
-    key_pair = KeyPair.create()
-    account = Account.create(key_pair, 99)
+    key_pair = KeyPair()
+    account = Account(key_pair, 99)
     assert(account)
     assert(account.public_key)
 

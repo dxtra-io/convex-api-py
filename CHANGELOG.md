@@ -1,5 +1,9 @@
 ## Change log
 
+### 0.2.0
++   Add KeyPair class, now you have to pass a KeyPair object to the `create_account` method.
++   Rename ConvexAPI to API
+
 ### 0.1.4
 +	Add address '#' identifier before each address number.
 

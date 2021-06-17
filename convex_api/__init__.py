@@ -5,7 +5,7 @@
 """
 
 from convex_api.account import Account                   # noqa: F401
-from convex_api.convex_api import ConvexAPI              # noqa: F401
+from convex_api.api import API                    # noqa: F401
 from convex_api.key_pair import KeyPair                  # noqa: F401
 
 

@@ -46,7 +46,7 @@ class AccountCreateCommand(CommandBase):
 
         key_pair = self.import_key_pair(args)
         if key_pair is None:
-            key_pair = KeyPair.create()
+            key_pair = KeyPair()
 
         logger.debug('creating account')
         account = convex.create_account(key_pair)

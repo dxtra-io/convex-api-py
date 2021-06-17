@@ -10,7 +10,7 @@ from multiprocessing import (
     Value
 )
 
-from convex_api.convex_api import ConvexAPI
+from convex_api.api import API
 from convex_api.exceptions import ConvexAPIError
 from convex_api.key_pair import KeyPair
 from convex_api.utils import to_address
@@ -37,7 +37,7 @@ def process_on_convex(convex, test_account, result_value):
 def test_convex_api_multi_thread_send(convex_url, test_account):
 
     process_count = 4
-    convex = ConvexAPI(convex_url)
+    convex = API(convex_url)
     convex.topup_account(test_account)
     process_items = {}
     for index in range(process_count):
@@ -55,7 +55,7 @@ def test_convex_api_multi_thread_send(convex_url, test_account):
 
 
 def process_convex_account_creation(convex, result_value):
-    key_pair = KeyPair.create()
+    key_pair = KeyPair()
     account = convex.create_account(key_pair)
     assert(account)
     assert(account.address)
@@ -64,7 +64,7 @@ def process_convex_account_creation(convex, result_value):
 
 def test_convex_api_multi_thread_account_creation(convex_url):
     process_count = 20
-    convex = ConvexAPI(convex_url)
+    convex = API(convex_url)
     process_items = {}
     for index in range(process_count):
         result_value = Value('i', 0)
@@ -93,7 +93,7 @@ def process_convex_depoly(convex, result_value):
     )
 )
 """
-    key_pair = KeyPair.create()
+    key_pair = KeyPair()
     account = convex.create_account(key_pair)
     for index in range(0, 10):
         convex.topup_account(account)
@@ -115,8 +115,8 @@ def process_convex_depoly(convex, result_value):
 
 def test_convex_api_multi_thread_deploy(convex_url):
     process_count = 10
-    convex = ConvexAPI(convex_url)
-    # key_pair = KeyPair.create()
+    convex = API(convex_url)
+    # key_pair = KeyPair()
     # account = convex.create_account(key_pair)
     # request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, account)
     process_items = {}

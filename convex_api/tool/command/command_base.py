@@ -12,8 +12,8 @@ from abc import (
 )
 
 from convex_api import (
+    API,
     Account,
-    ConvexAPI,
     KeyPair
 )
 from convex_api.utils import is_address
@@ -40,7 +40,7 @@ class CommandBase(ABC):
             url = default_url
         if url is None:
             url = DEFAULT_CONVEX_URL
-        self._convex = ConvexAPI(url)
+        self._convex = API(url)
         return self._convex
 
     def process_sub_command(self, args, output, command):
@@ -100,7 +100,7 @@ class CommandBase(ABC):
             output.add_error('you need to set the "--keywords" or "--password" and "--keyfile/--keytext" to a valid account')
             return
 
-        return Account.create(key_pair, info['address'], name=info['name'])
+        return Account(key_pair, info['address'], name=info['name'])
 
     def is_address(self, value):
         return is_address(value)

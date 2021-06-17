@@ -8,7 +8,7 @@ import logging
 import pytest
 
 from convex_api.account import Account
-from convex_api.convex_api import ConvexAPI
+from convex_api.api import API
 from convex_api.key_pair import KeyPair
 from convex_api.utils import to_bytes
 
@@ -61,12 +61,12 @@ def convex_url():
 
 @pytest.fixture(scope='module')
 def convex(convex_url):
-    api = ConvexAPI(convex_url)
+    api = API(convex_url)
     return api
 
 @pytest.fixture(scope='module')
 def other_account(convex):
-    key_pair = KeyPair.create()
+    key_pair = KeyPair()
     account = convex.create_account(key_pair)
     convex.topup_account(account)
     return account

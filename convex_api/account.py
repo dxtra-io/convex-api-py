@@ -15,10 +15,6 @@ class Account:
 
         Create a new account with a private key KeyPair.
 
-        You can also use the following static methods to create an Account object:
-
-            * :meth:`.create`
-
         :param KeyPair key_pair: The public/private key of the account
 
         :param int address: address of the account
@@ -28,16 +24,16 @@ class Account:
         .. code-block:: python
 
             >>> # import convex-api
-            >>> from convex_api import ConvexAPI, KeyPair, Account
+            >>> from convex_api import API, KeyPair, Account
 
             >>> # setup the network connection
-            >>> convex_api = ConvexAPI('https://convex.world')
+            >>> convex = API('https://convex.world')
 
             >>> # create a random keypair
-            >>> key_pair = KeyPair.create()
+            >>> key_pair = KeyPair()
 
             >>> # create a new account and address
-            >>> account = convex_api.create_account(key_pair)
+            >>> account = convex.create_account(key_pair)
 
             >>> # export the private key to a file
             >>> key_pair.export_to_file('/tmp/my_account.pem', 'my secret password')
@@ -49,7 +45,7 @@ class Account:
 
             >>> # now import the account and address for later use
             >>> key_pair = KeyPair.import_from_file('/tmp/my_account.pem', 'my secret password')
-            >>> account = Account.create(key_pair, my_address)
+            >>> account = Account(key_pair, my_address)
 
 
         """
@@ -68,8 +64,8 @@ class Account:
 
         .. code-block:: python
 
-            >>> # create an account with no address
-            >>> account = Account.create(key_pair)
+            >>> # create an account
+            >>> account = convex.create_account(key_pair)
             >>> # sign a given hash
             >>> sig = account.sign('7e2f1062f5fc51ed65a28b5945b49425aa42df6b7e67107efec357794096e05e')
             >>> print(sig)
@@ -102,7 +98,8 @@ class Account:
         .. code-block:: python
 
             >>> # create an account with the network
-            >>> account = convex_api.create_account()
+            >>> key_pair = KeyPair()
+            >>> account = convex.create_account(key_pair)
             >>> print(account.address)
             42
 
@@ -121,8 +118,9 @@ class Account:
         .. code-block:: python
 
             >>> # import the account keys
-            >>> account = Account.import_from_mnemonic('my private key words ..')
+            >>> key_pair = KeyPair.import_from_mnemonic('my private key words ..')
 
+            >>> account = convex.create_account(key_pair)
             >>> # set the address that was given to us when we created the account on the network
             >>> account.address = 42
 
@@ -149,7 +147,7 @@ class Account:
         .. code-block:: python
 
             >>> # create an account with the network
-            >>> account = convex_api.create_account(key_pair)
+            >>> account = convex.create_account(key_pair)
 
             >>> # show the public key as a hex string
             >>> print(account.public_key)
@@ -166,29 +164,3 @@ class Account:
 
         """
         return self._key_pair
-
-    @staticmethod
-    def create(key_pair, address, name=None):
-        """
-
-        Create a new account with a random key and an empty address.
-
-        :param KeyPair key_pair: The public/private key of the account
-
-        :param int address: address of the account
-
-        :param str name: Optional name of the account
-
-        :returns: New Account object
-        :rtype: Account
-
-        .. code-block:: python
-
-            >>> # create an account with no address
-            >>> account = Account.create(key_pair)
-            >> account.is_address
-            False
-
-
-        """
-        return Account(key_pair, address, name)

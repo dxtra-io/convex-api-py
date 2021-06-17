@@ -9,7 +9,7 @@ import pytest
 import secrets
 
 from convex_api.account import Account
-from convex_api.convex_api import ConvexAPI
+from convex_api.api import API
 from convex_api.exceptions import ConvexAPIError
 from convex_api.utils import (
     add_0x_prefix,
