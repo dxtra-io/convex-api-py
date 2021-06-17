@@ -5,13 +5,7 @@
 
 """
 
-from convex_api.utils import (
-    remove_0x_prefix,
-    to_address,
-    to_bytes,
-    to_hex,
-    to_public_key_checksum
-)
+from convex_api.utils import to_address
 
 
 class Account:
@@ -143,7 +137,6 @@ class Account:
     def name(self, value):
         self._name = value
 
-
     @property
     def public_key(self):
         """
@@ -173,7 +166,6 @@ class Account:
 
         """
         return self._key_pair
-
 
     @staticmethod
     def create(key_pair, address, name=None):

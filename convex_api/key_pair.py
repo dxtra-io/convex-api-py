@@ -4,7 +4,6 @@
 
 
 """
-import secrets
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -270,7 +269,6 @@ class KeyPair:
 
         return remove_0x_prefix(self.public_key_checksum).lower() == remove_0x_prefix(public_key).lower()
 
-
     @staticmethod
     def create():
         """
@@ -385,4 +383,3 @@ class KeyPair:
         """
         with open(filename, 'r') as fp:
             return KeyPair.import_from_text(fp.read(), password)
-

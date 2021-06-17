@@ -15,12 +15,12 @@ from urllib.parse import urljoin
 import requests
 
 from convex_api.account import Account
-from convex_api.key_pair import KeyPair
 
 from convex_api.exceptions import (
     ConvexAPIError,
     ConvexRequestError
 )
+from convex_api.key_pair import KeyPair
 from convex_api.registry import Registry
 from convex_api.utils import (
     is_address,
@@ -92,7 +92,7 @@ class ConvexAPI:
         }
 
         logger.debug(f'create_account {create_account_url} {account_data}')
-        result = self._transaction_post(create_account_url, account_data);
+        result = self._transaction_post(create_account_url, account_data)
         logger.debug(f'create_account result {result}')
         account = Account.create(key_pair, to_address(result['address']))
         return account
@@ -352,7 +352,7 @@ class ConvexAPI:
             'amount': amount
         }
         logger.debug(f'request_funds {faucet_url} {faucet_data}')
-        result = self._transaction_post(faucet_url, faucet_data);
+        result = self._transaction_post(faucet_url, faucet_data)
         logger.debug(f'request_funds result {result}')
         if result['address'] != account.address:
             raise ValueError(f'request_funds: returned account is not correct {result["address"]}')
@@ -671,7 +671,6 @@ class ConvexAPI:
             else:
                 raise ConvexRequestError('_transaction_post', response.status_code, response.text)
         return result
-
 
     def _transaction_prepare(self, transaction, address, language=None, sequence_number=None):
         """
