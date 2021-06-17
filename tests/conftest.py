@@ -9,6 +9,7 @@ import pytest
 
 from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI
+from convex_api.key_pair import KeyPair
 from convex_api.utils import to_bytes
 
 logging.basicConfig(level=logging.DEBUG)
@@ -33,7 +34,7 @@ CONVEX_URL = 'https://convex.world'
 TEST_ACCOUNT_NAME = 'test.convex-api'
 
 @pytest.fixture(scope='module')
-def test_account_info():
+def test_key_pair_info():
     return {
         'private_hex' : PRIVATE_TEST_KEY,
         'private_bytes': to_bytes(PRIVATE_TEST_KEY),
@@ -44,13 +45,13 @@ def test_account_info():
     }
 
 @pytest.fixture(scope='module')
-def import_account(test_account_info):
-    account = Account.import_from_bytes(test_account_info['private_bytes'])
-    return account
+def test_key_pair(test_key_pair_info):
+    key_pair = KeyPair.import_from_bytes(test_key_pair_info['private_bytes'])
+    return key_pair
 
 @pytest.fixture(scope='module')
-def test_account(convex, import_account):
-    account = convex.setup_account(TEST_ACCOUNT_NAME, import_account)
+def test_account(convex, test_key_pair):
+    account = convex.setup_account(TEST_ACCOUNT_NAME, test_key_pair)
     convex.topup_account(account)
     return account
 
@@ -65,6 +66,7 @@ def convex(convex_url):
 
 @pytest.fixture(scope='module')
 def other_account(convex):
-    account = convex.create_account()
+    key_pair = KeyPair.create()
+    account = convex.create_account(key_pair)
     convex.topup_account(account)
     return account

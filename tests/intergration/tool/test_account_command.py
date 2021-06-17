@@ -100,7 +100,7 @@ def test_account_topup_command(convex_url, test_account):
     args = Mock()
 
     args.url = convex_url
-    args.keywords = test_account.export_to_mnemonic
+    args.keywords = test_account.key_pair.export_to_mnemonic
     args.keyfile = None
     args.keytext = None
     args.password = None
@@ -115,7 +115,7 @@ def test_account_fund_command(convex_url, test_account):
     args = Mock()
 
     args.url = convex_url
-    args.keywords = test_account.export_to_mnemonic
+    args.keywords = test_account.key_pair.export_to_mnemonic
     args.keyfile = None
     args.keytext = None
     args.password = None
@@ -132,7 +132,7 @@ def test_account_register_command(convex_url, test_account):
     args = Mock()
 
     args.url = convex_url
-    args.keywords = test_account.export_to_mnemonic
+    args.keywords = test_account.key_pair.export_to_mnemonic
     args.keyfile = None
     args.keytext = None
     args.password = None

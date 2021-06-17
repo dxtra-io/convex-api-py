@@ -12,6 +12,7 @@ from multiprocessing import (
 
 from convex_api.convex_api import ConvexAPI
 from convex_api.exceptions import ConvexAPIError
+from convex_api.key_pair import KeyPair
 from convex_api.utils import to_address
 
 TEST_FUNDING_AMOUNT = 8000000
@@ -54,7 +55,8 @@ def test_convex_api_multi_thread_send(convex_url, test_account):
 
 
 def process_convex_account_creation(convex, result_value):
-    account = convex.create_account()
+    key_pair = KeyPair.create()
+    account = convex.create_account(key_pair)
     assert(account)
     assert(account.address)
     result_value.value = 1
@@ -91,7 +93,8 @@ def process_convex_depoly(convex, result_value):
     )
 )
 """
-    account = convex.create_account()
+    key_pair = KeyPair.create()
+    account = convex.create_account(key_pair)
     for index in range(0, 10):
         convex.topup_account(account)
         try:
@@ -113,7 +116,8 @@ def process_convex_depoly(convex, result_value):
 def test_convex_api_multi_thread_deploy(convex_url):
     process_count = 10
     convex = ConvexAPI(convex_url)
-    # account = convex.create_account()
+    # key_pair = KeyPair.create()
+    # account = convex.create_account(key_pair)
     # request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, account)
     process_items = {}
     for index in range(process_count):

@@ -13,7 +13,8 @@ from abc import (
 
 from convex_api import (
     Account,
-    ConvexAPI
+    ConvexAPI,
+    KeyPair
 )
 from convex_api.utils import is_address
 
@@ -74,19 +75,19 @@ class CommandBase(ABC):
             'address': address
         }
 
-    def import_account(self, args):
-        import_account = None
+    def import_key_pair(self, args):
+        key_pair = None
         if args.keyfile and args.password:
             logger.debug(f'importing keyfile {args.keyfile}')
-            import_account = Account.import_from_file(args.keyfile, args.password)
+            key_pair = KeyPair.import_from_file(args.keyfile, args.password)
         elif args.keywords:
             logger.debug('importing key from mnemonic')
-            import_account = Account.import_from_mnemonic(args.keywords)
+            key_pair = KeyPair.import_from_mnemonic(args.keywords)
         elif args.keytext and args.password:
             logger.debug('importing keytext')
-            import_account = Account.import_from_text(args.keytext, args.password)
+            key_pair = KeyPair.import_from_text(args.keytext, args.password)
 
-        return import_account
+        return key_pair
 
     def load_account(self, args, name_address, output):
 
@@ -94,12 +95,12 @@ class CommandBase(ABC):
         if not info:
             return
 
-        import_account = self.import_account(args)
-        if not import_account:
+        key_pair = self.import_key_pair(args)
+        if not key_pair:
             output.add_error('you need to set the "--keywords" or "--password" and "--keyfile/--keytext" to a valid account')
             return
 
-        return Account.import_from_account(import_account, address=info['address'], name=info['name'])
+        return Account.create(key_pair, info['address'], name=info['name'])
 
     def is_address(self, value):
         return is_address(value)

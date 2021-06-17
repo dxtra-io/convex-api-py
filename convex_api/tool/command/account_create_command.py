@@ -7,6 +7,8 @@
 import logging
 import secrets
 
+from convex_api import KeyPair
+
 from .command_base import CommandBase
 
 logger = logging.getLogger(__name__)
@@ -42,9 +44,12 @@ class AccountCreateCommand(CommandBase):
     def execute(self, args, output):
         convex = self.load_convex(args.url)
 
-        import_account = self.import_account(args)
+        key_pair = self.import_key_pair(args)
+        if key_pair is None:
+            key_pair = KeyPair.create()
+
         logger.debug('creating account')
-        account = convex.create_account(account=import_account)
+        account = convex.create_account(key_pair)
 
         if args.topup:
             logger.debug('auto topup of account balance')
@@ -61,8 +66,8 @@ class AccountCreateCommand(CommandBase):
         values = {
             'password': password,
             'address': account.address,
-            'keyfile': account.export_to_text(password),
-            'keywords': account.export_to_mnemonic,
+            'keyfile': key_pair.export_to_text(password),
+            'keywords': key_pair.export_to_mnemonic,
             'balance': convex.get_balance(account)
         }
         if account.name:

@@ -8,6 +8,7 @@ import secrets
 
 from convex_api.account import Account
 from convex_api.convex_api import ConvexAPI
+from convex_api.key_pair import KeyPair
 from convex_api.exceptions import (
     ConvexAPIError,
     ConvexRequestError
@@ -39,12 +40,13 @@ def test_convex_api_request_funds(convex_url, test_account):
 
 def test_convex_api_topup_account(convex_url):
     convex = ConvexAPI(convex_url)
-    account = convex.create_account()
+    key_pair = KeyPair.create()
+    account = convex.create_account(key_pair)
     topup_amount = TEST_FUNDING_AMOUNT
     amount = convex.topup_account(account, topup_amount)
     assert(amount >= topup_amount)
 
-    account = convex.create_account()
+    account = convex.create_account(key_pair)
     amount = convex.topup_account(account)
     assert(amount >= 0)
 
@@ -62,20 +64,21 @@ def test_convex_get_account_info(convex_url, test_account):
     with pytest.raises(ConvexRequestError, match='INCORRECT'):
         info = convex.get_account_info(pow(2, 1024))
 
-    account = convex.create_account()
+    key_pair = KeyPair.create()
+    account = convex.create_account(key_pair)
     request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, account)
     info = convex.get_account_info(account)
     assert(info)
     assert(info['balance'] == TEST_FUNDING_AMOUNT)
 
-def test_convex_account_name_registry(convex_url, test_account, import_account):
+def test_convex_account_name_registry(convex_url, test_account, test_key_pair):
     account_name = f'test.convex-api.{secrets.token_hex(4)}'
     convex = ConvexAPI(convex_url)
 
     address = convex.resolve_account_name(account_name)
     assert(not address)
 
-    account = convex.load_account(account_name, import_account)
+    account = convex.load_account(account_name, test_key_pair)
     assert(not account)
 
 
@@ -84,7 +87,7 @@ def test_convex_account_name_registry(convex_url, test_account, import_account):
 
     assert(convex.resolve_account_name(account_name) == test_account.address)
 
-    new_account = convex.create_account(import_account)
+    new_account = convex.create_account(test_key_pair)
     register_account = convex.register_account_name(account_name, new_account, test_account)
 
     assert(register_account.address == new_account.address)
@@ -105,7 +108,8 @@ def test_convex_transfer_account(convex_url, test_account):
     convex = ConvexAPI(convex_url)
 
     # create a new account with a random keys
-    account_1 = convex.create_account()
+    key_pair = KeyPair.create()
+    account_1 = convex.create_account(key_pair)
     convex.topup_account(account_1)
     result = convex.send('(map inc [1 2 3 4 5])', account_1)
     assert 'value' in result
@@ -115,7 +119,7 @@ def test_convex_transfer_account(convex_url, test_account):
     account_1_change = convex.transfer_account(test_account, account_1)
     assert(account_1_change)
     # public key should be the same as the test_account
-    assert(account_1_change.public_key_api == test_account.public_key_api)
+    assert(account_1_change.key_pair.is_equal(test_account.key_pair))
     # adress still the same
     assert(account_1_change.address == account_1.address )
 
@@ -141,13 +145,15 @@ def test_convex_api_send_basic_scrypt(convex_url, test_account):
 
 def test_convex_api_get_balance_no_funds(convex_url):
     convex = ConvexAPI(convex_url)
-    account = convex.create_account()
+    key_pair = KeyPair.create()
+    account = convex.create_account(key_pair)
     new_balance = convex.get_balance(account)
     assert(new_balance == 0)
 
 def test_convex_api_get_balance_small_funds(convex_url, test_account):
     convex = ConvexAPI(convex_url)
-    account = convex.create_account()
+    key_pair = KeyPair.create()
+    account = convex.create_account(key_pair)
     amount = 100
     request_amount = convex.request_funds(amount, account)
     new_balance = convex.get_balance(account)
@@ -155,7 +161,8 @@ def test_convex_api_get_balance_small_funds(convex_url, test_account):
 
 def test_convex_api_get_balance_new_account(convex_url):
     convex = ConvexAPI(convex_url)
-    account = convex.create_account()
+    key_pair = KeyPair.create()
+    account = convex.create_account(key_pair)
     amount = TEST_FUNDING_AMOUNT
     request_amount = convex.request_funds(amount, account)
     assert(request_amount == amount)
@@ -177,7 +184,8 @@ def test_convex_api_call(convex_url):
 )
 """
     convex = ConvexAPI(convex_url)
-    account = convex.create_account()
+    key_pair = KeyPair.create()
+    account = convex.create_account(key_pair)
     amount = TEST_FUNDING_AMOUNT
     request_amount = convex.request_funds(amount, account)
     result = convex.send(deploy_storage, account)
@@ -210,8 +218,9 @@ def test_convex_api_call(convex_url):
 
 def test_convex_api_transfer(convex_url):
     convex = ConvexAPI(convex_url)
-    account_from = convex.create_account()
-    account_to = convex.create_account()
+    key_pair = KeyPair.create()
+    account_from = convex.create_account(key_pair)
+    account_to = convex.create_account(key_pair)
     amount = TEST_FUNDING_AMOUNT
     request_amount = convex.request_funds(amount, account_from)
     assert(request_amount == amount)

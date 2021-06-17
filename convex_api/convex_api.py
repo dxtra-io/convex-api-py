@@ -15,6 +15,7 @@ from urllib.parse import urljoin
 import requests
 
 from convex_api.account import Account
+from convex_api.key_pair import KeyPair
 
 from convex_api.exceptions import (
     ConvexAPIError,
@@ -47,17 +48,14 @@ class ConvexAPI:
         self._language = language
         self._registry = Registry(self)
 
-    def create_account(self, account=None, sequence_retry_count=20):
+    def create_account(self, key_pair, sequence_retry_count=20):
         """
 
         Create a new account address on the convex network.
 
-        :param `Account` account: :class:`.Account` object that you whish to use as the signing account.
-            The :class:`.Account` object contains the public/private keys to access and submit commands
+        :param `KeyPair` key_pair: :class:`.KeyPair` object that you whish to use as the signing account.
+            The :class:`.KeyPair` object contains the public/private keys to access and submit commands
             on the convex network.
-
-            If no object given, then this method will automatically create a new :class:`.Account` object.
-        :type account: Account, optional
 
 
         :param sequence_retry_count: Number of retries to create the account. If too many clients are trying to
@@ -72,7 +70,8 @@ class ConvexAPI:
             >>> from convex_api import ConvexAPI
             >>> convex_api = ConvexAPI('https://convex.world')
             >>> # Create a new account with new public/priavte keys and address
-            >>> account = convex_api.create_account()
+            >>> key_pair = KeyPair.create()
+            >>> account = convex_api.create_account(key_pair)
             >>> print(account.address)
             >>> 42
 
@@ -84,57 +83,31 @@ class ConvexAPI:
 
         """
 
-        if account and not isinstance(account, Account):
-            raise TypeError(f'account value {account} must be a type convex_api.Account')
-
-        # if account, then copy it
-        if account:
-            new_account = Account.import_from_account(account)
-        else:
-            # create a new account with new keys
-            new_account = Account.create()
+        if key_pair and not isinstance(key_pair, KeyPair):
+            raise TypeError(f'key_pair value {key_pair} must be a type convex_api.KeyPair')
 
         create_account_url = urljoin(self._url, '/api/v1/createAccount')
         account_data = {
-            'accountKey': new_account.public_key_api,
+            'accountKey': key_pair.public_key_api,
         }
 
         logger.debug(f'create_account {create_account_url} {account_data}')
-
-        max_sleep_time_seconds = 1
-        while sequence_retry_count >= 0:
-            response = requests.post(create_account_url, data=json.dumps(account_data))
-            if response.status_code == 200:
-                result = response.json()
-                break
-            elif response.status_code == 400:
-                if not re.search(':SEQUENCE ', response.text):
-                    raise ConvexRequestError('create_account', response.status_code, response.text)
-
-                if sequence_retry_count == 0:
-                    raise ConvexRequestError('create_account', response.status_code, response.text)
-                sequence_retry_count -= 1
-                # now sleep < 1 second for at least 1 millisecond
-                sleep_time = secrets.randbelow(round(max_sleep_time_seconds * 1000)) / 1000
-                time.sleep(sleep_time + 1)
-            else:
-                raise ConvexRequestError('create_account', response.status_code, response.text)
+        result = self._transaction_post(create_account_url, account_data);
         logger.debug(f'create_account result {result}')
-        new_account.address = to_address(result['address'])
+        account = Account.create(key_pair, to_address(result['address']))
+        return account
 
-        return new_account
-
-    def load_account(self, name, account):
+    def load_account(self, name, key_pair):
         """
 
-        Load an account using the account name. If successfull return the :class:`.Account` object with the address set.
+        Load an account using the correct name. If successfull return the :class:`.Account` object with the address set.
 
         This is a Query operation, so no convex tokens are used in loading the account.
 
         :param str name: name of the account to load
-        :param Account account: :class:`.Account` object to import
+        :param KeyPair key_pair: :class:`.KeyPair` object to import for the account
 
-        :results: :class:`.Account` object with the address and name set, if not found then return None
+        :results: :class:`.Account` object with the address and name set and key_pair, if not found then return None
 
 
         .. code-block:: python
@@ -150,10 +123,10 @@ class ConvexAPI:
         """
         address = self.resolve_account_name(name)
         if address:
-            new_account = Account.import_from_account(account, address=address, name=name)
+            new_account = Account.create(key_pair, address, name=name)
             return new_account
 
-    def setup_account(self, name, import_account, register_account=None):
+    def setup_account(self, name, key_pair, register_account=None):
         """
 
         Convenience method to create or load an account based on the account name.
@@ -161,7 +134,7 @@ class ConvexAPI:
         if the name is found, then account and it's address with that name will be loaded.
 
         :param str name: name of the account to create or load
-        :param Account account: :class:`.Account` object to import
+        :param KeyPair key_pair: :class:`.KeyPair` object to use to sign for the account.
         :param Account register_account: Optional :class:`.Account` object to use for registration of the account
 
         :results: :class:`.Account` object with the address and name set, if not found then return None
@@ -172,9 +145,9 @@ class ConvexAPI:
 
         .. code-block:: python
 
-            >>> import_account = Account.import_from_file('my_account.pem', 'secret')
+            >>> import_key_pair = KeyPair.import_from_file('my_account.pem', 'secret')
             >>> # create or load the account named 'my_account'
-            >>> account = convex.setup_account('my_account', import_account)
+            >>> account = convex.setup_account('my_account', import_key_pair)
             >>> print(account.name)
             my_account
 
@@ -183,10 +156,10 @@ class ConvexAPI:
         # check to see if we can resolve the account name
         if self.resolve_account_name(name):
             # if so just load the account
-            account = self.load_account(name, import_account)
+            account = self.load_account(name, key_pair)
         else:
             # new name , so first create the account
-            account = self.create_account(account=import_account)
+            account = self.create_account(key_pair)
             if not register_account:
                 # make sure we have enougth funds to do the registration
                 self.topup_account(account)
@@ -245,7 +218,7 @@ class ConvexAPI:
             raise ValueError('You need to provide a valid address to register an account name')
 
         self._registry.register(f'account.{name}', address, account)
-        return Account.import_from_account(account, address=address, name=name)
+        return Account.create(account.key_pair, address=address, name=name)
 
     def send(self, transaction, account, language=None, sequence_retry_count=20):
         """
@@ -293,9 +266,9 @@ class ConvexAPI:
         max_sleep_time_seconds = 1
         while sequence_retry_count >= 0:
             try:
-                hash_data = self._transaction_prepare(account.address, transaction, language=language)
+                hash_data = self._transaction_prepare(transaction, account.address, language=language)
                 signed_data = account.sign(hash_data['hash'])
-                result = self._transaction_submit(account.address, account.public_key_api, hash_data['hash'], signed_data)
+                result = self._transaction_submit(account.address, account.key_pair.public_key_api, hash_data['hash'], signed_data)
             except ConvexAPIError as error:
                 if error.code == 'SEQUENCE':
                     if sequence_retry_count == 0:
@@ -379,10 +352,7 @@ class ConvexAPI:
             'amount': amount
         }
         logger.debug(f'request_funds {faucet_url} {faucet_data}')
-        response = requests.post(faucet_url, data=json.dumps(faucet_data))
-        if response.status_code != 200:
-            raise ConvexRequestError('request_funds', response.status_code, response.text)
-        result = response.json()
+        result = self._transaction_post(faucet_url, faucet_data);
         logger.debug(f'request_funds result {result}')
         if result['address'] != account.address:
             raise ValueError(f'request_funds: returned account is not correct {result["address"]}')
@@ -605,12 +575,12 @@ class ConvexAPI:
         if not to_account.address:
             raise ValueError('You need to have the to account registered with an address')
 
-        line = f'(set-key {from_account.public_key_checksum})'
+        line = f'(set-key {from_account.key_pair.public_key_checksum})'
         if self._language == ConvexAPI.LANGUAGE_SCRYPT:
-            line = f'set-key({from_account.public_key_checksum})'
+            line = f'set-key({from_account.key_pair.public_key_checksum})'
         result = self.send(line, to_account)
-        if result and 'value' in result and result['value'] == from_account.public_key_api:
-            return Account.import_from_account(from_account, to_account.address, to_account.name)
+        if result and 'value' in result and from_account.key_pair.is_equal(result['value']):
+            return Account.create(from_account.key_pair, to_account.address, to_account.name)
 
     def get_account_info(self, address_account):
         """
@@ -681,7 +651,29 @@ class ConvexAPI:
         """
         return self._registry.resolve_address(name)
 
-    def _transaction_prepare(self, address, transaction, language=None, sequence_number=None):
+    def _transaction_post(self, url, data, sequence_retry_count=20):
+        max_sleep_time_seconds = 1
+        while sequence_retry_count >= 0:
+            response = requests.post(url, data=json.dumps(data))
+            if response.status_code == 200:
+                result = response.json()
+                break
+            elif response.status_code == 400:
+                if not re.search(':SEQUENCE ', response.text):
+                    raise ConvexRequestError('_transaction_post', response.status_code, response.text)
+
+                if sequence_retry_count == 0:
+                    raise ConvexRequestError('_transaction_post', response.status_code, response.text)
+                sequence_retry_count -= 1
+                # now sleep < 1 second for at least 1 millisecond
+                sleep_time = secrets.randbelow(round(max_sleep_time_seconds * 1000)) / 1000
+                time.sleep(sleep_time + 1)
+            else:
+                raise ConvexRequestError('_transaction_post', response.status_code, response.text)
+        return result
+
+
+    def _transaction_prepare(self, transaction, address, language=None, sequence_number=None):
         """
 
         """
@@ -696,11 +688,9 @@ class ConvexAPI:
         if sequence_number:
             data['sequence'] = sequence_number
         logger.debug(f'_transaction_prepare {prepare_url} {data}')
-        response = requests.post(prepare_url, data=json.dumps(data))
-        if response.status_code != 200:
-            raise ConvexRequestError('_transaction_prepare', response.status_code, response.text)
 
-        result = response.json()
+        result = self._transaction_post(prepare_url, data)
+
         logger.debug(f'_transaction_prepare repsonse {result}')
         if 'errorCode' in result:
             raise ConvexAPIError('_transaction_prepare', result['errorCode'], result['value'])
@@ -719,11 +709,7 @@ class ConvexAPI:
             'sig': remove_0x_prefix(signed_data)
         }
         logger.debug(f'_transaction_submit {submit_url} {data}')
-        response = requests.post(submit_url, data=json.dumps(data))
-        if response.status_code != 200:
-            raise ConvexRequestError('_transaction_submit', response.status_code, response.text)
-
-        result = response.json()
+        result = self._transaction_post(submit_url, data)
         logger.debug(f'_transaction_submit response {result}')
         if 'errorCode' in result:
             raise ConvexAPIError('_transaction_submit', result['errorCode'], result['value'])
@@ -736,18 +722,14 @@ class ConvexAPI:
         if language is None:
             language = self._language
 
-        prepare_url = urljoin(self._url, '/api/v1/query')
-        data = {
+        query_url = urljoin(self._url, '/api/v1/query')
+        query_data = {
             'address': f'#{address}',
             'lang': language,
             'source': transaction,
         }
-        logger.debug(f'_transaction_query {prepare_url} {data}')
-        response = requests.post(prepare_url, data=json.dumps(data))
-        if response.status_code != 200:
-            raise ConvexRequestError('_transaction_query', response.status_code, response.text)
-
-        result = response.json()
+        logger.debug(f'_transaction_query {query_url} {query_data}')
+        result = self._transaction_post(query_url, query_data)
         logger.debug(f'_transaction_query repsonse {result}')
         if 'errorCode' in result:
             raise ConvexAPIError('_transaction_query', result['errorCode'], result['value'])
