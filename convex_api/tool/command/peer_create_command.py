@@ -78,6 +78,7 @@ class PeerCreateCommand(CommandBase):
         values = {
             'password': password,
             'address': account.address,
+            'public_key': key_pair.public_key,
             'keyfile': key_pair.export_to_text(password),
             'keywords': key_pair.export_to_mnemonic,
             'balance': convex.get_balance(account),
