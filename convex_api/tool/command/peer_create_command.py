@@ -5,6 +5,7 @@
 
 """
 import logging
+import math
 import secrets
 
 from convex_api import KeyPair
@@ -12,6 +13,8 @@ from convex_api import KeyPair
 from .command_base import CommandBase
 
 logger = logging.getLogger(__name__)
+
+DEFAULT_FUND_AMOUNT = 100000000
 
 
 class PeerCreateCommand(CommandBase):
@@ -29,7 +32,8 @@ class PeerCreateCommand(CommandBase):
         parser.add_argument(
             '--topup',
             action='store_true',
-            help='Topup account with sufficient funds. This only works for development networks. Default: False',
+            default=True,
+            help='Topup account with sufficient funds for a peer. This only works for development networks. Default: True',
         )
 
         parser.add_argument(
@@ -53,7 +57,8 @@ class PeerCreateCommand(CommandBase):
 
         if args.topup:
             logger.debug('auto topup of account balance')
-            convex.topup_account(account)
+            for counter in range(4):
+                convex.request_funds(DEFAULT_FUND_AMOUNT, account)
 
         if args.name:
             logger.debug(f'registering account name {args.name}')
@@ -63,12 +68,20 @@ class PeerCreateCommand(CommandBase):
             password = args.password
         else:
             password = secrets.token_hex(32)
+
+        balance = convex.get_balance(account)
+        stake_amount = math.floor(balance * 0.98)
+
+        create_peer_command = f'(create-peer {account.key_pair.public_key} {stake_amount} )'
+        convex.send(create_peer_command, account)
+
         values = {
             'password': password,
             'address': account.address,
             'keyfile': key_pair.export_to_text(password),
             'keywords': key_pair.export_to_mnemonic,
-            'balance': convex.get_balance(account)
+            'balance': convex.get_balance(account),
+            'stake': stake_amount,
         }
         if account.name:
             values['name'] = account.name
