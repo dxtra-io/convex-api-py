@@ -37,8 +37,9 @@ logger = logging.getLogger(__name__)
 class API:
 
     LANGUAGE_LISP = 'convex-lisp'
-    LANGUAGE_SCRYPT = 'convex-scrypt'
-    LANGUAGE_ALLOWED = [LANGUAGE_LISP, LANGUAGE_SCRYPT]
+    # Convex Scrypt Language disabled
+    # LANGUAGE_SCRYPT = 'convex-scrypt'
+    LANGUAGE_ALLOWED = [LANGUAGE_LISP]
 
     def __init__(self, url, language=LANGUAGE_LISP):
         self._url = url
@@ -420,8 +421,10 @@ class API:
         """
 
         line = f'(address {function_name})'
+        """
         if self._language == API.LANGUAGE_SCRYPT:
             line = f'address({function_name})'
+        """
         result = self.query(line, address_account)
         if result and 'value' in result:
             return to_address(result['value'])
@@ -469,8 +472,10 @@ class API:
             else:
                 address_from = account_from.address
         line = f'(balance #{address})'
+        """
         if self._language == API.LANGUAGE_SCRYPT:
             line = f'balance(#{address})'
+        """
         try:
 
             result = self._transaction_query(address_from, line)
@@ -522,9 +527,10 @@ class API:
             raise ValueError(f'You must provide a valid to account/address ({transfer_to_address}) to transfer funds too')
 
         line = f'(transfer #{transfer_to_address} {amount})'
+        """
         if self._language == API.LANGUAGE_SCRYPT:
             line = f'transfer(#{transfer_to_address}, {amount})'
-
+        """
         result = self.send(line, account)
         if result and 'value' in result:
             return result['value']
@@ -577,8 +583,10 @@ class API:
             raise ValueError('You need to have the to account registered with an address')
 
         line = f'(set-key {from_account.key_pair.public_key_checksum})'
+        """
         if self._language == API.LANGUAGE_SCRYPT:
             line = f'set-key({from_account.key_pair.public_key_checksum})'
+        """
         result = self.send(line, to_account)
         if result and 'value' in result and from_account.key_pair.is_equal(result['value']):
             return Account(from_account.key_pair, to_account.address, to_account.name)

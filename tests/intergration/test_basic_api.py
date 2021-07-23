@@ -11,8 +11,10 @@ from cryptography.hazmat.primitives import serialization
 from convex_api.utils import (
     to_hex,
     remove_0x_prefix,
-    to_bytes
+    to_bytes,
+    to_public_key_checksum
 )
+
 
 PRIVATE_TEST_KEY = 0x973f69bcd654b264759170724e1e30ccd2e75fc46b7993fd24ce755f0a8c24d0
 PUBLIC_ADDRESS = '5288fec4153b702430771dfac8aed0b21cafca4344dae0d47b97f0bf532b3306'
@@ -29,13 +31,23 @@ def get_test_account():
     assert(public_address == PUBLIC_ADDRESS)
     return private_key, public_address
 
+def generate_test_keys():
+    private_key = Ed25519PrivateKey.generate()
+    public_key = private_key.public_key()
+    public_key_bytes = public_key.public_bytes(
+        encoding=serialization.Encoding.Raw,
+        format=serialization.PublicFormat.Raw
+    )
+    public_address = remove_0x_prefix(to_hex(public_key_bytes))
+    return private_key, public_address
+
 
 def create_account(convex_url, public_address):
     account_data = {
-        'accountKey': public_address,
+        'accountKey': remove_0x_prefix(to_public_key_checksum(public_address)),
     }
-    print('create_account send', account_data)
     url = f'{convex_url}/api/v1/createAccount'
+    print('create_account send to ', url, 'data:', account_data)
     response = requests.post(url, data=json.dumps(account_data))
     assert(response.status_code == 200)
     result = response.json()
@@ -57,7 +69,7 @@ def request_funds(convex_url, address):
 
 def test_submit_transaction(convex_url):
 
-    private_key, public_address = get_test_account()
+    private_key, public_address = generate_test_keys()
     address = create_account(convex_url, public_address)
     request_funds(convex_url, address)
     # faucet request amount
@@ -99,7 +111,7 @@ def test_submit_transaction(convex_url):
 
 
 def test_query_lisp(convex_url):
-    private_key, public_address = get_test_account()
+    private_key, public_address = generate_test_keys()
     address = create_account(convex_url, public_address)
     request_funds(convex_url, address)
     query_data = {
@@ -118,8 +130,8 @@ def test_query_lisp(convex_url):
     assert(result['value'] > 0)
 
 
-def test_query_scrypt(convex_url):
-    private_key, public_address = get_test_account()
+def DISABLED_test_query_scrypt(convex_url):
+    private_key, public_address = generate_test_keys()
     address = create_account(convex_url, public_address)
     request_funds(convex_url, address)
     query_data = {

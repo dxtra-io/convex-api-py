@@ -25,8 +25,8 @@ def test_api_language_setup(convex_url):
     convex = API(convex_url, API.LANGUAGE_LISP)
     assert(convex.language == API.LANGUAGE_LISP)
 
-    convex = API(convex_url, API.LANGUAGE_SCRYPT)
-    assert(convex.language == API.LANGUAGE_SCRYPT)
+    # convex = API(convex_url, API.LANGUAGE_SCRYPT)
+    # assert(convex.language == API.LANGUAGE_SCRYPT)
 
     with pytest.raises(ValueError, match='language'):
         convex = API(convex_url, "bad-language")
@@ -135,7 +135,8 @@ def test_convex_api_send_basic_lisp(convex_url, test_account):
     assert 'value' in result
     assert(result['value'] == [2, 3, 4, 5, 6])
 
-def test_convex_api_send_basic_scrypt(convex_url, test_account):
+
+def DISABLED_test_convex_api_send_basic_scrypt(convex_url, test_account):
     convex = API(convex_url, API.LANGUAGE_SCRYPT)
     request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, test_account)
     result = convex.send('map(inc, [1, 2, 3, 4, 5])', test_account)
@@ -197,7 +198,7 @@ def test_convex_api_call(convex_url):
     assert(call_get_result['value'] == test_number)
 
     # now api calls using language scrypt
-
+    """
     convex = API(convex_url, API.LANGUAGE_SCRYPT)
     test_number = secrets.randbelow(1000)
     call_set_result = convex.send(f'call storage_example set({test_number})', account)
@@ -214,7 +215,7 @@ def test_convex_api_call(convex_url):
 
     address = convex.get_address('storage_example', account)
     assert(address == contract_address)
-
+    """
 def test_convex_api_transfer(convex_url):
     convex = API(convex_url)
     key_pair = KeyPair()
@@ -239,7 +240,8 @@ def test_convex_api_query_lisp(convex_url, test_account):
     # return value is the address as a checksum
     assert(to_address(result['value']) == test_account.address)
 
-def test_convex_api_query_scrypt(convex_url, test_account):
+
+def DISABLED_test_convex_api_query_scrypt(convex_url, test_account):
     convex = API(convex_url, API.LANGUAGE_SCRYPT)
     result = convex.query(f'address({test_account.address})', test_account)
     assert(result)
