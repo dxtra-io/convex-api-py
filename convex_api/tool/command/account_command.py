@@ -1,6 +1,6 @@
 """
 
-    Command 'get_ether'
+    Account Commands
 
 """
 
