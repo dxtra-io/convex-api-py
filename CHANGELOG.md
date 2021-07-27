@@ -1,5 +1,8 @@
 ## Change log
 
+### 0.2.1
++   Remove Convex Scrypt language
+
 ### 0.2.0
 +   Add KeyPair class, now you have to pass a KeyPair object to the `create_account` method.
 +   Rename ConvexAPI to API
