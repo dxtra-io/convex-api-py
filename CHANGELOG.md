@@ -1,5 +1,10 @@
 ## Change log
 
+### 0.2.2
++   Upgrade to use Alpha-RC4 Convex
++   Add all address fields to have a prefix of #
++   Fix registry conversion issues
+
 ### 0.2.1
 +   Remove Convex Scrypt language
 
