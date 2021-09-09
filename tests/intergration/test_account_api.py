@@ -3,6 +3,9 @@
 
 """
 
+import pytest
+import secrets
+
 from convex_api import (
     Account,
     API,
@@ -10,6 +13,10 @@ from convex_api import (
 )
 
 TEST_ACCOUNT_NAME = 'test.convex-api'
+
+@pytest.fixture
+def account_name():
+    return f'{TEST_ACCOUNT_NAME}-{secrets.token_hex(8)}'
 
 def test_account_api_create_account(convex_url):
 
@@ -33,26 +40,26 @@ def test_account_api_multi_create_account(convex_url):
     assert(account_1.address != account_2.address)
 
 
-def test_account_name(convex_url, test_key_pair_info):
+def test_account_name(convex_url, test_key_pair_info, account_name):
     convex = API(convex_url)
     import_key_pair = KeyPair.import_from_bytes(test_key_pair_info['private_bytes'])
-    if convex.resolve_account_name(TEST_ACCOUNT_NAME):
-        account = convex.load_account(TEST_ACCOUNT_NAME, import_key_pair)
+    if convex.resolve_account_name(account_name):
+        account = convex.load_account(account_name, import_key_pair)
     else:
         account = convex.create_account(import_key_pair)
         convex.topup_account(account)
-        account = convex.register_account_name(TEST_ACCOUNT_NAME, account)
+        account = convex.register_account_name(account_name, account)
     assert(account.address)
     assert(account.name)
-    assert(account.name == TEST_ACCOUNT_NAME)
-    assert(convex.resolve_account_name(TEST_ACCOUNT_NAME) == account.address)
+    assert(account.name == account_name)
+    assert(convex.resolve_account_name(account_name) == account.address)
 
 
-def test_account_setup_account(convex_url, test_key_pair_info):
+def test_account_setup_account(convex_url, test_key_pair_info, account_name):
     convex = API(convex_url)
     import_key_pair = KeyPair.import_from_bytes(test_key_pair_info['private_bytes'])
-    account = convex.setup_account(TEST_ACCOUNT_NAME, import_key_pair)
+    account = convex.setup_account(account_name, import_key_pair)
     assert(account.address)
     assert(account.name)
-    assert(account.name == TEST_ACCOUNT_NAME)
-    assert(convex.resolve_account_name(TEST_ACCOUNT_NAME) == account.address)
+    assert(account.name == account_name)
+    assert(convex.resolve_account_name(account_name) == account.address)

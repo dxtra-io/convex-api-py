@@ -99,7 +99,7 @@ def test_convex_account_name_registry(convex_url, test_account, test_key_pair):
 
 def test_convex_resolve_name(convex_url):
     convex = API(convex_url)
-    address = convex.resolve_name('convex.nft-tokens')
+    address = convex.resolve_name('convex.trust')
     assert(address)
 
 
@@ -175,10 +175,20 @@ def test_convex_api_call(convex_url):
 (def storage-example
     (deploy
         '(do
-            (def stored-data nil)
-            (defn get [] stored-data)
-            (defn set [x] (def stored-data x))
-            (export get set)
+            (def stored-data
+                ^{:private? true}
+                nil
+            )
+            (defn get
+                ^{:callable? true}
+                []
+                stored-data
+            )
+            (defn set
+                ^{:callable? true}
+                [x]
+                ( def stored-data x)
+            )
         )
     )
 )
@@ -207,11 +217,11 @@ def test_convex_api_call(convex_url):
     call_get_result = convex.query('call storage_example get()', account)
     assert(call_get_result['value'] == test_number)
 
-    call_get_result = convex.query(f'call #{contract_address} get()', account)
+    call_get_result = convex.query(f'call {contract_address} get()', account)
     assert(call_get_result['value'] == test_number)
 
     with pytest.raises(ConvexRequestError, match='400'):
-        call_set_result = convex.send(f'call #{contract_address}.set({test_number})', account)
+        call_set_result = convex.send(f'call {contract_address}.set({test_number})', account)
 
     address = convex.get_address('storage_example', account)
     assert(address == contract_address)

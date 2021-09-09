@@ -350,7 +350,7 @@ class API:
         """
         faucet_url = urljoin(self._url, '/api/v1/faucet')
         faucet_data = {
-            'address': f'#{account.address}',
+            'address': account.address,
             'amount': amount
         }
         logger.debug(f'request_funds {faucet_url} {faucet_data}')
@@ -689,7 +689,7 @@ class API:
             language = self._language
         prepare_url = urljoin(self._url, '/api/v1/transaction/prepare')
         data = {
-            'address': f'#{address}',
+            'address': to_address(address),
             'lang': language,
             'source': transaction,
         }
@@ -711,7 +711,7 @@ class API:
         """
         submit_url = urljoin(self._url, '/api/v1/transaction/submit')
         data = {
-            'address': f'#{to_address(address)}',
+            'address': to_address(address),
             'accountKey': public_key,
             'hash': hash_data,
             'sig': remove_0x_prefix(signed_data)
@@ -732,7 +732,7 @@ class API:
 
         query_url = urljoin(self._url, '/api/v1/query')
         query_data = {
-            'address': f'#{address}',
+            'address': address,
             'lang': language,
             'source': transaction,
         }

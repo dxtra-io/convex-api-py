@@ -85,10 +85,20 @@ def process_convex_depoly(convex, result_value):
 (def storage-example
     (deploy
         '(do
-            (def stored-data nil)
-            (defn get [] stored-data)
-            (defn set [x] (def stored-data x))
-            (export get set)
+            (def stored-data
+                ^{:private? true}
+                nil
+            )
+            (defn get
+                ^{:callable? true}
+                []
+                stored-data
+            )
+            (defn set
+                ^{:callable? true}
+                [x]
+                (def stored-data x)
+            )
         )
     )
 )

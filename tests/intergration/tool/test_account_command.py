@@ -68,7 +68,7 @@ def test_account_info_command(convex_url, test_account):
     output = Output()
     command.execute(args, output)
     assert(output.values['balance'])
-    assert(output.values['memorySize'])
+    assert(output.values['address'])
     assert(output.values['sequence'])
     assert(output.values['type'])
 
@@ -80,7 +80,7 @@ def test_account_info_command(convex_url, test_account):
     output = Output()
     command.execute(args, output)
     assert(output.values['balance'])
-    assert(output.values['memorySize'])
+    assert(output.values['address'])
     assert(output.values['sequence'])
     assert(output.values['type'])
 

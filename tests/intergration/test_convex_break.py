@@ -25,12 +25,29 @@ def test_convex_recursion(convex, test_account):
 (def chain-{index}
     (deploy
         '(do
-            (def stored-data nil)
-            (def chain-address nil)
-            (defn get [] (call chain-address (get)))
-            (defn set [x] (if chain-address (call chain-address(set x)) (def stored-data x)) )
-            (defn set-chain-address [x] (def chain-address x))
-            (export get set set-chain-address)
+            (def stored-data
+                ^{{:private? true}}
+                nil
+            )
+            (def chain-address
+                ^{{:private? true}}
+                nil
+            )
+            (defn get
+                ^{{:callable? true}}
+                []
+                (call chain-address (get))
+            )
+            (defn set
+                ^{{:callable? true}}
+                [x]
+                ( if chain-address (call chain-address(set x)) (def stored-data x))
+            )
+            (defn set-chain-address
+                ^{{:callable? true}}
+                [x]
+                (def chain-address x)
+            )
         )
     )
 )
@@ -62,19 +79,28 @@ def test_schedule_transfer(convex, test_account, other_account):
 (def transfer-for-ever
     (deploy
         '(do
-            (defn tx-delay [to-address amount]
+            (defn tx-delay
+                ^{:callable? true}
+                [to-address amount]
                 (transfer to-address amount)
                 (def call-address *address*)
                 (schedule (+ *timestamp* 1000) (call call-address (tx-delay to-address amount)))
             )
-            (defn tx-now [to-address amount]
+            (defn tx-now
+                ^{:callable? true}
+                [to-address amount]
                 (transfer to-address amount)
             )
-            (defn show-schedule []
+            (defn show-schedule
+                ^{:callable? true}
+                []
                 [(get *state* :schedule) *address*]
             )
-            (defn receive-coin [sender amount data] (accept amount))
-            (export show-schedule tx-delay tx-now, receive-coin)
+            (defn receive-coin
+                ^{:callable? true}
+                [sender amount data]
+                (accept amount)
+            )
         )
     )
 )

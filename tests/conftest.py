@@ -6,6 +6,7 @@
 
 import logging
 import pytest
+import secrets
 
 from convex_api.account import Account
 from convex_api.api import API
@@ -51,7 +52,8 @@ def test_key_pair(test_key_pair_info):
 
 @pytest.fixture(scope='module')
 def test_account(convex, test_key_pair):
-    account = convex.setup_account(TEST_ACCOUNT_NAME, test_key_pair)
+    test_account_name = f'{TEST_ACCOUNT_NAME}.{secrets.token_hex(8)}'
+    account = convex.setup_account(test_account_name, test_key_pair)
     convex.topup_account(account)
     return account
 

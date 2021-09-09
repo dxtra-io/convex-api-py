@@ -38,11 +38,11 @@ class Registry:
         self._address = None
 
     def register(self, name, contract_address, account):
-        result = self._convex.send(f'(call #{self.address} (register {{:name "{name}"}}))', account)
+        result = self._convex.send(f'(call #{self.address} (register {{:name (symbol "{name}")}}))', account)
         logger.debug(f'register result: {result}')
         if result and 'value' in result:
             try:
-                result = self._convex.send(f'(call #{self.address} (cns-update "{name}" {contract_address}))', account)
+                result = self._convex.send(f'(call #{self.address} (cns-update (symbol "{name}") #{contract_address}))', account)
                 logger.debug(f'cns-update result: {result}')
                 if result and 'value' in result:
                     items = result['value']
