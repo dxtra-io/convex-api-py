@@ -23,7 +23,7 @@ from convex_api.exceptions import (
 from convex_api.key_pair import KeyPair
 from convex_api.registry import Registry
 from convex_api.utils import (
-    is_address,
+    is_account,
     remove_0x_prefix,
     to_address
 )
@@ -202,14 +202,9 @@ class API:
         """
 
         # is the address_account field only an address?
-        if is_address(address_account):
-            address = to_address(address_account)
-        else:
-            # if account then use the account address, and also see if we can use it for the
-            # registration
-            address = address_account.address
-            if account is None:
-                account = address_account
+        address = to_address(address_account)
+        if is_account(address_account) and account is None:
+            account = address_account
 
         # we must have a valid account to do the registration
         if not account:
@@ -320,10 +315,7 @@ class API:
             {'value': 100000}
 
         """
-        if is_address(address_account):
-            address = to_address(address_account)
-        else:
-            address = address_account.address
+        address = to_address(address_account)
 
         return self._transaction_query(address, transaction, language)
 
@@ -460,17 +452,11 @@ class API:
 
         """
         value = 0
-        if is_address(address_account):
-            address = to_address(address_account)
-        else:
-            address = address_account.address
+        address = to_address(address_account)
 
         address_from = address
         if account_from:
-            if is_address(account_from):
-                address_from = to_address(account_from)
-            else:
-                address_from = account_from.address
+            address_from = to_address(account_from)
         line = f'(balance #{address})'
         """
         if self._language == API.LANGUAGE_SCRYPT:
@@ -519,10 +505,7 @@ class API:
             9998520
 
         """
-        if is_address(to_address_account):
-            transfer_to_address = to_address(to_address_account)
-        else:
-            transfer_to_address = to_address_account.address
+        transfer_to_address = to_address(to_address_account)
         if not to_address:
             raise ValueError(f'You must provide a valid to account/address ({transfer_to_address}) to transfer funds too')
 
@@ -618,10 +601,7 @@ class API:
             'sequence': 0, 'type': 'user'}
 
         """
-        if is_address(address_account):
-            address = to_address(address_account)
-        else:
-            address = address_account.address
+        address = to_address(address_account)
 
         account_url = urljoin(self._url, f'/api/v1/accounts/{address}')
         logger.debug(f'get_account_info {account_url}')
