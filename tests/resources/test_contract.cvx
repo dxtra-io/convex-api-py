@@ -1,0 +1,14 @@
+(def stored-data
+    ^{:private? true}
+    nil
+)
+(defn get
+    ^{:callable? true}
+    []
+    stored-data
+)
+(defn set
+    ^{:callable? true}
+    [x]
+    ( def stored-data x)
+)

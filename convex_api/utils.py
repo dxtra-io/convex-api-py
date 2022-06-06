@@ -6,11 +6,12 @@
 import binascii
 import re
 
+
 from cryptography.hazmat.backends.openssl.backend import backend
 from cryptography.hazmat.primitives import hashes
 
 
-def to_address(text):
+def to_address(value):
     """
     Convert address text with possible leading '#' to an interger address value.
 
@@ -19,15 +20,16 @@ def to_address(text):
     :returns: Integer address or None if not a valid address
 
     """
-    if isinstance(text, int):
-        return int(text)
-    if isinstance(text, str):
+    if isinstance(value, int):
+        return int(value)
+    elif is_account(value):
+        return value.address
+    elif isinstance(value, str):
         try:
-            value = int(re.sub(r'^#', '', text.strip()))
+            address = int(re.sub(r'^#', '', value.strip()))
         except ValueError:
             return None
-        return value
-    return None
+        return address
 
 
 def is_address(text):
@@ -178,3 +180,8 @@ def to_hex(value):
     :returns: Returns a hex string with a preappended '0x'
     """
     return add_0x_prefix(binascii.hexlify(value).decode())
+
+
+def is_account(value):
+    from convex_api import Account
+    return isinstance(value, Account)

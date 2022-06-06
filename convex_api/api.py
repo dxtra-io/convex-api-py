@@ -660,6 +660,13 @@ class API:
         """
         return self._registry.resolve_address(name)
 
+    def load_contract(self, name):
+        from convex_api.contract import Contract
+
+        contract = Contract(self)
+        if contract.load(name=name):
+            return contract
+
     def _transaction_post(self, url, data, sequence_retry_count=20):
         max_sleep_time_seconds = 1
         while sequence_retry_count >= 0:
