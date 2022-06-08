@@ -177,3 +177,13 @@ class Contract:
     @property
     def name(self):
         return self._name
+
+    @staticmethod
+    def escape_string(text):
+        """
+        Escape any string and replace quote chars with leading escape chars
+
+        """
+        escape_text = re.sub('\\\\', '\\\\\\\\', text)
+        escape_text = re.sub('"', '\\"', escape_text)
+        return escape_text
