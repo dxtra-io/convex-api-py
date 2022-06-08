@@ -48,3 +48,8 @@ def test_convex_api_deploy_contract(convex_url, test_account):
     contract = convex.load_contract(TEST_CONTRACT_NAME)
     assert(contract)
     assert(contract_address == contract.address)
+
+
+def test_convex_api_contract_escape_string():
+    test_text = 'this is a test "string" '
+    assert('this is a test \\"string\\" ' == Contract.escape_string(test_text))
