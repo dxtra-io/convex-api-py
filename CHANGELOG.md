@@ -1,5 +1,8 @@
 ## Change log
 
+### 0.2.4
++   Add escape_string to Contract class, to escape string data
+
 ### 0.2.3
 +   New Contract class, to allow for easier contract deployment and usage
 
