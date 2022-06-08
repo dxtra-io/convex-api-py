@@ -1,5 +1,8 @@
 ## Change log
 
+### 0.2.3
++   New Contract class, to allow for easier contract deployment and usage
+
 ### 0.2.2
 +   Upgrade to use Alpha-RC4 Convex
 +   Add all address fields to have a prefix of #
