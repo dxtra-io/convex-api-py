@@ -1,5 +1,8 @@
 ## Change log
 
+### 0.2.5
++   Rename contract 'register' to 'register_contract_name'
+
 ### 0.2.4
 +   Add escape_string to Contract class, to escape string data
 
