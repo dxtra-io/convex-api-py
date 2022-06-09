@@ -95,11 +95,11 @@ class Contract:
                 self._convex.registry.register(name, address, owner_account)
             return address
 
-    def register(self, name, address, account):
+    def register_contract_name(self, name, address, account):
         """
 
         Register a contract address with a resolvable name. This name can be used on the Convex network to resolve
-        to the address.
+        to the contract address.
 
         :param str name: Name to register.
 
