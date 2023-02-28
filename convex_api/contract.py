@@ -188,4 +188,6 @@ class Contract:
         """
         escape_text = re.sub('\\\\', '\\\\\\\\', text)
         escape_text = re.sub('"', '\\"', escape_text)
+        escape_text = re.sub('\n', '\\\\n', escape_text)
+        escape_text = re.sub('\t', '\\\\t', escape_text)
         return escape_text

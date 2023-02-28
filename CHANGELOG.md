@@ -1,5 +1,8 @@
 ## Change log
 
+### 0.2.6
++   Add cr, tab to contract text encoding
+
 ### 0.2.5
 +   Rename contract 'register' to 'register_contract_name'
 
