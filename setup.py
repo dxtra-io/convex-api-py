@@ -67,6 +67,7 @@ setup(
         'dev': dev_requirements + test_requirements + docs_requirements,
     },
     install_requires=install_requirements,
+    package_data={'convex_api': ['py.typed']},
     license="Apache Software License 2.0",
     long_description=readme,
     long_description_content_type='text/markdown',
