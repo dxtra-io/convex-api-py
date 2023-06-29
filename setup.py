@@ -58,7 +58,7 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.10',
     ],
     description="Convex api",
     extras_require={
@@ -80,7 +80,7 @@ setup(
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    python_requires='>=3.8',
+    python_requires='>=3.10',
     url='https://github.com/DEX-Company/convex-api-py',
     version='0.3.0',
     zip_safe=False,
