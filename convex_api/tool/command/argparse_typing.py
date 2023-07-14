@@ -28,10 +28,10 @@ class SubParsersAction(Protocol):
 
 
 class BaseArgs(BaseModel):
-    keyfile: Union[None, str]
-    keytext: Union[None, str]
-    password: Union[None, str]
-    keywords: Union[None, str]
+    keyfile: Union[None, str] = None
+    keytext: Union[None, str] = None
+    password: Union[None, str] = None
+    keywords: Union[None, str] = None
     debug: bool = False
     output_json: bool = Field(alias='json', default=False)
     url: str

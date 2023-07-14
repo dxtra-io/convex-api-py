@@ -21,7 +21,7 @@ from .command_base import CommandBase
 class QueryArgs(BaseArgs):
     command: Literal['query']
     query: str
-    name_address: Union[str, int, None]
+    name_address: Union[str, int, None] = None
 
 
 class QueryCommand(CommandBase):
