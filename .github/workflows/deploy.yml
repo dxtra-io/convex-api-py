@@ -25,7 +25,7 @@ jobs:
     - name: Deploy Docs
       uses: peaceiris/actions-gh-pages@v2.5.0
       env:
-        PERSONAL_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         PUBLISH_BRANCH: gh-pages
         PUBLISH_DIR: docs/build/html
     #- name: Build Package
