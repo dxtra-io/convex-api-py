@@ -10,7 +10,6 @@ from typing import (
 )
 
 from pydantic import (
-    AnyHttpUrl,
     BaseModel,
     Field
 )
@@ -35,4 +34,4 @@ class BaseArgs(BaseModel):
     keywords: Union[None, str]
     debug: bool = False
     output_json: bool = Field(alias='json', default=False)
-    url: AnyHttpUrl
+    url: str
