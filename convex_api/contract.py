@@ -4,10 +4,16 @@
 Convex Contract
 
 """
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from convex_api.api import API
 
 import re
+
 from convex_api.account import Account
-from convex_api.api import API
 
 
 class Contract:
