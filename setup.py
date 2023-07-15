@@ -18,10 +18,10 @@ with open('CHANGELOG.md') as changelog_file:
     changelog = changelog_file.read()
 
 install_requirements = [
-    'cryptography',
-    'requests',
-    'mnemonic',
-    'pydantic'
+    'cryptography~=39.0',
+    'requests~=2.28',
+    'mnemonic~=0.2',
+    'pydantic~=2.0'
 ]
 
 setup_requirements = ['pytest-runner', ]
