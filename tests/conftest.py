@@ -5,8 +5,9 @@
 """
 
 import logging
-import pytest
 import secrets
+
+import pytest
 
 from convex_api.api import API
 from convex_api.key_pair import KeyPair
@@ -33,10 +34,11 @@ CONVEX_URL = 'https://convex.world'
 
 TEST_ACCOUNT_NAME = 'test.convex-api'
 
+
 @pytest.fixture(scope='module')
 def test_key_pair_info() -> KeyPairInfo:
     return {
-        'private_hex' : PRIVATE_TEST_KEY,
+        'private_hex': PRIVATE_TEST_KEY,
         'private_bytes': KeyPair.to_bytes(PRIVATE_TEST_KEY),
         'private_text': PRIVATE_TEST_KEY_TEXT,
         'private_password': PRIVATE_TEST_KEY_PASSWORD,
@@ -44,10 +46,12 @@ def test_key_pair_info() -> KeyPairInfo:
         'public_key': PUBLIC_KEY
     }
 
+
 @pytest.fixture(scope='module')
 def test_key_pair(test_key_pair_info: KeyPairInfo):
     key_pair = KeyPair.import_from_bytes(test_key_pair_info['private_bytes'])
     return key_pair
+
 
 @pytest.fixture(scope='module')
 def test_account(convex: API, test_key_pair: KeyPair):
@@ -57,14 +61,17 @@ def test_account(convex: API, test_key_pair: KeyPair):
         convex.topup_account(account)
         return account
 
+
 @pytest.fixture(scope='module')
 def convex_url():
     return CONVEX_URL
+
 
 @pytest.fixture(scope='module')
 def convex(convex_url: str):
     api = API(convex_url)
     return api
+
 
 @pytest.fixture(scope='module')
 def other_account(convex: API):
