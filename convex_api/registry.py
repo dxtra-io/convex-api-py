@@ -6,7 +6,6 @@
 import logging
 from typing import (
     TYPE_CHECKING,
-    Tuple,
     cast
 )
 
@@ -27,7 +26,7 @@ class Registry:
     def __init__(self, convex: 'API'):
         self._convex = convex
         self._address = None
-        self._items: dict[str, Tuple[int, int] | None] = {}
+        self._items: dict[str, tuple[int, int] | None] = {}
 
     def is_registered(self, name: str):
         return self.item(name) is not None
@@ -38,7 +37,7 @@ class Registry:
             logger.debug(f'cns-database: {result}')
             self._items[name] = None
             if isinstance(result.value, (list, tuple)):
-                self._items[name] = cast(Tuple[int, int], result.value)
+                self._items[name] = cast(tuple[int, int], result.value)
         return self._items[name]
 
     def clear(self):
@@ -55,7 +54,7 @@ class Registry:
                 if result and hasattr(result, 'value'):
                     items = result.value
                     if name in items:
-                        item: Tuple[int, int] = items[name]
+                        item: tuple[int, int] = items[name]
                         self._items[name] = item
                         return item
             except ConvexAPIError as e:

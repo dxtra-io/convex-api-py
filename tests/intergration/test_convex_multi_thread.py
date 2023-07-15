@@ -8,9 +8,7 @@ from multiprocessing import (
     Process,
     Value
 )
-from typing import (
-    Any,
-)
+from typing import Any
 
 import pytest  # type: ignore # noqa: F401
 
