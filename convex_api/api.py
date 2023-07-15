@@ -648,7 +648,7 @@ class API:
         max_sleep_time_seconds = 1
         result: Union[Dict[str, Any], None] = None
         while sequence_retry_count >= 0:
-            response = requests.post(url, data=data.json())
+            response = requests.post(url, data=data.model_dump_json())
             if response.status_code == 200:
                 result = response.json()
                 break
