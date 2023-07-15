@@ -7,7 +7,6 @@ import logging
 from typing import (
     TYPE_CHECKING,
     Tuple,
-    Union,
     cast
 )
 
@@ -28,7 +27,7 @@ class Registry:
     def __init__(self, convex: 'API'):
         self._convex = convex
         self._address = None
-        self._items: dict[str, Union[Tuple[int, int], None]] = {}
+        self._items: dict[str, Tuple[int, int] | None] = {}
 
     def is_registered(self, name: str):
         return self.item(name) is not None
@@ -63,12 +62,12 @@ class Registry:
                 logger.debug(f'convex error: {e}')
                 raise
 
-    def resolve_owner(self, name: str) -> Union[int, None]:
+    def resolve_owner(self, name: str) -> int | None:
         item = self.item(name)
         if item:
             return item[1]
 
-    def resolve_address(self, name: str) -> Union[int, None]:
+    def resolve_address(self, name: str) -> int | None:
         item = self.item(name)
         if item:
             return item[0]

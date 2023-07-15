@@ -4,10 +4,10 @@
 
 
 """
+from __future__ import annotations
 
 import binascii
 import re
-from typing import Union
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.backends.openssl.backend import backend as openssl_backend
@@ -109,7 +109,7 @@ class KeyPair:
             raise ValueError('Invalid hex string')
 
     @staticmethod
-    def to_bytes(data: Union[int, bytes]) -> bytes:
+    def to_bytes(data: int | bytes) -> bytes:
         """
 
         Convert data to bytes.
@@ -225,7 +225,7 @@ class KeyPair:
         else:
             return False
 
-    def __init__(self, private_key: Union[Ed25519PrivateKey, None] = None):
+    def __init__(self, private_key: Ed25519PrivateKey | None = None):
         """
 
         Create a new keypair object with a public and private key as a Ed25519PrivateKey. It is better to use
@@ -283,7 +283,7 @@ class KeyPair:
         signed_hash_bytes = self._private_key.sign(hash_data)
         return KeyPair.to_hex(signed_hash_bytes)
 
-    def export_to_text(self, password: Union[str, bytes]):
+    def export_to_text(self, password: str | bytes):
         """
 
         Export the private key to an encrypted PEM string.
@@ -340,7 +340,7 @@ class KeyPair:
             encryption_algorithm=serialization.NoEncryption()
         ))
 
-    def export_to_file(self, filename: str, password: Union[str, bytes]) -> None:
+    def export_to_file(self, filename: str, password: str | bytes) -> None:
         """
 
         Export the private key to a file. This uses `export_to_text` to export as a string.
@@ -455,7 +455,7 @@ class KeyPair:
 
         return KeyPair.to_public_key_checksum(self.public_key)
 
-    def is_equal(self, public_key_pair: Union['KeyPair', str]) -> bool:
+    def is_equal(self, public_key_pair: KeyPair | str) -> bool:
         """
 
         Compare the value to see if it is the same as this key_pair
@@ -473,7 +473,7 @@ class KeyPair:
         return KeyPair.remove_0x_prefix(self.public_key_checksum).lower() == KeyPair.remove_0x_prefix(public_key).lower()
 
     @staticmethod
-    def import_from_bytes(value: bytes) -> 'KeyPair':
+    def import_from_bytes(value: bytes) -> KeyPair:
         """
 
         Import an keypair from a private key in bytes.
@@ -491,7 +491,7 @@ class KeyPair:
         return KeyPair(Ed25519PrivateKey.from_private_bytes(value))
 
     @staticmethod
-    def import_from_text(text: Union[str, bytes], password: Union[str, bytes]) -> 'KeyPair':
+    def import_from_text(text: str | bytes, password: str | bytes) -> KeyPair:
         """
 
         Import a KeyPair from an encrypted PEM string.
@@ -526,7 +526,7 @@ class KeyPair:
         return KeyPair(private_key)
 
     @staticmethod
-    def import_from_mnemonic(words: str) -> 'KeyPair':
+    def import_from_mnemonic(words: str) -> KeyPair:
         """
 
         Creates a new KeyPair object using a list of words. These words contain the private key and must be kept secret.
@@ -549,7 +549,7 @@ class KeyPair:
         return KeyPair(Ed25519PrivateKey.from_private_bytes(value))
 
     @staticmethod
-    def import_from_file(filename: str, password: Union[str, bytes]) -> 'KeyPair':
+    def import_from_file(filename: str, password: str | bytes) -> KeyPair:
         """
 
         Load the encrypted private key from file. The file is saved in PEM format encrypted with a password

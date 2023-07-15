@@ -5,8 +5,7 @@ from argparse import (
 from typing import (
     Any,
     Dict,
-    Protocol,
-    Union
+    Protocol
 )
 
 from pydantic import (
@@ -23,15 +22,15 @@ class SubParsersAction(Protocol):
     def add_parser(self, name: str, **kwargs: Any) -> ArgumentParser:
         ...
 
-    def __call__(self, parser: ArgumentParser, namespace: Namespace, values: Any, option_string: Union[str, None] = None) -> None:
+    def __call__(self, parser: ArgumentParser, namespace: Namespace, values: Any, option_string: str | None = None) -> None:
         ...
 
 
 class BaseArgs(BaseModel):
-    keyfile: Union[None, str] = None
-    keytext: Union[None, str] = None
-    password: Union[None, str] = None
-    keywords: Union[None, str] = None
+    keyfile: None | str = None
+    keytext: None | str = None
+    password: None | str = None
+    keywords: None | str = None
     debug: bool = False
     output_json: bool = Field(alias='json', default=False)
     url: str

@@ -3,17 +3,18 @@
     Convex API
 
 """
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any, Dict
 
 import logging
 import re
 import secrets
 import time
-from typing import (
-    Any,
-    Dict,
-    Union,
-    cast
-)
+from typing import cast
 from urllib.parse import urljoin
 
 import requests
@@ -101,7 +102,7 @@ class API:
 
         return account
 
-    def load_account(self, name: str, key_pair: KeyPair) -> Union[Account, None]:
+    def load_account(self, name: str, key_pair: KeyPair) -> Account | None:
         """
 
         Load an account using the correct name. If successful return the :class:`.Account` object with the address set.
@@ -130,7 +131,7 @@ class API:
             new_account = Account(key_pair, address, name=name)
             return new_account
 
-    def setup_account(self, name: str, key_pair: KeyPair, register_account: Union[Account, None] = None) -> Union[Account, None]:
+    def setup_account(self, name: str, key_pair: KeyPair, register_account: Account | None = None) -> Account | None:
         """
 
         Convenience method to create or load an account based on the account name.
@@ -174,8 +175,8 @@ class API:
     def register_account_name(
         self,
         name: str,
-        address_account: Union[Account, int, str],
-        account: Union[Account, None] = None
+        address_account: Account | int | str,
+        account: Account | None = None
     ) -> Account:
         """
 
@@ -287,7 +288,7 @@ class API:
     def query(
         self,
         transaction: str,
-        address_account: Union[int, str, Account]
+        address_account: int | str | Account
     ):
         """
 
@@ -398,7 +399,7 @@ class API:
             retry_count -= 1
         return transfer_amount
 
-    def get_address(self, function_name: str, address_account: Union[Account, int, str]):
+    def get_address(self, function_name: str, address_account: Account | int | str):
         """
 
         Query the network for a contract ( function ) address. The contract must have been deployed
@@ -425,7 +426,7 @@ class API:
         result = self.query(line, address_account)
         return Account.to_address(result.value)
 
-    def get_balance(self, address_account: Union[Account, int, str], account_from: Union[Account, int, str, None] = None):
+    def get_balance(self, address_account: Account | int | str, account_from: Account | int | str | None = None):
         """
 
         Get a balance of an account.
@@ -473,7 +474,7 @@ class API:
             value = cast(int, result.value)
         return value
 
-    def transfer(self, to_address_account: Union[Account, int, str], amount: Union[int, float], account: Account):
+    def transfer(self, to_address_account: Account | int | str, amount: int | float, account: Account):
         """
 
         Transfer funds from on account to another.
@@ -513,7 +514,7 @@ class API:
             return result.value
         return 0
 
-    def transfer_account(self, from_account: Union[Account, int, str], to_account: Union[Account, int, str]):
+    def transfer_account(self, from_account: Account | int | str, to_account: Account | int | str):
         """
 
         **WARNING**
@@ -564,7 +565,7 @@ class API:
         if result is not None and from_account.key_pair.is_equal(result.value):
             return Account(from_account.key_pair, to_account.address, to_account.name)
 
-    def get_account_info(self, address_account: Union[Account, int, str]) -> AccountDetailsResponse:
+    def get_account_info(self, address_account: Account | int | str) -> AccountDetailsResponse:
         """
 
         Get account information. This will only work with an account that has a balance or has had some transactions
@@ -605,7 +606,7 @@ class API:
 
         return result
 
-    def resolve_account_name(self, name: str) -> Union[int, None]:
+    def resolve_account_name(self, name: str) -> int | None:
         """
         Resolves an account name to an address.
         :param string name Name of the account to resolve.
@@ -618,7 +619,7 @@ class API:
         """
         return self._registry.resolve_address(f'account.{name}')
 
-    def resolve_name(self, name: str) -> Union[int, None]:
+    def resolve_name(self, name: str) -> int | None:
         """
         Resolves any Convex Name Services to an address.
         :param string name Name of the the CNS Service.
@@ -641,11 +642,11 @@ class API:
     def _post(
         self,
         url: str,
-        data: Union[CreateAccountRequest, FaucetRequest, QueryRequest, PrepareTransactionRequest, SubmitTransactionRequest],
+        data: CreateAccountRequest | FaucetRequest | QueryRequest | PrepareTransactionRequest | SubmitTransactionRequest,
         sequence_retry_count: int = 20
-    ) -> Union[Dict[str, Any], None]:
+    ) -> Dict[str, Any] | None:
         max_sleep_time_seconds = 1
-        result: Union[Dict[str, Any], None] = None
+        result: Dict[str, Any] | None = None
         while sequence_retry_count >= 0:
             response = requests.post(url, data=data.model_dump_json())
             if response.status_code == 200:
@@ -668,8 +669,8 @@ class API:
     def _transaction_prepare(
         self,
         transaction: str,
-        address: Union[Account, int, str],
-        sequence_number: Union[int, None] = None
+        address: Account | int | str,
+        sequence_number: int | None = None
     ) -> PrepareTransactionResponse:
         """
         A transaction requires its hash to be digitally signed by the executing account prior to submission.
@@ -703,7 +704,7 @@ class API:
 
     def _transaction_submit(
         self,
-        address: Union[Account, int, str],
+        address: Account | int | str,
         public_key: str,
         hash_data: str,
         signed_data: str
@@ -711,7 +712,7 @@ class API:
         """
         Submit a transaction to the Convex network.
 
-        :param Union[Account, int, str] address: :class:`.Account` object or address of the executing account.
+        :param Account | int, str address: :class:`.Account` object or address of the executing account.
         :param str public_key: Public key of the executing account.
         :param str hash_data: Hash of the transaction to be submitted.
         :param str signed_data: Ed25519 signature of the transaction hash.
@@ -733,7 +734,7 @@ class API:
 
     def _transaction_query(
         self,
-        address: Union[Account, int, str],
+        address: Account | int | str,
         transaction: str
     ):
         """

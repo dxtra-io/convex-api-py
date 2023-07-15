@@ -5,10 +5,7 @@
 """
 
 from argparse import Namespace
-from typing import (
-    Literal,
-    Union
-)
+from typing import Literal
 
 from convex_api.tool.command.argparse_typing import (
     BaseArgs,
@@ -22,12 +19,12 @@ from .command_base import CommandBase
 class AccountInfoArgs(BaseArgs):
     command: Literal['account']
     account_command: Literal['info']
-    name_address: Union[str, int]
+    name_address: str | int
 
 
 class AccountInfoCommand(CommandBase):
 
-    def __init__(self, sub_parser: Union[SubParsersAction, None] = None):
+    def __init__(self, sub_parser: SubParsersAction | None = None):
         self._command_list = []
         super().__init__('info', sub_parser)
 

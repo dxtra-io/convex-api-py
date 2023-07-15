@@ -6,7 +6,6 @@ Convex Contract
 """
 
 import re
-from typing import Union
 from convex_api.account import Account
 from convex_api.api import API
 
@@ -25,9 +24,9 @@ class Contract:
 
     def load(
         self,
-        name: Union[str, None] = None,
-        address: Union[Account, int, str, None] = None,
-        owner_address: Union[Account, int, str, None] = None
+        name: str | None = None,
+        address: Account | int | str | None = None,
+        owner_address: Account | int | str | None = None
     ):
         """
 
@@ -62,10 +61,10 @@ class Contract:
     def deploy(
         self,
         account: Account,
-        text: Union[str, None] = None,
-        filename: Union[str, None] = None,
-        name: Union[str, None] = None,
-        owner_account: Union[Account, None] = None
+        text: str | None = None,
+        filename: str | None = None,
+        name: str | None = None,
+        owner_account: Account | None = None
     ):
         """
 
@@ -141,7 +140,7 @@ class Contract:
             raise ValueError(f'No contract address found for {self._name}')
         return self._convex.send(f'(call #{self._address} {transaction})', account)
 
-    def query(self, transaction: str, account_address: Union[Account, int, str, None] = None):
+    def query(self, transaction: str, account_address: Account | int | str | None = None):
         """
 
         Sends a query to the contract.

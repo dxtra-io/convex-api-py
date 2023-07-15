@@ -8,10 +8,7 @@ import logging
 import math
 import secrets
 from argparse import Namespace
-from typing import (
-    Literal,
-    Union
-)
+from typing import Literal
 
 from convex_api import KeyPair
 from convex_api.tool.command.argparse_typing import (
@@ -31,7 +28,7 @@ class PeerCreateArgs(BaseArgs):
     command: Literal['peer']
     peer_command: Literal['create']
     topup: bool = True
-    name: Union[str, None] = None
+    name: str | None = None
 
 
 class PeerCreateCommand(CommandBase):
