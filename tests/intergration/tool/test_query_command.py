@@ -9,7 +9,6 @@ from convex_api.tool.command.query_command import QueryCommand
 from convex_api.tool.output import Output
 
 
-
 def test_query_command(convex_url: str):
     args = Mock()
 
@@ -21,6 +20,4 @@ def test_query_command(convex_url: str):
     command = QueryCommand()
     output = Output()
     command.execute(args, output)
-    assert(output.values['value'])
-
-
+    assert output.values['value']
