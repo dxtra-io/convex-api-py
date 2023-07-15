@@ -27,7 +27,7 @@ class Account:
     @staticmethod
     def to_address(value: Union['Account', int, str]) -> int:
         """
-        Convert address text with possible leading '#' to an interger address value.
+        Convert address text with possible leading '#' to an integer address value.
 
         :param str text: Address text to convert
 
