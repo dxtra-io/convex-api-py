@@ -47,7 +47,7 @@ class AccountNameResolveCommand(CommandBase):
         return parser
 
     def execute(self, args: Namespace, output: Output):
-        typed_args = AccountNameResolveArgs.parse_obj(vars(args))
+        typed_args = AccountNameResolveArgs.model_validate(vars(args))
         convex = self.load_convex(typed_args.url)
         address = convex.resolve_account_name(typed_args.name)
         if address:

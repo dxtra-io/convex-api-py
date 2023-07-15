@@ -17,7 +17,6 @@ from typing import (
 from urllib.parse import urljoin
 
 import requests
-from pydantic.tools import parse_obj_as
 
 from convex_api.account import Account
 from convex_api.exceptions import (
@@ -95,7 +94,7 @@ class API:
         create_account_url = urljoin(self._url, '/api/v1/createAccount')
 
         logger.debug(f'create_account {create_account_url} {account_data}')
-        result = parse_obj_as(CreateAccountResponse, self._post(create_account_url, account_data))
+        result = CreateAccountResponse.model_validate(self._post(create_account_url, account_data))
         logger.debug(f'create_account result {result}')
 
         account = Account(key_pair, Account.to_address(result.address))
@@ -351,7 +350,7 @@ class API:
             amount=amount
         )
         logger.debug(f'request_funds {faucet_url} {faucet_data}')
-        result = parse_obj_as(FaucetResponse, self._post(faucet_url, faucet_data))
+        result = FaucetResponse.model_validate(self._post(faucet_url, faucet_data))
         logger.debug(f'request_funds result {result}')
         if result.address != account.address:
             raise ValueError(f'request_funds: returned account is not correct {result.address}')
@@ -601,7 +600,7 @@ class API:
         if response.status_code != 200:
             raise ConvexRequestError('get_account_info', response.status_code, response.text)
 
-        result = parse_obj_as(AccountDetailsResponse, response.json())
+        result = AccountDetailsResponse.model_validate(response.json())
         logger.debug(f'get_account_info response {result}')
 
         return result
@@ -693,7 +692,7 @@ class API:
             data.sequence = sequence_number
         logger.debug(f'_transaction_prepare {prepare_url} {data}')
 
-        result = parse_obj_as(PrepareTransactionResponse, self._post(prepare_url, data))
+        result = PrepareTransactionResponse.model_validate(self._post(prepare_url, data))
 
         logger.debug(f'_transaction_prepare response {result}')
         # TODO: Fix this
@@ -726,7 +725,7 @@ class API:
         )
 
         logger.debug(f'_transaction_submit {submit_url} {data}')
-        result = parse_obj_as(SubmitTransactionResponse, self._post(submit_url, data))
+        result = SubmitTransactionResponse.model_validate(self._post(submit_url, data))
         logger.debug(f'_transaction_submit response {result}')
         if result.errorCode is not None:
             raise ConvexAPIError('_transaction_submit', result.errorCode, result.value)
@@ -746,7 +745,7 @@ class API:
             source=transaction
         )
         logger.debug(f'_transaction_query {query_url} {query_data}')
-        result = parse_obj_as(QueryResponse, self._post(query_url, query_data))
+        result = QueryResponse.model_validate(self._post(query_url, query_data))
         logger.debug(f'_transaction_query response {result}')
         if result.errorCode is not None:
             raise ConvexAPIError('_transaction_query', result.errorCode, result.value)

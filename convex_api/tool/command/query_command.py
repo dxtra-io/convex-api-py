@@ -53,7 +53,7 @@ class QueryCommand(CommandBase):
         return parser
 
     def execute(self, args: Namespace, output: Output):
-        query_args = QueryArgs.parse_obj(vars(args))
+        query_args = QueryArgs.model_validate(vars(args))
 
         convex = self.load_convex(query_args.url)
 

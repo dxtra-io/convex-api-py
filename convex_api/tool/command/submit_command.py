@@ -52,7 +52,7 @@ class SubmitCommand(CommandBase):
         return parser
 
     def execute(self, args: Namespace, output: Output):
-        submit_args = SubmitArgs.parse_obj(vars(args))
+        submit_args = SubmitArgs.model_validate(vars(args))
 
         convex = self.load_convex(submit_args.url)
 

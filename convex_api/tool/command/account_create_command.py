@@ -59,7 +59,7 @@ class AccountCreateCommand(CommandBase):
         return parser
 
     def execute(self, args: Namespace, output: Output):
-        typed_args = AccountCreateArgs.parse_obj(vars(args))
+        typed_args = AccountCreateArgs.model_validate(vars(args))
         convex = self.load_convex(typed_args.url)
 
         key_pair = self.import_key_pair(typed_args)
