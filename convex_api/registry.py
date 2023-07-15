@@ -3,17 +3,19 @@
     ConvexRegistry
 
 """
-import logging
+from __future__ import annotations
+
 from typing import (
     TYPE_CHECKING,
     cast
 )
 
-from convex_api.account import Account
-
 if TYPE_CHECKING:
     from convex_api.api import API
 
+import logging
+
+from convex_api.account import Account
 from convex_api.exceptions import ConvexAPIError
 
 logger = logging.getLogger(__name__)
@@ -23,7 +25,7 @@ QUERY_ACCOUNT_ADDRESS = 9
 
 class Registry:
 
-    def __init__(self, convex: 'API'):
+    def __init__(self, convex: API):
         self._convex = convex
         self._address = None
         self._items: dict[str, tuple[int, int] | None] = {}
