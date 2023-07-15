@@ -58,5 +58,5 @@ class AccountInfoCommand(CommandBase):
         output.set_value('address', info['address'])
         if info['name']:
             output.set_value('name', info['name'])
-        output.add_line_values(account_info.dict())
-        output.set_values(account_info.dict())
+        output.add_line_values(account_info.model_dump())
+        output.set_values(account_info.model_dump())

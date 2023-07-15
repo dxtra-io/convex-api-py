@@ -65,4 +65,4 @@ class SubmitCommand(CommandBase):
             return
 
         output.add_line(result.model_dump_json())
-        output.set_values(result.dict())
+        output.set_values(result.model_dump())

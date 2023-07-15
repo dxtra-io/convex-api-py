@@ -98,7 +98,7 @@ def test_convex_transfer_account(convex_url: str, test_account: Account):
     convex.topup_account(account_1)
     result = convex.send('(map inc [1 2 3 4 5])', account_1)
     assert(result is not None)
-    assert 'value' in result.dict()
+    assert 'value' in result.model_dump()
     assert(result.value == [2, 3, 4, 5, 6])
 
     # transfer the new account_1 to use the same keys as the test_account
@@ -112,7 +112,7 @@ def test_convex_transfer_account(convex_url: str, test_account: Account):
     # test out new key
     result = convex.send('(map inc [1 2 3 4 5])', account_1_change)
     assert(result is not None)
-    assert 'value' in result.dict()
+    assert 'value' in result.model_dump()
     assert(result.value == [2, 3, 4, 5, 6])
 
 
@@ -122,7 +122,7 @@ def test_convex_api_send_basic_lisp(convex_url: str, test_account: Account):
     assert(request_amount == TEST_FUNDING_AMOUNT)
     result = convex.send('(map inc [1 2 3 4 5])', test_account)
     assert(result is not None)
-    assert 'value' in result.dict()
+    assert 'value' in result.model_dump()
     assert(result.value == [2, 3, 4, 5, 6])
 
 def test_convex_api_get_balance_no_funds(convex_url: str):

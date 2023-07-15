@@ -65,5 +65,5 @@ class QueryCommand(CommandBase):
 
         address = 1
         result = convex.query(query_args.query, address)
-        output.add_line(result.json())
-        output.set_values(result.dict())
+        output.add_line(result.model_dump_json())
+        output.set_values(result.model_dump())
