@@ -19,6 +19,6 @@ jobs:
     - name: 🔍 Type check
       uses: jakebailey/pyright-action@v1
       with:
-        version: 1.1.316
+        version: 1.1.317
     - name: 🧪 Test
       run: make tests
