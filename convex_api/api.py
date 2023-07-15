@@ -8,7 +8,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from typing import Any, Dict
+    from typing import Any
 
 import logging
 import re
@@ -644,9 +644,9 @@ class API:
         url: str,
         data: CreateAccountRequest | FaucetRequest | QueryRequest | PrepareTransactionRequest | SubmitTransactionRequest,
         sequence_retry_count: int = 20
-    ) -> Dict[str, Any] | None:
+    ) -> dict[str, Any] | None:
         max_sleep_time_seconds = 1
-        result: Dict[str, Any] | None = None
+        result: dict[str, Any] | None = None
         while sequence_retry_count >= 0:
             response = requests.post(url, data=data.model_dump_json())
             if response.status_code == 200:

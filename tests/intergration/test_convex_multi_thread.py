@@ -10,7 +10,6 @@ from multiprocessing import (
 )
 from typing import (
     Any,
-    Dict
 )
 
 import pytest  # type: ignore # noqa: F401
@@ -43,7 +42,7 @@ def test_convex_api_multi_thread_send(convex_url: str, test_account: Account):
     process_count = 4
     convex = API(convex_url)
     convex.topup_account(test_account)
-    process_items: Dict[int, Dict[str, Any]] = {}
+    process_items: dict[int, dict[str, Any]] = {}
     for index in range(process_count):
         result_value = Value('i', 0)
         proc = Process(target=process_on_convex, args=(convex, test_account, result_value))
@@ -69,7 +68,7 @@ def process_convex_account_creation(convex: API, result_value: Any):
 def test_convex_api_multi_thread_account_creation(convex_url: str):
     process_count = 20
     convex = API(convex_url)
-    process_items: Dict[int, Dict[str, Any]] = {}
+    process_items: dict[int, dict[str, Any]] = {}
     for index in range(process_count):
         result_value = Value('i', 0)
         proc = Process(target=process_convex_account_creation, args=(convex, result_value))
@@ -84,7 +83,7 @@ def test_convex_api_multi_thread_account_creation(convex_url: str):
         assert process_item['result_value'].value == 1
 
 
-def process_convex_depoly(convex: API, result_value: Any):
+def process_convex_deploy(convex: API, result_value: Any):
     deploy_storage = """
 (def storage-example
     (deploy
@@ -133,10 +132,10 @@ def test_convex_api_multi_thread_deploy(convex_url: str):
     key_pair = KeyPair()
     account = convex.create_account(key_pair)
     convex.request_funds(TEST_FUNDING_AMOUNT, account)
-    process_items: Dict[int, Dict[str, Any]] = {}
+    process_items: dict[int, dict[str, Any]] = {}
     for index in range(process_count):
         result_value = Value('i', 0)
-        proc = Process(target=process_convex_depoly, args=(convex, result_value))
+        proc = Process(target=process_convex_deploy, args=(convex, result_value))
         process_items[index] = {
             'process': proc,
             'result_value': result_value

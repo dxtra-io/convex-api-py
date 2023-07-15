@@ -4,7 +4,6 @@ from argparse import (
 )
 from typing import (
     Any,
-    Dict,
     Protocol
 )
 
@@ -16,7 +15,7 @@ from pydantic import (
 
 class SubParsersAction(Protocol):
     @property
-    def choices(self) -> Dict[str, ArgumentParser]:
+    def choices(self) -> dict[str, ArgumentParser]:
         ...
 
     def add_parser(self, name: str, **kwargs: Any) -> ArgumentParser:
