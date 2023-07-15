@@ -290,7 +290,7 @@ class KeyPair:
 
         :param str password: Password to encrypt the private key value
 
-        :returns: The private key as a PEM formated encrypted string
+        :returns: The private key as a PEM formatted encrypted string
 
         .. code-block:: python
 
@@ -348,7 +348,7 @@ class KeyPair:
 
         :param str filename: Filename to create with the PEM string
 
-        :param str password: Password to use to encypt the private key
+        :param str password: Password to use to encrypt the private key
 
         .. code-block:: python
 
@@ -505,7 +505,7 @@ class KeyPair:
 
         .. code-block:: python
 
-            >>> # create an KeyPair object from a enrcypted pem text
+            >>> # create an KeyPair object from a encrypted pem text
             >>> pem_text = '''-----BEGIN ENCRYPTED PRIVATE KEY-----
                 MIGbMFcGCSqGSIb3DQEFDTBKMCkGCSqGSIb3DQEFDDAcBAi3qm1zgjCO5gICCAAw
                 DAYIKoZIhvcNAgkFADAdBglghkgBZQMEASoEENjvj1n...
@@ -563,7 +563,7 @@ class KeyPair:
 
         .. code-block:: python
 
-            >>> # create an KeyPair object from a enrcypted pem saved in a file
+            >>> # create an KeyPair object from a encrypted pem saved in a file
             >>> key_pair = KeyPair.import_from_file(my_key_pair_key.pem, 'my secret password')
 
 
