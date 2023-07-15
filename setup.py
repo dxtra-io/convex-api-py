@@ -3,8 +3,8 @@
 
 """The setup script."""
 
-import os # type: ignore # noqa: F401
-from os.path import join # type: ignore # noqa: F401
+import os  # type: ignore # noqa: F401
+from os.path import join  # type: ignore # noqa: F401
 
 from setuptools import (
     setup,
