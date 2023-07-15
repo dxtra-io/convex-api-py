@@ -39,7 +39,7 @@ class Contract:
         :param str, int, Account address: Address of the contract, if the name is not known,
         then you can provide the actual address of the contract.
 
-        :param str, int, Account owner_address: If the contract is registered the owner address of the resgistration.
+        :param str, int, Account owner_address: If the contract is registered the owner address of the registration.
 
         :returns int The address of the resolved contract
 
@@ -79,7 +79,7 @@ class Contract:
 
         :param str name: Name of the contract to register
 
-        :param Account onwer_account: Optional owner account of the registration.
+        :param Account owner_account: Optional owner account of the registration.
         If not provided then the Account will be used.
 
         :returns Address of the new contract
