@@ -47,7 +47,7 @@ class AccountTopupCommand(CommandBase):
         return parser
 
     def execute(self, args: Namespace, output: Output):
-        typed_args = AccountTopupArgs.parse_obj(vars(args))
+        typed_args = AccountTopupArgs.model_validate(vars(args))
         convex = self.load_convex(typed_args.url)
         account = self.load_account(typed_args, typed_args.name_address, output)
         if not account:

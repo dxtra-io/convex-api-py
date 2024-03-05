@@ -49,7 +49,7 @@ class AccountBalanceCommand(CommandBase):
         return parser
 
     def execute(self, args: Namespace, output: Output):
-        typed_args = AccountBalanceArgs.parse_obj(vars(args))
+        typed_args = AccountBalanceArgs.model_validate(vars(args))
         convex = self.load_convex(typed_args.url)
         info = self.resolve_to_name_address(typed_args.name_address, output)
         if not info:
