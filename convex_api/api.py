@@ -49,7 +49,7 @@ logger = logging.getLogger(__name__)
 class API:
 
     def __init__(self, url: str):
-        self._url = url
+        self._url = str(url)
         self._registry = Registry(self)
 
     def create_account(self, key_pair: KeyPair, sequence_retry_count: int = 20) -> Account:

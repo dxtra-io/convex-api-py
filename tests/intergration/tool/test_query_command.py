@@ -16,6 +16,10 @@ def test_query_command(convex_url: str):
     args.url = convex_url
     args.query = '(address *registry*)'
     args.name_address = None
+    args.keyfile = None
+    args.keytext  = None
+    args.password = None
+    args.keywords = None
 
     command = QueryCommand()
     output = Output()
