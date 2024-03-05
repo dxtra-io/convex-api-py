@@ -45,7 +45,7 @@ def test_account_balance_command(convex_url: str, test_account: Account):
     args.url = convex_url
     args.name_address = test_account.address
     args.keyfile = None
-    args.keytext  = None
+    args.keytext = None
     args.password = None
     args.keywords = None
 
@@ -73,7 +73,7 @@ def test_account_info_command(convex_url: str, test_account: Account):
     args.url = convex_url
     args.name_address = test_account.address
     args.keyfile = None
-    args.keytext  = None
+    args.keytext = None
     args.password = None
     args.keywords = None
 
@@ -107,10 +107,9 @@ def test_account_name_resolve_command(convex_url: str, test_account: Account):
     args.url = convex_url
     args.name = test_account.name
     args.keyfile = None
-    args.keytext  = None
+    args.keytext = None
     args.password = None
     args.keywords = None
-
 
     command = AccountNameResolveCommand()
     output = Output()
