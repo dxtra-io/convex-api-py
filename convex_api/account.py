@@ -4,16 +4,16 @@
 
 
 """
+from __future__ import annotations
 
 import re
-from typing import Union
 from convex_api.key_pair import KeyPair
 
 
 class Account:
 
     @staticmethod
-    def is_address(text: Union[int, str]) -> bool:
+    def is_address(text: int | str) -> bool:
         """
         Returns True if the text value is a valid address.
 
@@ -25,9 +25,9 @@ class Account:
         return Account.to_address(text) >= 0
 
     @staticmethod
-    def to_address(value: Union['Account', int, str]) -> int:
+    def to_address(value: Account | int | str) -> int:
         """
-        Convert address text with possible leading '#' to an interger address value.
+        Convert address text with possible leading '#' to an integer address value.
 
         :param str text: Address text to convert
 
@@ -47,7 +47,7 @@ class Account:
                 raise ValueError(f'Invalid address {value}')
             return address
 
-    def __init__(self, key_pair: KeyPair, address: Union['Account', int, str], name: Union[str, None] = None):
+    def __init__(self, key_pair: KeyPair, address: Account | int | str, name: str | None = None):
         """
 
         Create a new account with a private key KeyPair.
@@ -133,7 +133,7 @@ class Account:
         return self._address
 
     @address.setter
-    def address(self, value: Union['Account', int, str]) -> None:
+    def address(self, value: Account | int | str) -> None:
         """
 
         Sets the network address of this account
@@ -154,7 +154,7 @@ class Account:
         self._address = Account.to_address(value)
 
     @property
-    def name(self) -> Union[str, None]:
+    def name(self) -> str | None:
         return self._name
 
     @name.setter

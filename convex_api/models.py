@@ -1,7 +1,4 @@
-from typing import (
-    Any,
-    Union
-)
+from typing import Any
 
 from pydantic import (
     BaseModel,
@@ -57,7 +54,7 @@ class QueryRequest(BaseModel):
 class QueryResponse(BaseModel):
     """REST API response from a query request."""
     value: Any
-    errorCode: Union[str, None] = None
+    errorCode: str | None = None
 
 
 class PrepareTransactionRequest(BaseModel):
@@ -85,4 +82,4 @@ class SubmitTransactionRequest(BaseModel):
 class SubmitTransactionResponse(BaseModel):
     """REST API response from a submit transaction request."""
     value: Any
-    errorCode: Union[str, None] = None
+    errorCode: str | None = None

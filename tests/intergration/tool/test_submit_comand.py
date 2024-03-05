@@ -10,7 +10,6 @@ from convex_api.tool.command.submit_command import SubmitCommand
 from convex_api.tool.output import Output
 
 
-
 def test_submit_command(convex_url: str, test_account: Account):
     args = Mock()
 
@@ -27,6 +26,4 @@ def test_submit_command(convex_url: str, test_account: Account):
     command = SubmitCommand()
     output = Output()
     command.execute(args, output)
-    assert(output.values['value'] == [2, 3, 4, 5, 6])
-
-
+    assert output.values['value'] == [2, 3, 4, 5, 6]

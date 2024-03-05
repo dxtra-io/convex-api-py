@@ -13,10 +13,7 @@ from argparse import (
     ArgumentParser,
     Namespace
 )
-from typing import (
-    TypedDict,
-    Union
-)
+from typing import TypedDict
 
 from convex_api import (
     API,
@@ -35,12 +32,12 @@ DEFAULT_CONVEX_URL = 'https://convex.world'
 
 
 class NameAddress(TypedDict):
-    name: Union[str, None]
+    name: str | None
     address: int
 
 
 class CommandBase(ABC):
-    def __init__(self, name: str, sub_parser: Union[SubParsersAction, None] = None):
+    def __init__(self, name: str, sub_parser: SubParsersAction | None = None):
         self._name = name
         # TODO: If we include this it causes a type hinting error in resolve_to_name_address
         #       Should we somehow assert that load_convex has been called ?
@@ -53,7 +50,7 @@ class CommandBase(ABC):
     def is_command(self, name: str) -> bool:
         return self._name == name
 
-    def load_convex(self, url: Union[str, None], default_url: Union[str, None] = None) -> API:
+    def load_convex(self, url: str | None, default_url: str | None = None) -> API:
         if url is None:
             url = default_url
         if url is None:
@@ -76,7 +73,7 @@ class CommandBase(ABC):
         if self._sub_parser is not None:
             self._sub_parser.choices[self._name].print_help()
 
-    def resolve_to_name_address(self, name_address: Union[str, int], output: Output) -> Union[NameAddress, None]:
+    def resolve_to_name_address(self, name_address: str | int, output: Output) -> NameAddress | None:
         name = None
         address = None
 
@@ -110,7 +107,7 @@ class CommandBase(ABC):
 
         return key_pair
 
-    def load_account(self, args: BaseArgs, name_address: Union[str, int], output: Output):
+    def load_account(self, args: BaseArgs, name_address: str | int, output: Output):
 
         info = self.resolve_to_name_address(name_address, output)
         if not info:
@@ -123,7 +120,7 @@ class CommandBase(ABC):
 
         return Account(key_pair, info['address'], name=info['name'])
 
-    def is_address(self, value: Union[int, str]) -> bool:
+    def is_address(self, value: int | str) -> bool:
         return Account.is_address(value)
 
     @abstractmethod

@@ -7,10 +7,7 @@
 import logging
 import secrets
 from argparse import Namespace
-from typing import (
-    Literal,
-    Union
-)
+from typing import Literal
 
 from convex_api import KeyPair
 from convex_api.tool.command.argparse_typing import (
@@ -28,12 +25,12 @@ class AccountCreateArgs(BaseArgs):
     command: Literal['account']
     account_command: Literal['create']
     topup: bool = False
-    name: Union[str, None] = None
+    name: str | None = None
 
 
 class AccountCreateCommand(CommandBase):
 
-    def __init__(self, sub_parser: Union[SubParsersAction, None] = None):
+    def __init__(self, sub_parser: SubParsersAction | None = None):
         super().__init__('create', sub_parser)
 
     def create_parser(self, sub_parser: SubParsersAction):

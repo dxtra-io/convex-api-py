@@ -5,10 +5,7 @@
 """
 
 from argparse import Namespace
-from typing import (
-    Literal,
-    Union
-)
+from typing import Literal
 
 from convex_api.tool.command.argparse_typing import (
     BaseArgs,
@@ -24,12 +21,12 @@ DEFAULT_AMOUNT = 10
 class AccountBalanceArgs(BaseArgs):
     command: Literal['account']
     account_command: Literal['balance']
-    name_address: Union[str, int]
+    name_address: str | int
 
 
 class AccountBalanceCommand(CommandBase):
 
-    def __init__(self, sub_parser: Union[SubParsersAction, None] = None):
+    def __init__(self, sub_parser: SubParsersAction | None = None):
         super().__init__('balance', sub_parser)
 
     def create_parser(self, sub_parser: SubParsersAction):

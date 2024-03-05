@@ -5,10 +5,7 @@
 """
 
 from argparse import Namespace
-from typing import (
-    Literal,
-    Union
-)
+from typing import Literal
 
 from convex_api.tool.command.argparse_typing import (
     BaseArgs,
@@ -29,7 +26,7 @@ class AccountNameRegisterArgs(BaseArgs):
 
 class AccountNameRegisterCommand(CommandBase):
 
-    def __init__(self, sub_parser: Union[SubParsersAction, None] = None):
+    def __init__(self, sub_parser: SubParsersAction | None = None):
         self._command_list = []
         super().__init__('register', sub_parser)
 
@@ -72,7 +69,7 @@ class AccountNameRegisterCommand(CommandBase):
 
         register_account = convex.register_account_name(typed_args.name, typed_args.address, account)
         if not register_account:
-            output.add_error('failet to register acccount')
+            output.add_error('failed to register account')
             return
 
         output.add_line(f'registered account name {register_account.name} to address {register_account.address}')

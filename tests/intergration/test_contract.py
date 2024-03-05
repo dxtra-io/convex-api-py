@@ -6,11 +6,10 @@
 import pytest  # type: ignore # noqa: F401
 
 from convex_api import (
-    Account,
     API,
+    Account,
     Contract
 )
-
 
 TEST_FUNDING_AMOUNT = 8888888
 
@@ -39,19 +38,18 @@ def test_convex_api_deploy_contract(convex_url: str, test_account: Account):
 
     # deploy the contract
     contract_address = contract.deploy(owner_account, filename=TEST_CONTRACT_FILENAME, name=TEST_CONTRACT_NAME)
-    assert(contract_address)
+    assert contract_address
     # load the contract - should be the same address
     new_address = contract.load(TEST_CONTRACT_NAME)
-    assert(contract_address == new_address)
-    assert(contract_address == contract.address)
-    assert(owner_address == contract.owner_address)
-
+    assert contract_address == new_address
+    assert contract_address == contract.address
+    assert owner_address == contract.owner_address
 
     contract = convex.load_contract(TEST_CONTRACT_NAME)
-    assert(contract)
-    assert(contract_address == contract.address)
+    assert contract
+    assert contract_address == contract.address
 
 
 def test_convex_api_contract_escape_string():
     test_text = 'this is a test "string" '
-    assert('this is a test \\"string\\" ' == Contract.escape_string(test_text))
+    assert 'this is a test \\"string\\" ' == Contract.escape_string(test_text)

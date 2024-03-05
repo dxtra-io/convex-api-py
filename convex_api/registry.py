@@ -3,19 +3,19 @@
     ConvexRegistry
 
 """
-import logging
+from __future__ import annotations
+
 from typing import (
     TYPE_CHECKING,
-    Tuple,
-    Union,
     cast
 )
-
-from convex_api.account import Account
 
 if TYPE_CHECKING:
     from convex_api.api import API
 
+import logging
+
+from convex_api.account import Account
 from convex_api.exceptions import ConvexAPIError
 
 logger = logging.getLogger(__name__)
@@ -25,10 +25,10 @@ QUERY_ACCOUNT_ADDRESS = 9
 
 class Registry:
 
-    def __init__(self, convex: 'API'):
+    def __init__(self, convex: API):
         self._convex = convex
         self._address = None
-        self._items: dict[str, Union[Tuple[int, int], None]] = {}
+        self._items: dict[str, tuple[int, int] | None] = {}
 
     def is_registered(self, name: str):
         return self.item(name) is not None
@@ -39,7 +39,7 @@ class Registry:
             logger.debug(f'cns-database: {result}')
             self._items[name] = None
             if isinstance(result.value, (list, tuple)):
-                self._items[name] = cast(Tuple[int, int], result.value)
+                self._items[name] = cast(tuple[int, int], result.value)
         return self._items[name]
 
     def clear(self):
@@ -56,19 +56,19 @@ class Registry:
                 if result and hasattr(result, 'value'):
                     items = result.value
                     if name in items:
-                        item: Tuple[int, int] = items[name]
+                        item: tuple[int, int] = items[name]
                         self._items[name] = item
                         return item
             except ConvexAPIError as e:
                 logger.debug(f'convex error: {e}')
                 raise
 
-    def resolve_owner(self, name: str) -> Union[int, None]:
+    def resolve_owner(self, name: str) -> int | None:
         item = self.item(name)
         if item:
             return item[1]
 
-    def resolve_address(self, name: str) -> Union[int, None]:
+    def resolve_address(self, name: str) -> int | None:
         item = self.item(name)
         if item:
             return item[0]

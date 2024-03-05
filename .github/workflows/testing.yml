@@ -1,4 +1,4 @@
-name: testing
+name: 🧪 Test
 
 on: [push]
 
@@ -6,14 +6,21 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v1
-    - name: Set up Python 3.8
+    - name: 🛒 Checkout
+      uses: actions/checkout@v3
+    - name: 🐍 Set up Python 3.10
       uses: actions/setup-python@v4
       with:
-        python-version: 3.8
-    - name: Install dependencies
+        python-version: '3.10'
+    - name: 🧰 Install dependencies
       run: make install IGNORE_VENV=1
-    - name: Lint
+    - name: 👮 Lint
       run: make lint
-    - name: Test
+    - name: 🔍 Type check
+      uses: jakebailey/pyright-action@v1
+      with:
+        version: 1.1.317
+        python-version: '3.10'
+        warnings: true
+    - name: 🧪 Test
       run: make tests

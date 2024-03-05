@@ -45,7 +45,7 @@ def convex_tool():
         '-p',
         '--password',
         nargs='?',
-        help='password to access the private key enrcypted in a --keyfile or --keytext'
+        help='password to access the private key encrypted in a --keyfile or --keytext'
     )
 
     parser.add_argument(

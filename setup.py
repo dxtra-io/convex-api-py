@@ -3,8 +3,8 @@
 
 """The setup script."""
 
-import os # type: ignore # noqa: F401
-from os.path import join # type: ignore # noqa: F401
+import os  # type: ignore # noqa: F401
+from os.path import join  # type: ignore # noqa: F401
 
 from setuptools import (
     setup,
@@ -18,10 +18,10 @@ with open('CHANGELOG.md') as changelog_file:
     changelog = changelog_file.read()
 
 install_requirements = [
-    'cryptography',
-    'requests',
-    'mnemonic',
-    'pydantic'
+    'cryptography~=39.0',
+    'requests~=2.28',
+    'mnemonic~=0.2',
+    'pydantic~=2.0'
 ]
 
 setup_requirements = ['pytest-runner', ]
@@ -58,7 +58,7 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.10',
     ],
     description="Convex api",
     extras_require={
@@ -80,8 +80,8 @@ setup(
     setup_requires=setup_requirements,
     test_suite='tests',
     tests_require=test_requirements,
-    python_requires='>=3.8',
-    url='https://github.com/DEX-Company/convex-api-py',
+    python_requires='>=3.10',
+    url='https://github.com/Convex-Dev/convex-api-py',
     version='0.3.0',
     zip_safe=False,
 )

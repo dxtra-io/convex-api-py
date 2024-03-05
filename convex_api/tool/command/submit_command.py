@@ -4,10 +4,7 @@
 
 """
 from argparse import Namespace
-from typing import (
-    Literal,
-    Union
-)
+from typing import Literal
 
 from convex_api.tool.command.argparse_typing import (
     BaseArgs,
@@ -21,12 +18,12 @@ from .command_base import CommandBase
 class SubmitArgs(BaseArgs):
     command: Literal['submit']
     submit: str
-    name_address: Union[str, int]
+    name_address: str | int
 
 
 class SubmitCommand(CommandBase):
 
-    def __init__(self, sub_parser: Union[SubParsersAction, None] = None):
+    def __init__(self, sub_parser: SubParsersAction | None = None):
         self._command_list = []
         super().__init__('submit', sub_parser)
 
@@ -52,7 +49,7 @@ class SubmitCommand(CommandBase):
         return parser
 
     def execute(self, args: Namespace, output: Output):
-        submit_args = SubmitArgs.parse_obj(vars(args))
+        submit_args = SubmitArgs.model_validate(vars(args))
 
         convex = self.load_convex(submit_args.url)
 
@@ -64,5 +61,5 @@ class SubmitCommand(CommandBase):
         if not result:
             return
 
-        output.add_line(result.json())
-        output.set_values(result.dict())
+        output.add_line(result.model_dump_json())
+        output.set_values(result.model_dump())

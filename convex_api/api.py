@@ -3,21 +3,21 @@
     Convex API
 
 """
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from typing import Any
 
 import logging
 import re
 import secrets
 import time
-from typing import (
-    Any,
-    Dict,
-    Union,
-    cast
-)
+from typing import cast
 from urllib.parse import urljoin
 
 import requests
-from pydantic.tools import parse_obj_as
 
 from convex_api.account import Account
 from convex_api.exceptions import (
@@ -57,7 +57,7 @@ class API:
 
         Create a new account address on the convex network.
 
-        :param `KeyPair` key_pair: :class:`.KeyPair` object that you whish to use as the signing account.
+        :param `KeyPair` key_pair: :class:`.KeyPair` object that you wish to use as the signing account.
             The :class:`.KeyPair` object contains the public/private keys to access and submit commands
             on the convex network.
 
@@ -73,7 +73,7 @@ class API:
 
             >>> from convex_api import API
             >>> convex = API('https://convex.world')
-            >>> # Create a new account with new public/priavte keys and address
+            >>> # Create a new account with new public/private keys and address
             >>> key_pair = KeyPair()
             >>> account = convex.create_account(key_pair)
             >>> print(account.address)
@@ -95,17 +95,17 @@ class API:
         create_account_url = urljoin(self._url, '/api/v1/createAccount')
 
         logger.debug(f'create_account {create_account_url} {account_data}')
-        result = parse_obj_as(CreateAccountResponse, self._post(create_account_url, account_data))
+        result = CreateAccountResponse.model_validate(self._post(create_account_url, account_data))
         logger.debug(f'create_account result {result}')
 
         account = Account(key_pair, Account.to_address(result.address))
 
         return account
 
-    def load_account(self, name: str, key_pair: KeyPair) -> Union[Account, None]:
+    def load_account(self, name: str, key_pair: KeyPair) -> Account | None:
         """
 
-        Load an account using the correct name. If successfull return the :class:`.Account` object with the address set.
+        Load an account using the correct name. If successful return the :class:`.Account` object with the address set.
 
         This is a Query operation, so no convex tokens are used in loading the account.
 
@@ -117,7 +117,7 @@ class API:
 
         .. code-block:: python
 
-            >>> # Create a new account with new public/priavte keys and address
+            >>> # Create a new account with new public/private keys and address
             >>> import_account = Account.import_from_file('my_account.pem', 'secret')
             >>> account = convex.load_account('my_account, import_account)
             >>> print(account.name)
@@ -131,7 +131,7 @@ class API:
             new_account = Account(key_pair, address, name=name)
             return new_account
 
-    def setup_account(self, name: str, key_pair: KeyPair, register_account: Union[Account, None] = None) -> Union[Account, None]:
+    def setup_account(self, name: str, key_pair: KeyPair, register_account: Account | None = None) -> Account | None:
         """
 
         Convenience method to create or load an account based on the account name.
@@ -145,7 +145,7 @@ class API:
         :results: :class:`.Account` object with the address and name set, if not found then return None
 
         **Note** If you do not provide a register_account, then this method calls the
-        :meth:`.topup_account` method to get enougth funds to register an account name.
+        :meth:`.topup_account` method to get enough funds to register an account name.
 
 
         .. code-block:: python
@@ -166,7 +166,7 @@ class API:
             # new name , so first create the account
             account = self.create_account(key_pair)
             if not register_account:
-                # make sure we have enougth funds to do the registration
+                # make sure we have enough funds to do the registration
                 self.topup_account(account)
                 register_account = account
             account = self.register_account_name(name, account, register_account)
@@ -175,8 +175,8 @@ class API:
     def register_account_name(
         self,
         name: str,
-        address_account: Union[Account, int, str],
-        account: Union[Account, None] = None
+        address_account: Account | int | str,
+        account: Account | None = None
     ) -> Account:
         """
 
@@ -235,7 +235,7 @@ class API:
         :param Account account: The account that needs to sign the message to send
 
         :param sequence_retry_count: Number of retries to do if a SEQUENCE error occurs.
-            When sending multiple send requsts on the same account, you can get SEQUENCE errors,
+            When sending multiple send requests on the same account, you can get SEQUENCE errors,
             This send method will automatically retry again
         :type sequence_retry_count: int, optional
 
@@ -288,7 +288,7 @@ class API:
     def query(
         self,
         transaction: str,
-        address_account: Union[int, str, Account]
+        address_account: int | str | Account
     ):
         """
 
@@ -306,7 +306,7 @@ class API:
 
         .. code-block:: python
 
-            >>> # Create a new account with new public/priavte keys and address
+            >>> # Create a new account with new public/private keys and address
             >>> account = convex_api.create_account()
 
             >>> # submit a query transaction using the account address
@@ -333,12 +333,12 @@ class API:
 
         :param Account account: The :class:`.Account` object to receive funds too
 
-        :returns: The amount transfered to the account
+        :returns: The amount transferred to the account
 
 
         .. code-block:: python
 
-            >>> # Create a new account with new public/priavte keys and address
+            >>> # Create a new account with new public/private keys and address
             >>> account = convex_api.create_account()
             >>> # request some funds to do stuff
             >>> print(convex_api.request_funds(100000, account))
@@ -351,7 +351,7 @@ class API:
             amount=amount
         )
         logger.debug(f'request_funds {faucet_url} {faucet_data}')
-        result = parse_obj_as(FaucetResponse, self._post(faucet_url, faucet_data))
+        result = FaucetResponse.model_validate(self._post(faucet_url, faucet_data))
         logger.debug(f'request_funds result {result}')
         if result.address != account.address:
             raise ValueError(f'request_funds: returned account is not correct {result.address}')
@@ -366,7 +366,7 @@ class API:
         """
 
         Topup an account from the block chain faucet, so that the balance of the account is above or equal to
-        the `min_balanace`.
+        the `min_balance`.
 
         :param Account account: The :class:`.Account` object to receive funds for
 
@@ -376,11 +376,11 @@ class API:
         :param retry_count: The number of times the faucet will be called to get above or equal to the  `min_balance`
         :type retry_count: number, optional
 
-        :returns: The amount transfered to the account
+        :returns: The amount transferred to the account
 
         .. code-block:: python
 
-            >>> # Create a new account with new public/priavte keys and address
+            >>> # Create a new account with new public/private keys and address
             >>> account = convex_api.create_account()
             >>> # request some funds to do stuff
             >>> print(convex_api.topup_account(account, 100000))
@@ -399,7 +399,7 @@ class API:
             retry_count -= 1
         return transfer_amount
 
-    def get_address(self, function_name: str, address_account: Union[Account, int, str]):
+    def get_address(self, function_name: str, address_account: Account | int | str):
         """
 
         Query the network for a contract ( function ) address. The contract must have been deployed
@@ -415,7 +415,7 @@ class API:
 
         .. code-block:: python
 
-            >>> # Create a new account with new public/priavte keys and address
+            >>> # Create a new account with new public/private keys and address
             >>> account = convex_api.create_account()
             >>> # find the address of a contract
             >>> print(convex_api.get_address('my_contract', account))
@@ -426,7 +426,7 @@ class API:
         result = self.query(line, address_account)
         return Account.to_address(result.value)
 
-    def get_balance(self, address_account: Union[Account, int, str], account_from: Union[Account, int, str, None] = None):
+    def get_balance(self, address_account: Account | int | str, account_from: Account | int | str | None = None):
         """
 
         Get a balance of an account.
@@ -445,7 +445,7 @@ class API:
 
         .. code-block:: python
 
-            >>> # Create a new account with new public/priavte keys and address
+            >>> # Create a new account with new public/private keys and address
             >>> account = convex_api.create_account()
             >>> # get the balance of the contract
             >>> print(convex_api.get_balance(account))
@@ -474,7 +474,7 @@ class API:
             value = cast(int, result.value)
         return value
 
-    def transfer(self, to_address_account: Union[Account, int, str], amount: Union[int, float], account: Account):
+    def transfer(self, to_address_account: Account | int | str, amount: int | float, account: Account):
         """
 
         Transfer funds from on account to another.
@@ -490,7 +490,7 @@ class API:
 
         .. code-block:: python
 
-            >>> # Create a new account with new public/priavte keys and address
+            >>> # Create a new account with new public/private keys and address
             >>> account = convex_api.create_account()
             >>> print(convex_api.request_funds(10000000, account))
             10000000
@@ -514,14 +514,14 @@ class API:
             return result.value
         return 0
 
-    def transfer_account(self, from_account: Union[Account, int, str], to_account: Union[Account, int, str]):
+    def transfer_account(self, from_account: Account | int | str, to_account: Account | int | str):
         """
 
         **WARNING**
         If you do not save the `from_account` keys for later use, this call can stop you
-        from accessing your transfered `to_account`.
+        from accessing your transferred `to_account`.
 
-        Transfer and copy the keys from the `from_account` over too the `to_acount`.
+        Transfer and copy the keys from the `from_account` over too the `to_account`.
 
         :param Account from_account: :class:`.Account` object that has public/private keys you with to copy
 
@@ -535,7 +535,7 @@ class API:
 
         .. code-block:: python
 
-            # Create a new account with new public/priavte keys and address
+            # Create a new account with new public/private keys and address
             >>> account = convex_api.create_account()
             >>> account.public_key
             '0xae4c019e68591e085d52cdb41924bde067d864cecb1780faa37142054b0fd8ef'
@@ -565,7 +565,7 @@ class API:
         if result is not None and from_account.key_pair.is_equal(result.value):
             return Account(from_account.key_pair, to_account.address, to_account.name)
 
-    def get_account_info(self, address_account: Union[Account, int, str]) -> AccountDetailsResponse:
+    def get_account_info(self, address_account: Account | int | str) -> AccountDetailsResponse:
         """
 
         Get account information. This will only work with an account that has a balance or has had some transactions
@@ -582,7 +582,7 @@ class API:
 
         .. code-block:: python
 
-            >>> # Create a new account with new public/priavte keys and address
+            >>> # Create a new account with new public/private keys and address
             >>> account = convex_api.create_account()
             >>> # get the balance of the contract
             >>> print(convex_api.get_account_info(account))
@@ -601,12 +601,12 @@ class API:
         if response.status_code != 200:
             raise ConvexRequestError('get_account_info', response.status_code, response.text)
 
-        result = parse_obj_as(AccountDetailsResponse, response.json())
+        result = AccountDetailsResponse.model_validate(response.json())
         logger.debug(f'get_account_info response {result}')
 
         return result
 
-    def resolve_account_name(self, name: str) -> Union[int, None]:
+    def resolve_account_name(self, name: str) -> int | None:
         """
         Resolves an account name to an address.
         :param string name Name of the account to resolve.
@@ -619,7 +619,7 @@ class API:
         """
         return self._registry.resolve_address(f'account.{name}')
 
-    def resolve_name(self, name: str) -> Union[int, None]:
+    def resolve_name(self, name: str) -> int | None:
         """
         Resolves any Convex Name Services to an address.
         :param string name Name of the the CNS Service.
@@ -642,13 +642,13 @@ class API:
     def _post(
         self,
         url: str,
-        data: Union[CreateAccountRequest, FaucetRequest, QueryRequest, PrepareTransactionRequest, SubmitTransactionRequest],
+        data: CreateAccountRequest | FaucetRequest | QueryRequest | PrepareTransactionRequest | SubmitTransactionRequest,
         sequence_retry_count: int = 20
-    ) -> Union[Dict[str, Any], None]:
+    ) -> dict[str, Any] | None:
         max_sleep_time_seconds = 1
-        result: Union[Dict[str, Any], None] = None
+        result: dict[str, Any] | None = None
         while sequence_retry_count >= 0:
-            response = requests.post(url, data=data.json())
+            response = requests.post(url, data=data.model_dump_json())
             if response.status_code == 200:
                 result = response.json()
                 break
@@ -669,8 +669,8 @@ class API:
     def _transaction_prepare(
         self,
         transaction: str,
-        address: Union[Account, int, str],
-        sequence_number: Union[int, None] = None
+        address: Account | int | str,
+        sequence_number: int | None = None
     ) -> PrepareTransactionResponse:
         """
         A transaction requires its hash to be digitally signed by the executing account prior to submission.
@@ -678,7 +678,7 @@ class API:
         This method prepares a transaction for submission by returning the hash to be signed. Afterwards, the
         transaction can be submitted using the :meth:`.ConvexAPI.transaction_submit` method.
 
-        :param str transaction: Convex Lsip source representing the transaction.
+        :param str transaction: Convex Lisp source representing the transaction.
         :param address: :class:`.Account` object or address of the executing account.
         :type address: Account, int, str
         :param sequence_number: Sequence number of the transaction. If not provided, the server will attempt to determine it.
@@ -693,9 +693,9 @@ class API:
             data.sequence = sequence_number
         logger.debug(f'_transaction_prepare {prepare_url} {data}')
 
-        result = parse_obj_as(PrepareTransactionResponse, self._post(prepare_url, data))
+        result = PrepareTransactionResponse.model_validate(self._post(prepare_url, data))
 
-        logger.debug(f'_transaction_prepare repsonse {result}')
+        logger.debug(f'_transaction_prepare response {result}')
         # TODO: Fix this
         # if 'errorCode' in result:
         #     raise ConvexAPIError('_transaction_prepare', result['errorCode'], result['value'])
@@ -704,7 +704,7 @@ class API:
 
     def _transaction_submit(
         self,
-        address: Union[Account, int, str],
+        address: Account | int | str,
         public_key: str,
         hash_data: str,
         signed_data: str
@@ -712,7 +712,7 @@ class API:
         """
         Submit a transaction to the Convex network.
 
-        :param Union[Account, int, str] address: :class:`.Account` object or address of the executing account.
+        :param Account | int, str address: :class:`.Account` object or address of the executing account.
         :param str public_key: Public key of the executing account.
         :param str hash_data: Hash of the transaction to be submitted.
         :param str signed_data: Ed25519 signature of the transaction hash.
@@ -726,7 +726,7 @@ class API:
         )
 
         logger.debug(f'_transaction_submit {submit_url} {data}')
-        result = parse_obj_as(SubmitTransactionResponse, self._post(submit_url, data))
+        result = SubmitTransactionResponse.model_validate(self._post(submit_url, data))
         logger.debug(f'_transaction_submit response {result}')
         if result.errorCode is not None:
             raise ConvexAPIError('_transaction_submit', result.errorCode, result.value)
@@ -734,7 +734,7 @@ class API:
 
     def _transaction_query(
         self,
-        address: Union[Account, int, str],
+        address: Account | int | str,
         transaction: str
     ):
         """
@@ -746,8 +746,8 @@ class API:
             source=transaction
         )
         logger.debug(f'_transaction_query {query_url} {query_data}')
-        result = parse_obj_as(QueryResponse, self._post(query_url, query_data))
-        logger.debug(f'_transaction_query repsonse {result}')
+        result = QueryResponse.model_validate(self._post(query_url, query_data))
+        logger.debug(f'_transaction_query response {result}')
         if result.errorCode is not None:
             raise ConvexAPIError('_transaction_query', result.errorCode, result.value)
         return result

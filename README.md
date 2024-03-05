@@ -1,6 +1,7 @@
 # Convex API
 
 ![](https://github.com/Convex-Dev/convex-api-py/workflows/testing/badge.svg)
+[![Checked with pyright](https://microsoft.github.io/pyright/img/pyright_badge.svg)](https://microsoft.github.io/pyright/)
 
 [Documentation](https://convex-dev.github.io/convex-api-py)
 

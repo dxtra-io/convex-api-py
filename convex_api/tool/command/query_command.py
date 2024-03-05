@@ -4,10 +4,7 @@
 
 """
 from argparse import Namespace
-from typing import (
-    Literal,
-    Union
-)
+from typing import Literal
 
 from convex_api.tool.command.argparse_typing import (
     BaseArgs,
@@ -21,12 +18,12 @@ from .command_base import CommandBase
 class QueryArgs(BaseArgs):
     command: Literal['query']
     query: str
-    name_address: Union[str, int, None]
+    name_address: str | int | None = None
 
 
 class QueryCommand(CommandBase):
 
-    def __init__(self, sub_parser: Union[SubParsersAction, None] = None):
+    def __init__(self, sub_parser: SubParsersAction | None = None):
         self._command_list = []
         super().__init__('query', sub_parser)
 
@@ -53,7 +50,7 @@ class QueryCommand(CommandBase):
         return parser
 
     def execute(self, args: Namespace, output: Output):
-        query_args = QueryArgs.parse_obj(vars(args))
+        query_args = QueryArgs.model_validate(vars(args))
 
         convex = self.load_convex(query_args.url)
 
@@ -65,5 +62,5 @@ class QueryCommand(CommandBase):
 
         address = 1
         result = convex.query(query_args.query, address)
-        output.add_line(result.json())
-        output.set_values(result.dict())
+        output.add_line(result.model_dump_json())
+        output.set_values(result.model_dump())

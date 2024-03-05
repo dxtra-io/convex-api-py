@@ -1,4 +1,4 @@
-name: deploy
+name: 🚀 Deploy Docs
 on:
   push:
     branches:
@@ -10,22 +10,22 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
+    - name: 🛒 Checkout
       uses: actions/checkout@master
-    - name: Set up Python 3.8
+    - name: 🐍 Set up Python 3.10
       uses: actions/setup-python@v4
       with:
-        python-version: 3.8
-    - name: Install dependencies
+        python-version: '3.10'
+    - name: 🧰 Install dependencies
       run: make install IGNORE_VENV=1
-    - name: Build Docs
+    - name: 📚 Build Docs
       run: |
         make docs
         touch docs/build/html/.nojekyll
-    - name: Deploy Docs
+    - name: 🚀 Deploy Docs
       uses: peaceiris/actions-gh-pages@v2.5.0
       env:
-        PERSONAL_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         PUBLISH_BRANCH: gh-pages
         PUBLISH_DIR: docs/build/html
     #- name: Build Package
