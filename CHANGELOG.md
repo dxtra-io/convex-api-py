@@ -1,7 +1,6 @@
 ## Change log
 
-### Unreleased
-
+### 0.3.0
 +   Add type hints for all the things
 +   Rename `Address` method `is_address` to `has_address`
 +   Move `convex_api.utils.is_address` to `Address` static method `is_address`
