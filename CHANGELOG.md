@@ -1,5 +1,8 @@
 ## Change log
 
+### 0.3.1
++   Minor fixes and sync from 0.3.0
+
 ### 0.3.0
 +   Add type hints for all the things
 +   Rename `Address` method `is_address` to `has_address`
