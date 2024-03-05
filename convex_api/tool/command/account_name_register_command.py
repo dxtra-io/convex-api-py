@@ -22,9 +22,9 @@ from .command_base import CommandBase
 class AccountNameRegisterArgs(BaseArgs):
     command: Literal['account']
     account_command: Literal['register']
-    name_address: str | int
+    name_address: Union[str, int]
     name: str
-    address: str | int
+    address: Union[str, int]
 
 
 class AccountNameRegisterCommand(CommandBase):
