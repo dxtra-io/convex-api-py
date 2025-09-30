@@ -66,7 +66,7 @@ class PrepareTransactionRequest(BaseModel):
 class PrepareTransactionResponse(BaseModel):
     """REST API response from a prepare transaction request."""
     address: int
-    hash: str = Field(None, min_length=64, max_length=64)
+    hash: str = Field(None, min_length=1)  # Can be full encoding hex, not just 64-char hash
     sequence: int
     source: str
 
@@ -75,7 +75,7 @@ class SubmitTransactionRequest(BaseModel):
     """REST API request for a submit transaction request."""
     address: int
     accountKey: str = Field(None, min_length=64, max_length=64)
-    hash: str = Field(None, min_length=64, max_length=64)
+    hash: str = Field(None, min_length=1)  # Can be full encoding hex, not just 64-char hash
     sig: str = Field(None, min_length=128, max_length=128)
 
 
