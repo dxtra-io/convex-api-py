@@ -31,17 +31,17 @@ def test_convex_recursion(convex: API, test_account: Account):
                 nil
             )
             (defn get
-                ^{{:callable? true}}
+                ^{{:callable true}}
                 []
                 (call chain-address (get))
             )
             (defn set
-                ^{{:callable? true}}
+                ^{{:callable true}}
                 [x]
                 ( if chain-address (call chain-address(set x)) (def stored-data x))
             )
             (defn set-chain-address
-                ^{{:callable? true}}
+                ^{{:callable true}}
                 [x]
                 (def chain-address x)
             )
@@ -79,24 +79,24 @@ def test_schedule_transfer(convex: API, test_account: Account, other_account: Ac
     (deploy
         '(do
             (defn tx-delay
-                ^{:callable? true}
+                ^{:callable true}
                 [to-address amount]
                 (transfer to-address amount)
                 (def call-address *address*)
                 (schedule (+ *timestamp* 1000) (call call-address (tx-delay to-address amount)))
             )
             (defn tx-now
-                ^{:callable? true}
+                ^{:callable true}
                 [to-address amount]
                 (transfer to-address amount)
             )
             (defn show-schedule
-                ^{:callable? true}
+                ^{:callable true}
                 []
                 [(get *state* :schedule) *address*]
             )
             (defn receive-coin
-                ^{:callable? true}
+                ^{:callable true}
                 [sender amount data]
                 (accept amount)
             )

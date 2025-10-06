@@ -167,13 +167,13 @@ def test_convex_api_call(convex_url: str):
                 ^{:private? true}
                 nil
             )
-            (defn get
-                ^{:callable? true}
+            (defn get-data
+                ^{:callable true}
                 []
                 stored-data
             )
-            (defn set
-                ^{:callable? true}
+            (defn set-data
+                ^{:callable true}
                 [x]
                 ( def stored-data x)
             )
@@ -192,10 +192,10 @@ def test_convex_api_call(convex_url: str):
     contract_address = Account.to_address(result.value)
     assert contract_address
     test_number = secrets.randbelow(1000)
-    call_set_result = convex.send(f'(call storage-example(set {test_number}))', account)
+    call_set_result = convex.send(f'(call storage-example(set-data {test_number}))', account)
     assert call_set_result is not None
     assert call_set_result.value == test_number
-    call_get_result = convex.query('(call storage-example(get))', account)
+    call_get_result = convex.query('(call storage-example(get-data))', account)
     assert call_get_result is not None
     assert call_get_result.value == test_number
 

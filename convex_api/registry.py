@@ -35,12 +35,9 @@ class Registry:
 
     def item(self, name: str):
         if name not in self._items:
-            result = self._convex.query(f'(#{self.address}/read (symbol "{name}"))', self.address)
+            result = self._convex.query(f'(*registry*/read (symbol "{name}"))', QUERY_ACCOUNT_ADDRESS)
             logger.debug(f'read result: {result}')
-            self._items[name] = None
-            if isinstance(result.value, (list, tuple)) and len(result.value) >= 2:
-                # CNS record format: [value, controller, metadata, child]
-                self._items[name] = cast(tuple[int, int], (result.value[0], result.value[1]))
+            self._items[name] = result.value
         return self._items[name]
 
     def clear(self):
@@ -55,16 +52,16 @@ class Registry:
         """
         try:
             # Check if entry exists
-            existing = self._convex.query(f'(#{self.address}/read (symbol "{name}"))', self.address)
+            existing = self._convex.query(f'(resolve (symbol "{name}"))', QUERY_ACCOUNT_ADDRESS)
 
             if existing.value is None:
                 # Create new entry: [value, controller, metadata, child]
                 # Controller defaults to caller (*address* in create function)
-                result = self._convex.send(f'(#{self.address}/create (symbol "{name}") #{contract_address})', account)
+                result = self._convex.send(f'(*registry*/create (symbol "{name}") #{contract_address})', account)
                 logger.debug(f'create result: {result}')
             else:
                 # Update existing entry's value
-                result = self._convex.send(f'(#{self.address}/update (symbol "{name}") #{contract_address})', account)
+                result = self._convex.send(f'(*registry*/update (symbol "{name}") #{contract_address})', account)
                 logger.debug(f'update result: {result}')
 
             if result and hasattr(result, 'value'):
@@ -87,11 +84,3 @@ class Registry:
         item = self.item(name)
         if item:
             return item[0]
-
-    @property
-    def address(self) -> int:
-        if self._address is None:
-            result = self._convex.query('(address *registry*)', QUERY_ACCOUNT_ADDRESS)
-            self._registry_address = Account.to_address(result.value)
-            logger.debug(f'registry_address: {self._registry_address}')
-        return self._registry_address

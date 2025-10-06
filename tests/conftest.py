@@ -30,7 +30,7 @@ JAr4iFzPLkM18YEP2ZE=
 """
 PRIVATE_TEST_KEY_PASSWORD = 'secret'
 
-CONVEX_URL = 'https://convex.world'
+CONVEX_URL = 'http://localhost:8080'
 
 TEST_ACCOUNT_NAME = 'test.convex-api'
 
@@ -43,7 +43,7 @@ def test_key_pair_info() -> KeyPairInfo:
         'private_text': PRIVATE_TEST_KEY_TEXT,
         'private_password': PRIVATE_TEST_KEY_PASSWORD,
         'private_mnemonic': PRIVATE_KEY_MNEMONIC,
-        'public_key': PUBLIC_KEY
+        'public_key': PUBLIC_KEY,
     }
 
 
