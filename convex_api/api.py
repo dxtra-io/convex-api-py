@@ -212,11 +212,12 @@ class API:
 
         if register_account is None:
             register_account = account
-        address = Account.to_address(account)
 
         # we must have a valid account to do the registration
         if not register_account:
             raise ValueError('you need to provide a registration account to register an account name')
+
+        address = Account.to_address(account)
 
         if not address:
             raise ValueError('You need to provide a valid address to register an account name')

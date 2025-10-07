@@ -9,10 +9,7 @@ import pytest
 
 from convex_api.account import Account
 from convex_api.api import API
-from convex_api.exceptions import (
-    ConvexAPIError,
-    ConvexRequestError
-)
+from convex_api.exceptions import ConvexRequestError
 from convex_api.key_pair import KeyPair
 
 TEST_FUNDING_AMOUNT = 8888888
@@ -71,22 +68,20 @@ def test_convex_account_name_registry(convex_url: str, test_account: Account, te
     account = convex.load_account(account_name, test_key_pair)
     assert not account
 
-    register_account = convex.register_account_name(account_name, test_account, register_account)
-    assert register_account.address == test_account.address
+    reg_account = convex.register_account_name(account_name, test_account, register_account)
+    assert reg_account.address == test_account.address
 
     assert convex.resolve_account_name(account_name) == test_account.address
 
-    # cannot re-assign the same name to a different account
     new_account = convex.create_account(test_key_pair)
-    with pytest.raises(ConvexAPIError, match=''):
-        register_account = convex.register_account_name(account_name, new_account, register_account)
+    reg_account = convex.register_account_name(account_name, new_account, register_account)
 
-    # assert register_account.address == new_account.address
-    # assert convex.resolve_account_name(account_name) == new_account.address
+    assert reg_account.address == new_account.address
+    assert convex.resolve_account_name(account_name) == new_account.address
 
     # clear the cache in the registry
     convex.registry.clear()
-    # assert convex.resolve_account_name(account_name) == new_account.address
+    assert convex.resolve_account_name(account_name) == new_account.address
 
 
 def test_convex_resolve_name(convex_url: str):
