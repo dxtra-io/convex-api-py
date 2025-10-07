@@ -72,7 +72,7 @@ class API:
         .. code-block:: python
 
             >>> from convex_api import API
-            >>> convex = API('https://convex.world')
+            >>> convex = API('https://ledger.dxtra.io')
             >>> # Create a new account with new public/private keys and address
             >>> key_pair = KeyPair()
             >>> account = convex.create_account(key_pair)
@@ -176,7 +176,7 @@ class API:
         self,
         name: str,
         address_account: Account | int | str,
-        account: Account | None = None
+        register_account: Account | None = None
     ) -> Account:
         """
 
@@ -211,20 +211,20 @@ class API:
         """
 
         # if address_account is an account, then default to use that account to register the name
-        if isinstance(address_account, Account) and account is None:
-            account = address_account
+        if isinstance(address_account, Account) and register_account is None:
+            register_account = address_account
 
         address = Account.to_address(address_account)
 
         # we must have a valid account to do the registration
-        if not account:
+        if not register_account:
             raise ValueError('you need to provide a registration account to register an account name')
 
         if not address:
             raise ValueError('You need to provide a valid address to register an account name')
 
-        self._registry.register(f'account.{name}', address, account)
-        return Account(account.key_pair, address=address, name=name)
+        self._registry.register(f'account.{name}', address, register_account)
+        return Account(register_account.key_pair, address=address, name=name)
 
     def send(self, transaction: str, account: Account, sequence_retry_count: int = 20):
         """
@@ -245,7 +245,7 @@ class API:
         .. code-block:: python
 
             >>> from convex_api import API, KeyPair
-            >>> convex = API('https://convex.world')
+            >>> convex = API('https://ledger.dxtra.io')
 
             >>> # Create a new account with new public/private keys and address
             >>> key_pair = KeyPair()
