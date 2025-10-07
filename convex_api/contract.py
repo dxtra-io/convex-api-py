@@ -70,7 +70,7 @@ class Contract:
         text: str | None = None,
         filename: str | None = None,
         name: str | None = None,
-        owner_account: Account | None = None
+        register_account: Account | None = None
     ):
         """
 
@@ -84,7 +84,7 @@ class Contract:
 
         :param str name: Name of the contract to register
 
-        :param Account owner_account: Optional owner account of the registration.
+        :param Account register_account: Optional register account to use the CNS registration.
         If not provided then the Account will be used.
 
         :returns Address of the new contract
@@ -108,9 +108,9 @@ class Contract:
         if result is not None and result.value:
             address = Account.to_address(result.value)
             if name:
-                if owner_account is None:
-                    owner_account = account
-                self._convex.registry.register(name, address, owner_account)
+                if register_account is None:
+                    register_account = account
+                self._convex.registry.register(name, address, register_account)
             return address
 
     def register_contract_name(self, name: str, address: int, account: Account):

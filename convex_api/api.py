@@ -175,7 +175,7 @@ class API:
     def register_account_name(
         self,
         name: str,
-        address_account: Account | int | str,
+        account: Account,
         register_account: Account | None = None
     ) -> Account:
         """
@@ -187,8 +187,8 @@ class API:
         a valid account address.
 
         :param str name: name of the account to register.
-        :param number|Account account_address: Account or address to register.
-        :param Account account: :class:`.Account` object to register the account name.
+        :param Account account: Account to register, if register_account is None, then this account is used as the register_account.
+        :param Account register_account: :class:`.Account` object to register the account name.
 
         .. code-block:: python
 
@@ -210,11 +210,9 @@ class API:
 
         """
 
-        # if address_account is an account, then default to use that account to register the name
-        if isinstance(address_account, Account) and register_account is None:
-            register_account = address_account
-
-        address = Account.to_address(address_account)
+        if register_account is None:
+            register_account = account
+        address = Account.to_address(account)
 
         # we must have a valid account to do the registration
         if not register_account:
@@ -224,7 +222,7 @@ class API:
             raise ValueError('You need to provide a valid address to register an account name')
 
         self._registry.register(f'account.{name}', address, register_account)
-        return Account(register_account.key_pair, address=address, name=name)
+        return Account(account.key_pair, address=address, name=name)
 
     def send(self, transaction: str, account: Account, sequence_retry_count: int = 20):
         """

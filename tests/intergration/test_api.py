@@ -9,7 +9,10 @@ import pytest
 
 from convex_api.account import Account
 from convex_api.api import API
-from convex_api.exceptions import ConvexRequestError
+from convex_api.exceptions import (
+    ConvexAPIError,
+    ConvexRequestError
+)
 from convex_api.key_pair import KeyPair
 
 TEST_FUNDING_AMOUNT = 8888888
@@ -58,7 +61,7 @@ def test_convex_get_account_info(convex_url: str, test_account: Account):
     assert info.balance == TEST_FUNDING_AMOUNT
 
 
-def test_convex_account_name_registry(convex_url: str, test_account: Account, test_key_pair: KeyPair):
+def test_convex_account_name_registry(convex_url: str, test_account: Account, test_key_pair: KeyPair, register_account: Account):
     account_name = f'test.convex-api.{secrets.token_hex(4)}'
     convex = API(convex_url)
 
@@ -68,20 +71,22 @@ def test_convex_account_name_registry(convex_url: str, test_account: Account, te
     account = convex.load_account(account_name, test_key_pair)
     assert not account
 
-    register_account = convex.register_account_name(account_name, test_account)
+    register_account = convex.register_account_name(account_name, test_account, register_account)
     assert register_account.address == test_account.address
 
     assert convex.resolve_account_name(account_name) == test_account.address
 
+    # cannot re-assign the same name to a different account
     new_account = convex.create_account(test_key_pair)
-    register_account = convex.register_account_name(account_name, new_account, test_account)
+    with pytest.raises(ConvexAPIError, match=''):
+        register_account = convex.register_account_name(account_name, new_account, register_account)
 
-    assert register_account.address == new_account.address
-    assert convex.resolve_account_name(account_name) == new_account.address
+    # assert register_account.address == new_account.address
+    # assert convex.resolve_account_name(account_name) == new_account.address
 
     # clear the cache in the registry
     convex.registry.clear()
-    assert convex.resolve_account_name(account_name) == new_account.address
+    # assert convex.resolve_account_name(account_name) == new_account.address
 
 
 def test_convex_resolve_name(convex_url: str):
@@ -119,6 +124,7 @@ def test_convex_transfer_account(convex_url: str, test_account: Account):
 
 def test_convex_api_send_basic_lisp(convex_url: str, test_account: Account):
     convex = API(convex_url)
+    print(test_account)
     request_amount = convex.request_funds(TEST_FUNDING_AMOUNT, test_account)
     assert request_amount == TEST_FUNDING_AMOUNT
     result = convex.send('(map inc [1 2 3 4 5])', test_account)

@@ -3,6 +3,7 @@
     Test contract
 
 """
+import secrets
 import pytest  # type: ignore # noqa: F401
 
 from convex_api import (
@@ -14,10 +15,10 @@ from convex_api import (
 TEST_FUNDING_AMOUNT = 8888888
 
 TEST_CONTRACT_FILENAME = './tests/resources/test_contract.cvx'
-TEST_CONTRACT_NAME = 'test_contract_starfish'
+TEST_CONTRACT_NAME = f'test.contract.{secrets.token_hex(4)}'
 
 
-def test_convex_api_deploy_contract(convex_url: str, test_account: Account):
+def test_convex_api_deploy_contract(convex_url: str, test_account: Account, register_account: Account):
     convex = API(convex_url)
 
     # create a contract object
@@ -37,13 +38,18 @@ def test_convex_api_deploy_contract(convex_url: str, test_account: Account):
         owner_address = test_account.address
 
     # deploy the contract
-    contract_address = contract.deploy(owner_account, filename=TEST_CONTRACT_FILENAME, name=TEST_CONTRACT_NAME)
+    contract_address = contract.deploy(
+        owner_account,
+        filename=TEST_CONTRACT_FILENAME,
+        name=TEST_CONTRACT_NAME,
+        register_account=register_account
+    )
     assert contract_address
     # load the contract - should be the same address
     new_address = contract.load(TEST_CONTRACT_NAME)
     assert contract_address == new_address
     assert contract_address == contract.address
-    assert owner_address == contract.owner_address
+    assert register_account.address == contract.owner_address
 
     contract = convex.load_contract(TEST_CONTRACT_NAME)
     assert contract

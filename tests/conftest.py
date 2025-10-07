@@ -9,9 +9,11 @@ import secrets
 
 import pytest
 
+from convex_api.account import Account
 from convex_api.api import API
 from convex_api.key_pair import KeyPair
 from tests.types import KeyPairInfo
+
 
 logging.basicConfig(level=logging.DEBUG)
 logging.getLogger('urllib3').setLevel(logging.INFO)
@@ -30,6 +32,9 @@ JAr4iFzPLkM18YEP2ZE=
 """
 PRIVATE_TEST_KEY_PASSWORD = 'secret'
 
+REGISTER_ACCOUNT_KEY = 0xb1caefd8c8764dc8e04a41ea164bb6aa22572c40729318c7ad766ae44fa13b27
+GOVERNANCE_ADDRESS = 6
+
 CONVEX_URL = 'http://localhost:8080'
 
 TEST_ACCOUNT_NAME = 'test.convex-api'
@@ -43,6 +48,8 @@ def test_key_pair_info() -> KeyPairInfo:
         'private_text': PRIVATE_TEST_KEY_TEXT,
         'private_password': PRIVATE_TEST_KEY_PASSWORD,
         'private_mnemonic': PRIVATE_KEY_MNEMONIC,
+        'register_account_key':  KeyPair.to_bytes(REGISTER_ACCOUNT_KEY),
+        'register_account_address': GOVERNANCE_ADDRESS,
         'public_key': PUBLIC_KEY,
     }
 
@@ -54,11 +61,12 @@ def test_key_pair(test_key_pair_info: KeyPairInfo):
 
 
 @pytest.fixture(scope='module')
-def test_account(convex: API, test_key_pair: KeyPair):
+def test_account(convex: API, test_key_pair: KeyPair, register_account: Account):
     test_account_name = f'{TEST_ACCOUNT_NAME}.{secrets.token_hex(8)}'
-    account = convex.setup_account(test_account_name, test_key_pair)
+    account = convex.setup_account(test_account_name, test_key_pair, register_account)
     if account is not None:
         convex.topup_account(account)
+        print(f'public key for test account {account.public_key}')
         return account
 
 
@@ -79,3 +87,9 @@ def other_account(convex: API):
     account = convex.create_account(key_pair)
     convex.topup_account(account)
     return account
+
+
+@pytest.fixture(scope='module')
+def register_account(test_key_pair_info: KeyPairInfo):
+    registery_account_pair = KeyPair.import_from_bytes(test_key_pair_info['register_account_key'])
+    return Account(registery_account_pair, test_key_pair_info['register_account_address'])

@@ -11,6 +11,7 @@ from convex_api import (
     API,
     KeyPair
 )
+from convex_api.account import Account
 from tests.types import KeyPairInfo
 
 TEST_ACCOUNT_NAME = 'test.convex-api'
@@ -42,7 +43,7 @@ def test_account_api_multi_create_account(convex_url: str):
     assert account_1.address != account_2.address
 
 
-def test_account_name(convex_url: str, test_key_pair_info: KeyPairInfo, account_name: str):
+def test_account_name(convex_url: str, test_key_pair_info: KeyPairInfo, account_name: str, register_account: Account):
     convex = API(convex_url)
     import_key_pair = KeyPair.import_from_bytes(test_key_pair_info['private_bytes'])
     if convex.resolve_account_name(account_name):
@@ -50,7 +51,7 @@ def test_account_name(convex_url: str, test_key_pair_info: KeyPairInfo, account_
     else:
         account = convex.create_account(import_key_pair)
         convex.topup_account(account)
-        account = convex.register_account_name(account_name, account)
+        account = convex.register_account_name(account_name, account, register_account)
     assert account is not None
     assert account.address
     assert account.name
@@ -58,10 +59,10 @@ def test_account_name(convex_url: str, test_key_pair_info: KeyPairInfo, account_
     assert convex.resolve_account_name(account_name) == account.address
 
 
-def test_account_setup_account(convex_url: str, test_key_pair_info: KeyPairInfo, account_name: str):
+def test_account_setup_account(convex_url: str, test_key_pair_info: KeyPairInfo, account_name: str,  register_account: Account):
     convex = API(convex_url)
     import_key_pair = KeyPair.import_from_bytes(test_key_pair_info['private_bytes'])
-    account = convex.setup_account(account_name, import_key_pair)
+    account = convex.setup_account(account_name, import_key_pair, register_account)
     assert account is not None
     assert account.address
     assert account.name

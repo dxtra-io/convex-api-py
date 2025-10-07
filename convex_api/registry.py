@@ -5,10 +5,7 @@
 """
 from __future__ import annotations
 
-from typing import (
-    TYPE_CHECKING,
-    cast
-)
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from convex_api.api import API

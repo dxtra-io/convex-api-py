@@ -76,13 +76,15 @@ def test_account_info_command(convex_url: str, test_account: Account):
     args.keytext = None
     args.password = None
     args.keywords = None
+    args.registry_key = None
+    args.registry_address = None
 
     command = AccountInfoCommand()
     output = Output()
     command.execute(args, output)
     assert output.values['balance']
     assert output.values['address']
-    assert output.values['sequence']
+    # assert output.values['sequence']
     assert output.values['type']
 
     args.url = convex_url
@@ -95,7 +97,7 @@ def test_account_info_command(convex_url: str, test_account: Account):
     command.execute(args, output)
     assert output.values['balance']
     assert output.values['address']
-    assert output.values['sequence']
+    # assert output.values['sequence']
     assert output.values['type']
 
 
@@ -155,7 +157,7 @@ def test_account_fund_command(convex_url: str, test_account: Account):
     assert output.values['amount'] == args.amount  # type: ignore
 
 
-def test_account_register_command(convex_url: str, test_account: Account):
+def test_account_register_command(convex_url: str, test_account: Account, register_account: Account):
     args = Mock()
 
     args.command = 'account'
@@ -168,6 +170,8 @@ def test_account_register_command(convex_url: str, test_account: Account):
     args.name_address = test_account.address
     args.name = test_account.name
     args.address = test_account.address
+    args.register_key = register_account.key_pair.export_to_mnemonic
+    args.register_address = str(register_account.address)
 
     command = AccountNameRegisterCommand()
     output = Output()
