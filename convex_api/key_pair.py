@@ -59,7 +59,7 @@ class KeyPair:
 
         """
         if hexstr:
-            return re.sub(r'^0x', '', hexstr, re.IGNORECASE)
+            return re.sub(r'^0x', '', hexstr, count=0, flags=re.IGNORECASE)
         else:
             return ''
 
